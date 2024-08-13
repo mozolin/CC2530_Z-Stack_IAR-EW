@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<workspace>
+  <project>
+    <path>$WS_DIR$\cc2530.ewp</path>
+  </project>
+  <batchBuild>
+    <batchDefinition>
+      <name>ALL</name>
+      <member>
+        <project>cc2530</project>
+        <configuration>CoordinatorEB</configuration>
+      </member>
+      <member>
+        <project>cc2530</project>
+        <configuration>RouterEB</configuration>
+      </member>
+      <member>
+        <project>cc2530</project>
+        <configuration>EndDeviceEB</configuration>
+      </member>
+      <member>
+        <project>cc2530</project>
+        <configuration>RouterZLight</configuration>
+      </member>
+    </batchDefinition>
+  </batchBuild>
+</workspace>
+
+
