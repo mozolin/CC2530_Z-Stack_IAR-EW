@@ -1,0 +1,31 @@
+/_iss
+/Accessories
+/Components
+/Documents
+/Tools
+/Z-Stack_3.0.2_Manifest.html
+/EULA.pdf
+/Getting Started Guide - CC2530.pdf
+/Getting Started Guide - CC2538.pdf
+/Z-Stack 3.0 Release Notes.txt
+/Z-Stack 3.0 Software Development Kit Resource Guide.html
+/Z-Stack Core Release Notes.txt
+/Projects/tools
+/Projects/zstack/Libraries
+/Projects/zstack/OTA
+/Projects/zstack/Tools
+/Projects/zstack/Utilities
+/Projects/zstack/ZMain
+/Projects/zstack/ZNP
+Obj
+Obj/
+List
+List/
+/Projects/zstack/HomeAutomation/GenericApp
+/Projects/zstack/HomeAutomation/SampleDoorLock
+/Projects/zstack/HomeAutomation/SampleDoorLockController
+/Projects/zstack/HomeAutomation/SampleLight
+/Projects/zstack/HomeAutomation/SampleSwitch
+/Projects/zstack/HomeAutomation/SampleTemperatureSensor
+/Projects/zstack/HomeAutomation/SampleThermostat
+/Projects/zstack/HomeAutomation/Source
