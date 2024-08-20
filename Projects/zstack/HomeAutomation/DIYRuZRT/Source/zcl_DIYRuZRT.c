@@ -617,7 +617,7 @@ void DIYRuZRT_HalKeyPoll (void)
   // Сохраним текущее состояние кнопок для сравнения в след раз
   halKeySavedKeys = keys;
 
-  // Вызовем генерацию события изменений кнопок
+  // Вызовем генерацию события изменения кнопок
   OnBoard_SendKeys(keys, HAL_KEY_STATE_NORMAL);
 }
 
