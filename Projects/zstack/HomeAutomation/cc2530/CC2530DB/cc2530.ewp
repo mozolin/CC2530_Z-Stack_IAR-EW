@@ -788,11 +788,11 @@
                 </option>
                 <option>
                     <name>XOutOverride</name>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>OutputFile</name>
-                    <state>cc2530.d51</state>
+                    <state>cc2530.hex</state>
                 </option>
                 <option>
                     <name>OutputFormat</name>
@@ -966,7 +966,7 @@
                 </option>
                 <option>
                     <name>DebugInformation</name>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>RuntimeControl</name>
@@ -1463,26 +1463,7 @@
                 </option>
                 <option>
                     <name>CCDefines</name>
-                    <state>SECURE=1</state>
-                    <state>TC_LINKKEY_JOIN</state>
-                    <state>NV_INIT</state>
-                    <state>NV_RESTORE</state>
-                    <state>xZTOOL_P1</state>
-                    <state>xMT_TASK</state>
-                    <state>xMT_APP_FUNC</state>
-                    <state>xMT_SYS_FUNC</state>
-                    <state>xMT_ZDO_FUNC</state>
-                    <state>xMT_ZDO_MGMT</state>
-                    <state>xMT_APP_CNF_FUNC</state>
-                    <state>LEGACY_LCD_DEBUG</state>
-                    <state>LCD_SUPPORTED=DEBUG</state>
-                    <state>MULTICAST_ENABLED=FALSE</state>
-                    <state>ZCL_READ</state>
-                    <state>ZCL_WRITE</state>
-                    <state>ZCL_BASIC</state>
-                    <state>ZCL_IDENTIFY</state>
-                    <state>ZCL_SCENES</state>
-                    <state>ZCL_GROUPS</state>
+                    <state></state>
                 </option>
                 <option>
                     <name>CCPreprocFile</name>
@@ -1618,7 +1599,7 @@
                 </option>
                 <option>
                     <name>PreInclude</name>
-                    <state></state>
+                    <state>$PROJ_DIR$\..\Source\preinclude.h</state>
                 </option>
                 <option>
                     <name>CCLibConfigHeader</name>
