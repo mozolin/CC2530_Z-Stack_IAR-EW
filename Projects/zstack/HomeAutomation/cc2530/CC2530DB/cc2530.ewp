@@ -279,7 +279,7 @@
                 </option>
                 <option>
                     <name>OGChipConfigPath</name>
-                    <state>$TOOLKIT_DIR$\config\devices\Texas Instruments\CC2530F256.i51</state>
+                    <state>C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.0\8051\bin\..\config\devices\Texas Instruments\CC25xx\3x\CC2530F256.i51</state>
                 </option>
             </data>
         </settings>
@@ -788,11 +788,11 @@
                 </option>
                 <option>
                     <name>XOutOverride</name>
-                    <state>1</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>OutputFile</name>
-                    <state>cc2530.hex</state>
+                    <state>cc2530.d51</state>
                 </option>
                 <option>
                     <name>OutputFormat</name>
@@ -966,7 +966,7 @@
                 </option>
                 <option>
                     <name>DebugInformation</name>
-                    <state>1</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>RuntimeControl</name>
@@ -1437,7 +1437,7 @@
                 </option>
                 <option>
                     <name>OGChipConfigPath</name>
-                    <state>$TOOLKIT_DIR$\config\devices\Texas Instruments\CC2530F256.i51</state>
+                    <state>C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.0\8051\bin\..\config\devices\Texas Instruments\CC25xx\3x\CC2530F256.i51</state>
                 </option>
             </data>
         </settings>
@@ -3462,7 +3462,19 @@
     <group>
         <name>App</name>
         <file>
+            <name>$PROJ_DIR$\..\Source\ds18b20.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\Source\ds18b20.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\Source\hal_board_cfg_cc2530.h</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\Source\OSAL_cc2530.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\Source\preinclude.h</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\Source\zcl_cc2530.c</name>

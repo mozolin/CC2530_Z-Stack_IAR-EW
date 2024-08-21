@@ -5,9 +5,9 @@
 #include "hal_defs.h"
 #include "hal_types.h"
 
-// HAL_PA_LNA - для CC2530+CC2591EM
-// HAL_PA_LNA_CC2590 - для CC2530+CC2590EM
-// HAL_PA_LNA_CC2592 - для CC2530+CC2592EM
+// HAL_PA_LNA - для cc2530+CC2591EM
+// HAL_PA_LNA_CC2590 - для cc2530+CC2590EM
+// HAL_PA_LNA_CC2592 - для cc2530+CC2592EM
 // Только одна из опций может быть задана
 #define xHAL_PA_LNA
 #define xHAL_PA_LNA_CC2590
@@ -486,6 +486,6 @@ st( \
 #define HAL_UART_ISR  0
 #endif
 
-/* USB is not used for CC2530 configuration */
+/* USB is not used for cc2530 configuration */
 #define HAL_UART_USB  0
 #endif
