@@ -4,7 +4,7 @@ PlatformIO template app
 This is a template application to be used with [PlatformIO](https://platformio.org/).
 
 Please check [PlatformIO IDE for VSCode](https://docs.platformio.org/en/latest/integration/ide/vscode.html) for getting started instructions.
-&nbsp;  
+
 Using this application template, you can use the terminal inside PlatformIO IDE  
 ![](img/smPlatformio_01.png)  
 It is also possible to use the PlatformIO terminal for these purposes without creating/opening a project. But in this case, you need to go to the application folder. Otherwise, the escape sequences will not be displayed correctly  
