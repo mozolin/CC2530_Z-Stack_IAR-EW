@@ -1,2 +1,3 @@
 
-C:\www\Espressif
+Home:    C:\www\Espressif
+Office:  C:\www\EspressifIDE
