@@ -25,7 +25,8 @@
 //#define DEFAULT_CHANLIST 0x07FFF800  // Маска для работы на всех каналах
 #define MAX_CHANNELS_24GHZ 0x07FFF800
 
-//#define HAL_SONOFF // признак сборки для Sonoff Zigbee
+//-- Флаг наличия кварца
+//#define IS_CLOCK_CRYSTAL
 
 #define HAL_UART TRUE 
 //#define HAL_UART_ISR 1 

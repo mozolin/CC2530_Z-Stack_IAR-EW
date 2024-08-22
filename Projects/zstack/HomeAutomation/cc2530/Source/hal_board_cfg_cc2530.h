@@ -5,32 +5,25 @@
 #include "hal_defs.h"
 #include "hal_types.h"
 
-// HAL_PA_LNA - для cc2530+CC2591EM
-// HAL_PA_LNA_CC2590 - для cc2530+CC2590EM
-// HAL_PA_LNA_CC2592 - для cc2530+CC2592EM
-// Только одна из опций может быть задана
 #define xHAL_PA_LNA
-#define xHAL_PA_LNA_CC2590
-#define xHAL_PA_LNA_SE2431L
-#define xHAL_PA_LNA_CC2592
 
-
-// Частота процессора
+//-- Частота процессора
 #define HAL_CPU_CLOCK_MHZ     32
 
-// Флаг наличия кварца
-#ifdef HAL_SONOFF
-  //#define HAL_CLOCK_CRYSTAL
-  #define OSC32K_CRYSTAL_INSTALLED FALSE
-#else
+//-- Флаг наличия кварца
+#ifdef IS_CLOCK_CRYSTAL
   #define HAL_CLOCK_CRYSTAL
+#else
+  #define OSC32K_CRYSTAL_INSTALLED FALSE
 #endif
 
-/* 32 kHz clock source select in CLKCONCMD */
+//-- 32 kHz clock source select in CLKCONCMD
 #if !defined (OSC32K_CRYSTAL_INSTALLED) || (defined (OSC32K_CRYSTAL_INSTALLED) && (OSC32K_CRYSTAL_INSTALLED == TRUE))
-  #define OSC_32KHZ  0x00 /* external 32 KHz xosc */
+  //-- external 32 KHz xosc
+  #define OSC_32KHZ  0x00
 #else
-  #define OSC_32KHZ  0x80 /* internal 32 KHz rcosc */
+  //-- internal 32 KHz rcosc
+  #define OSC_32KHZ  0x80
 #endif
 
 #define HAL_CLOCK_STABLE()    st( while (CLKCONSTA != (CLKCONCMD_32MHZ | OSC_32KHZ)); )
@@ -43,33 +36,19 @@
 
 #define HAL_LED_BLINK_DELAY()   st( { volatile uint32 i; for (i=0; i<0x5800; i++) { }; } )
 
-#ifdef HAL_SONOFF
-  /* 1 - P0_7 Реле */
-  #define LED1_BV           BV(7)
-  #define LED1_SBIT         P0_7
-  #define LED1_DDR          P0DIR
-  #define LED1_POLARITY     ACTIVE_HIGH
+//-- 1 - P1_0 Зеленый
+#define LED1_BV           BV(0)
+#define LED1_SBIT         P1_0
+#define LED1_DDR          P1DIR
+#define LED1_POLARITY     ACTIVE_LOW
 
-  /* 2 - P1_0 Синий */
-  #define LED2_BV           BV(0)
-  #define LED2_SBIT         P1_0
-  #define LED2_DDR          P1DIR
-  #define LED2_POLARITY     ACTIVE_LOW
-#else
-  /* 1 - P1_0 Зеленый */
-  #define LED1_BV           BV(0)
-  #define LED1_SBIT         P1_0
-  #define LED1_DDR          P1DIR
-  #define LED1_POLARITY     ACTIVE_LOW
+//-- 2 - P1_1 Красный
+#define LED2_BV           BV(1)
+#define LED2_SBIT         P1_1
+#define LED2_DDR          P1DIR
+#define LED2_POLARITY     ACTIVE_LOW
 
-  /* 2 - P1_1 Красный */
-  #define LED2_BV           BV(1)
-  #define LED2_SBIT         P1_1
-  #define LED2_DDR          P1DIR
-  #define LED2_POLARITY     ACTIVE_LOW
-#endif
-
-/* 3 - P1_4 Зеленый */
+//-- 3 - P1_4 Зеленый
 #define LED3_BV           BV(4)
 #define LED3_SBIT         P1_4
 #define LED3_DDR          P1DIR
@@ -84,54 +63,32 @@
 // Конфигурация кнопок
 
 #define ACTIVE_LOW        !
-#define ACTIVE_HIGH       !!    /* double negation forces result to be '1' */
+//-- double negation forces result to be '1'
+#define ACTIVE_HIGH       !!
 
-#ifdef HAL_SONOFF
-  /* S1 - P1_3 */
-  #define PUSH1_BV          BV(3)
-  #define PUSH1_SBIT        P1_3
-  #define PUSH1_POLARITY    ACTIVE_LOW
-  #define PUSH1_PORT        P1
-  #define PUSH1_SEL         P1SEL
-  #define PUSH1_DIR         P1DIR
-  #define PUSH1_IEN         IEN1  /* CPU interrupt mask register */
-  #define PUSH1_IENBIT      BV(5) /* Mask bit for all of Port_0 */
-  #define PUSH1_ICTL        P1IEN /* Port Interrupt Control register */
-  #define PUSH1_ICTLBIT     BV(3) /* P0IEN - P0.1 enable/disable bit */
-#else
-  /* S1 - P0_1 */
-  #define PUSH1_BV          BV(1)
-  #define PUSH1_SBIT        P0_1
-  #define PUSH1_POLARITY    ACTIVE_LOW
-  #define PUSH1_PORT        P0
-  #define PUSH1_SEL         P0SEL
-  #define PUSH1_DIR         P0DIR
-  #define PUSH1_IEN         IEN1  /* CPU interrupt mask register */
-  #define PUSH1_IENBIT      BV(5) /* Mask bit for all of Port_0 */
-  #define PUSH1_ICTL        P0IEN /* Port Interrupt Control register */
-  #define PUSH1_ICTLBIT     BV(1) /* P0IEN - P0.1 enable/disable bit */
-#endif
+//-- S1 - P0_1
+#define PUSH1_BV          BV(1)
+#define PUSH1_SBIT        P0_1
+#define PUSH1_POLARITY    ACTIVE_LOW
+#define PUSH1_PORT        P0
+#define PUSH1_SEL         P0SEL
+#define PUSH1_DIR         P0DIR
+#define PUSH1_IEN         IEN1  //-- CPU interrupt mask register
+#define PUSH1_IENBIT      BV(5) //-- Mask bit for all of Port_0
+#define PUSH1_ICTL        P0IEN //-- Port Interrupt Control register
+#define PUSH1_ICTLBIT     BV(1) //-- P0IEN - P0.1 enable/disable bit
 
-/* S2 - P2_0 */
+//-- S2 - P2_0
 #define PUSH2_BV          BV(0)
 #define PUSH2_SBIT        P2_0
-#define PUSH2_POLARITY    ACTIVE_HIGH
+#define PUSH2_POLARITY    ACTIVE_LOW
 #define PUSH2_PORT        P2
 #define PUSH2_SEL         P2SEL
 #define PUSH2_DIR         P2DIR
-#define PUSH2_IEN         IEN2  /* CPU interrupt mask register */
-#define PUSH2_IENBIT      BV(1) /* Mask bit for all of Port_0 */
-#define PUSH2_ICTL        P2IEN /* Port Interrupt Control register */
-#define PUSH2_ICTLBIT     BV(0) /* P0IEN - P2.0 enable/disable bit */
-
-
-// Конфигурация сенсора температуры
-//#define TSENS_SBIT P2_1
-//#define TSENS_BV BV(1)
-//#define TSENS_DIR P2DIR 
-#define TSENS_SBIT P1_3
-#define TSENS_BV BV(3)
-#define TSENS_DIR P1DIR 
+#define PUSH2_IEN         IEN2  //-- CPU interrupt mask register
+#define PUSH2_IENBIT      BV(1) //-- Mask bit for all of Port_0
+#define PUSH2_ICTL        P2IEN //-- Port Interrupt Control register
+#define PUSH2_ICTLBIT     BV(0) //-- P0IEN - P2.0 enable/disable bit
 
 
 // OSAL NV - постоянная внутренняя flash-память
@@ -148,13 +105,13 @@
 // The last 16 bytes of the last available page are reserved for flash lock bits.
 // NV page definitions must coincide with segment declaration in project *.xcl file.
 #if defined NON_BANKED
-#define HAL_FLASH_LOCK_BITS        16
-#define HAL_NV_PAGE_END            30
-#define HAL_NV_PAGE_CNT            2
+  #define HAL_FLASH_LOCK_BITS        16
+  #define HAL_NV_PAGE_END            30
+  #define HAL_NV_PAGE_CNT            2
 #else
-#define HAL_FLASH_LOCK_BITS        16
-#define HAL_NV_PAGE_END            126
-#define HAL_NV_PAGE_CNT            6
+  #define HAL_FLASH_LOCK_BITS        16
+  #define HAL_NV_PAGE_END            126
+  #define HAL_NV_PAGE_CNT            6
 #endif
 
 // Re-defining Z_EXTADDR_LEN here so as not to include a Z-Stack .h file.
@@ -192,13 +149,13 @@
 // Инициализация RF-frontend усилителя
 #if defined HAL_PA_LNA || defined HAL_PA_LNA_CC2590 || \
     defined HAL_PA_LNA_SE2431L || defined HAL_PA_LNA_CC2592
-extern void MAC_RfFrontendSetup(void);
-#define HAL_BOARD_RF_FRONTEND_SETUP() MAC_RfFrontendSetup()
+  extern void MAC_RfFrontendSetup(void);
+  #define HAL_BOARD_RF_FRONTEND_SETUP() MAC_RfFrontendSetup()
 #else
-#define HAL_BOARD_RF_FRONTEND_SETUP()
+  #define HAL_BOARD_RF_FRONTEND_SETUP()
 #endif
 
-/* ----------- Cache Prefetch control ---------- */
+//----------- Cache Prefetch control ----------
 #define PREFETCH_ENABLE()     st( FCTL = 0x08; )
 #define PREFETCH_DISABLE()    st( FCTL = 0x04; )
 
@@ -397,31 +354,31 @@ st( \
 
 // Аппаратные таймеры
 #ifndef HAL_TIMER
-#define HAL_TIMER FALSE
+  #define HAL_TIMER FALSE
 #endif
 
 // Использование ADC
 #ifndef HAL_ADC
-#define HAL_ADC TRUE
+  #define HAL_ADC TRUE
 #endif
 
 // Использование DMA
 #ifndef HAL_DMA
-#define HAL_DMA TRUE
+  #define HAL_DMA TRUE
 #endif
 
 // Использование Flash
 #ifndef HAL_FLASH
-#define HAL_FLASH TRUE
+  #define HAL_FLASH TRUE
 #endif
 
 // Использование AES
 #ifndef HAL_AES
-#define HAL_AES TRUE
+  #define HAL_AES TRUE
 #endif
 
 #ifndef HAL_AES_DMA
-#define HAL_AES_DMA TRUE
+  #define HAL_AES_DMA TRUE
 #endif
 
 // Использование LCD
@@ -429,10 +386,10 @@ st( \
 
 // Использование светодиодов
 #ifndef HAL_LED
-#define HAL_LED TRUE
+  #define HAL_LED TRUE
 #endif
 #if (!defined BLINK_LEDS) && (HAL_LED == TRUE)
-#define BLINK_LEDS
+  #define BLINK_LEDS
 #endif
 
 // Использование кнопок

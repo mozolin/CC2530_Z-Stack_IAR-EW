@@ -8,14 +8,17 @@ extern "C"
 
 #include "zcl.h"
 
-// Номер эндпоинта устройства
+//-- IEEE address: 0x00124b0009674658
+//-- Network address: 0x4021
+
+//-- Номер эндпойнта устройства
 #define cc2530_ENDPOINT            1
 
-// События приложения
+//-- События приложения
 #define cc2530_EVT_BLINK                0x0001
 #define cc2530_EVT_LONG                 0x0002
-#define cc2530_END_DEVICE_REJOIN_EVT    0x0004
-#define cc2530_REPORTING_EVT            0x0008
+#define cc2530_END_DEVICE_REJOIN_EVT    0x0003
+#define cc2530_REPORTING_EVT            0x0004
   
   
 // NVM IDs
