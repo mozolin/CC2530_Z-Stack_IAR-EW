@@ -8,7 +8,7 @@ Please check [PlatformIO IDE for VSCode](https://docs.platformio.org/en/latest/i
 Using this application template, you can use the terminal inside PlatformIO IDE  
 ![](img/smPlatformio_01.png)  
 
-It is also possible to use the PlatformIO terminal for these purposes without creating/opening a project. But in this case, you need to go to the application folder. Otherwise, the escape sequences will not be displayed correctly  
+It is also possible to use the PlatformIO terminal for these purposes without opening this application. But in this case, you need to go to the application folder. Otherwise, the escape sequences will not be displayed correctly  
 ![](img/smPlatformio_02.png)  
 
 Here is this option with the correct display of escape sequences  

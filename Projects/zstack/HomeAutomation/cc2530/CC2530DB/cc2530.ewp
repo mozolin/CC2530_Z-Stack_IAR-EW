@@ -1437,7 +1437,7 @@
                 </option>
                 <option>
                     <name>OGChipConfigPath</name>
-                    <state>C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.0\8051\bin\..\config\devices\Texas Instruments\CC25xx\3x\CC2530F256.i51</state>
+                    <state>$TOOLKIT_DIR$\config\devices\Texas Instruments\CC2530F256.i51</state>
                 </option>
             </data>
         </settings>
@@ -3461,6 +3461,15 @@
     </configuration>
     <group>
         <name>App</name>
+        <group>
+            <name>include</name>
+            <file>
+                <name>$PROJ_DIR$\..\Source\include\common_cc2530.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Source\include\common_cc2530.h</name>
+            </file>
+        </group>
         <file>
             <name>$PROJ_DIR$\..\Source\ds18b20.c</name>
         </file>

@@ -30,6 +30,7 @@
 
 #include "ds18b20.h"
 #include "colors.h"
+//#include "include/common_cc2530.h"
 
 // Идентификатор задачи нашего приложения
 byte zclcc2530_TaskID;
@@ -212,6 +213,14 @@ void zclcc2530_Init(byte task_id)
   printf(FONT_COLOR_GREEN);
   printf("UART0 Init Done! State: %d\r\n", state);
   printf(STYLE_COLOR_RESET);
+
+  //-- LED_PORT=0, LED_PIN=4, LED_INPUT=CC2530_OUTPUT, LED=P0_4, LED_STATE=0
+	initLed(0, 4, CC2530_OUTPUT, P0_4, 0);
+  
+  
+  initGPIO(0, 4, true, false);
+  //-- LED is OFF
+  P0_4 = 0;
 }
 
 
@@ -351,6 +360,13 @@ static void zclcc2530_HandleKeys(byte shift, byte keys)
   if(keys & HAL_KEY_SW_2) {
   	printf("Key #2 pressed\r\n");
   	HalLedSet(HAL_LED_3, HAL_LED_MODE_TOGGLE);
+
+  	if(P0_4 == 0) {
+  		P0_4 = 1;
+  	} else {
+  		P0_4 = 0;
+  	}
+  	
   }
 }
 
