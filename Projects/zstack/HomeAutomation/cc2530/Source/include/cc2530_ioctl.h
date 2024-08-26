@@ -2,7 +2,7 @@
 #define CC2530_IOCTL_H
 
 #include <ioCC2530.h>
-//#include <stdint.h> 
+//#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {

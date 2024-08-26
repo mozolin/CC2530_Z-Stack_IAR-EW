@@ -36,19 +36,19 @@
 
 #define HAL_LED_BLINK_DELAY()   st( { volatile uint32 i; for (i=0; i<0x5800; i++) { }; } )
 
-//-- 1 - P1_0 Зеленый
+//-- LED #1 - P1_0 Зеленый
 #define LED1_BV           BV(0)
 #define LED1_SBIT         P1_0
 #define LED1_DDR          P1DIR
 #define LED1_POLARITY     ACTIVE_LOW
 
-//-- 2 - P1_1 Красный
+//-- LED #2 - P1_1 Красный
 #define LED2_BV           BV(1)
 #define LED2_SBIT         P1_1
 #define LED2_DDR          P1DIR
 #define LED2_POLARITY     ACTIVE_LOW
 
-//-- 3 - P1_4 Зеленый
+//-- LED #3 - P1_4 Зеленый
 #define LED3_BV           BV(4)
 #define LED3_SBIT         P1_4
 #define LED3_DDR          P1DIR
@@ -66,7 +66,7 @@
 //-- double negation forces result to be '1'
 #define ACTIVE_HIGH       !!
 
-//-- S1 - P0_1
+//-- BTN #1 - P0_1
 #define PUSH1_BV          BV(1)
 #define PUSH1_SBIT        P0_1
 #define PUSH1_POLARITY    ACTIVE_LOW
@@ -78,7 +78,7 @@
 #define PUSH1_ICTL        P0IEN //-- Port Interrupt Control register
 #define PUSH1_ICTLBIT     BV(1) //-- P0IEN - P0.1 enable/disable bit
 
-//-- S2 - P2_0
+//-- BTN #2 - P2_0
 #define PUSH2_BV          BV(0)
 #define PUSH2_SBIT        P2_0
 #define PUSH2_POLARITY    ACTIVE_LOW

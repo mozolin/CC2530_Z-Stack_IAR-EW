@@ -30,7 +30,8 @@
 
 #include "ds18b20.h"
 #include "colors.h"
-//#include "include/common_cc2530.h"
+#include "common_cc2530.h"
+#include "cc2530_io_ports.h"
 
 // Идентификатор задачи нашего приложения
 byte zclcc2530_TaskID;
@@ -210,17 +211,12 @@ void zclcc2530_Init(byte task_id)
   //-- init UART to use "printf" for serial monitor
   HalUARTInit();
   uint8 state = initUart0(uart0RxCb);
+  
   printf(FONT_COLOR_GREEN);
   printf("UART0 Init Done! State: %d\r\n", state);
   printf(STYLE_COLOR_RESET);
 
-  //-- LED_PORT=0, LED_PIN=4, LED_INPUT=CC2530_OUTPUT, LED=P0_4, LED_STATE=0
-	initLed(0, 4, CC2530_OUTPUT, P0_4, 0);
-  
-  
-  initGPIO(0, 4, true, false);
-  //-- LED is OFF
-  P0_4 = 0;
+	cc2530_init();
 }
 
 
@@ -229,7 +225,8 @@ uint16 zclcc2530_event_loop(uint8 task_id, uint16 events)
 {
   afIncomingMSGPacket_t *MSGpkt;
 
-  (void)task_id;  // Intentionally unreferenced parameter
+  //-- Intentionally unreferenced parameter
+  (void)task_id;
 
   if (events & SYS_EVENT_MSG)
   {
@@ -238,7 +235,7 @@ uint16 zclcc2530_event_loop(uint8 task_id, uint16 events)
       switch (MSGpkt->hdr.event)
       {
         case ZCL_INCOMING_MSG:
-          // Обработка входящего сообщения ZCL Foundation комнды/ответа
+          //-- Обработка входящего сообщения ZCL Foundation команды/ответа
           zclcc2530_ProcessIncomingMsg((zclIncomingMsg_t *)MSGpkt);
           break;
 
@@ -249,20 +246,20 @@ uint16 zclcc2530_event_loop(uint8 task_id, uint16 events)
         case ZDO_STATE_CHANGE:
           zclcc2530_NwkState = (devStates_t)(MSGpkt->hdr.status);
 
-          // Теперь мы в сети
-          if ((zclcc2530_NwkState == DEV_ZB_COORD) ||
-               (zclcc2530_NwkState == DEV_ROUTER)   ||
-               (zclcc2530_NwkState == DEV_END_DEVICE))
-          {
+          //-- Теперь мы в сети
+          if((zclcc2530_NwkState == DEV_ZB_COORD) ||
+            (zclcc2530_NwkState == DEV_ROUTER)   ||
+            (zclcc2530_NwkState == DEV_END_DEVICE)) {
+            
             printf(FONT_COLOR_GREEN);
   					printf("Joined network!\r\n");
   					printf(STYLE_COLOR_RESET);
             
-            // отключаем мигание
+            //-- отключаем мигание
             osal_stop_timerEx(zclcc2530_TaskID, HAL_LED_BLINK_EVENT);
             HalLedSet(HAL_LED_2, HAL_LED_MODE_OFF);
             
-            // отправляем отчет
+            //-- отправляем отчет
             zclcc2530_ReportOnOff();
           }
           break;
@@ -368,6 +365,7 @@ static void zclcc2530_HandleKeys(byte shift, byte keys)
   	}
   	
   }
+
 }
 
 

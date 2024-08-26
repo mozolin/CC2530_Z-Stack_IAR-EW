@@ -1,3 +1,7 @@
+
+#define true            1
+#define false           0
+
 #define SECURE 1
 #define TC_LINKKEY_JOIN
 #define NV_INIT
@@ -34,5 +38,3 @@
 
 
 #include "hal_board_cfg_cc2530.h"
-#include "include/cc2530_ioctl.h"
-#include "include/common_cc2530.h"
