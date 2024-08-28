@@ -72,6 +72,17 @@ void setInterrupts(bool isEnabled);
 
 void resetGPIO(uint8 gpioPort, uint8 gpioBit);
 
-void initOutputGPIO(uint8 gpioPort, uint8 gpioBit);
+void initOutputGPIO(int gpioPort, int gpioBit);
+void initInputGPIO(int gpioPort, int gpioBit, int gpioPullUpDn);
 
 void delayMs(uint16 nMs);
+
+
+
+int CC2530_IOCTL_BV(int reg, int bit);
+void CC2530_REGCFG_PxSEL(int port, int bit, int val);
+void CC2530_REGCFG_PxDIR(int port, int bit, int val);
+void CC2530_REGCFG_PxINP(int port, int bit, int val);
+void CC2530_IO_OUTPUT(int port, int pin);
+void CC2530_IO_INPUT(int port, int pin, int mode);
+void CC2530_IOCTL(int port, int pin, int mode);

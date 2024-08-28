@@ -24,6 +24,7 @@ extern "C"
 // NVM IDs
 #define NV_cc2530_RELAY_STATE_ID        0x0402
 
+
 extern SimpleDescriptionFormat_t zclcc2530_SimpleDesc;
 
 extern CONST zclCommandRec_t zclcc2530_Cmds[];

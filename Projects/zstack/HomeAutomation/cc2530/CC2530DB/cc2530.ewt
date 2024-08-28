@@ -3156,16 +3156,7 @@
                 <name>$PROJ_DIR$\..\Source\include\cc2530_io_ports.h</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\Source\include\cc2530_ioctl.h</name>
-            </file>
-            <file>
                 <name>$PROJ_DIR$\..\Source\include\colors.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Source\include\common_cc2530.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Source\include\common_cc2530.h</name>
             </file>
         </group>
         <file>

@@ -21,17 +21,20 @@
 
 #include "onboard.h"
 
-/* HAL */
+//-- HAL libs
 #include "hal_lcd.h"
 #include "hal_led.h"
 #include "hal_key.h"
 #include "hal_drivers.h"
 #include "hal_uart.h" 
 
+//-- extra libs
 #include "ds18b20.h"
 #include "colors.h"
-#include "common_cc2530.h"
 #include "cc2530_io_ports.h"
+
+#include <stdlib.h>
+#include <string.h>
 
 // Идентификатор задачи нашего приложения
 byte zclcc2530_TaskID;
@@ -144,7 +147,6 @@ static zclGeneral_AppCallbacks_t zclcc2530_CmdCallbacks =
  *
  */
 
-
 // Функция инициализации задачи приложения
 void zclcc2530_Init(byte task_id)
 {
@@ -216,9 +218,73 @@ void zclcc2530_Init(byte task_id)
   printf("UART initiated\n");
   printf(STYLE_COLOR_RESET);
 
-	cc2530_init();
-}
+  
+  
+  /*
+  static const uint8 binary[] = {
+		//#include "array.c"
+		char str[] = "hello";
+		int i;
+		int strLength = strlen(str);
+		for(i = 0; i < strLength; i++) {
+	  	printf("'%c'", str[i]);         	
+		}
+	};
+	*/
+  
+  /*
+  //const uint8 zclcc2530_Test[] = {};
+  //uint16 *arr;
 
+  char str[] = "hello";
+  //int i;
+  int strLength = strlen(str);
+
+  const uint8 zclcc2530_Test[] = {};
+
+  uint16 nnn = strLength + 1;
+  uint8 *p[] = {(uint8*)nnn};
+  zclcc2530_Test = osal_mem_alloc(nnn);
+  if(p == NULL) {
+    printf("Unable to allocate memory :(\n");
+  }
+  printf("Allocated %d bytes of memory\n", nnn);
+
+  p[0] = (uint8*)1;
+  p[1] = (uint8*)2;
+  p[2] = (uint8*)3;
+  p[3] = (uint8*)4;
+  p[4] = (uint8*)5;
+  p[5] = (uint8*)6;
+
+  //printf("p:%d\n", sizeof(p) * sizeof(uint16));
+  printf("p:%d\n", sizeof(p) * sizeof(uint8));
+  */
+
+  /*
+  arr[0] = strLength;
+
+
+  printf("length:%d|", strLength);
+  for(i = 0; i < strLength; i++) {
+    //printf("'%c'", str[i]);
+    size++;
+    //arr = (uint16*) osal_mem_alloc(size * sizeof(uint16));
+    arr = (uint16*) osal_mem_alloc(size);
+    arr[i+1] = str[i];
+  }
+
+	int n = sizeof(arr);
+	printf("n:%d|", n);
+
+  for(i = 0; i < sizeof(arr); i++) {
+  	printf("'%c'", arr[i]);
+  }
+  printf("\n");
+
+	//printf("Array %d\n", sizeof(arr));
+	*/
+}
 
 // Основной цикл обрабоки событий задачи
 uint16 zclcc2530_event_loop(uint8 task_id, uint16 events)
@@ -357,18 +423,11 @@ static void zclcc2530_HandleKeys(byte shift, byte keys)
   if(keys & HAL_KEY_SW_2) {
   	printf("Key #2 pressed\n");
   	HalLedSet(HAL_LED_3, HAL_LED_MODE_TOGGLE);
-  	/*
-  	if(P0_4 == 0) {
-  		P0_4 = 1;
-  	} else {
-  		P0_4 = 0;
-  	}
-  	*/
   }
 
   if(keys & HAL_KEY_SW_3) {
-  	printf("Key #3 pressed: %d\n", P1_5);
   	P0_4 = (P0_4 == 0) ? 1 : 0;
+  	printf("Key #3 pressed: %d\n", P0_4);
   }
 
 }
@@ -635,38 +694,12 @@ void cc2530_HalKeyInit(void)
   PUSH2_ICTL &= ~(PUSH2_ICTLBIT); /* don't generate interrupt */
   PUSH2_IEN &= ~(PUSH2_IENBIT);   /* Clear interrupt enable bit */
 
-  setInterrupts(false);
+  //-- LED initiated as output...
+  initOutputGPIO(GPIO_PORT_0, GPIO_PIN_4);
+  P0_4 = 0;
 
-  printf("PUSH3...\n");
-  
-  initGPIO(
-		GPIO_PORT_1,
-		GPIO_PIN_5,
-		GPIO_FUNC_GENERAL_PURPOSE,
-		GPIO_DIR_INPUT,
-		GPIO_PULL_UP,
-		GPIO_INTERRUPT_NONE,
-		GPIO_INTERRUPT_CTRL_NONE
-	);
-
-	/*
-	PUSH3_SEL &= ~(PUSH3_BV);
-  PUSH3_DIR &= ~(PUSH3_BV);
-  PUSH3_ICTL |= (PUSH3_ICTLBIT);
-  PUSH3_IEN |= (PUSH3_IENBIT);
-  */
-
-  /*
-  //-- PUSH3_BV = BV(5)=> gpioBit = 5
-  //-- P1SEL &= ~(1 << gpioBit); => GPIO_FUNC_GENERAL_PURPOSE (0)
-  PUSH3_SEL &= ~(PUSH3_BV);
-  //-- P1DIR &= ~(1 << gpioBit); => GPIO_DIR_INPUT (0)
-  PUSH3_DIR &= ~(PUSH3_BV);
-  //-- IEN2 &= ~(1 << 4); => Port 1 Interrupt disabled (0)
-  PUSH3_ICTL &= ~(PUSH3_ICTLBIT);
-  //-- P1IEN &= ~(1 << gpioBit); => Interrupts are disabled (0)
-  PUSH3_IEN &= ~(PUSH3_IENBIT);
-  */
+  //-- PUSH3 initiated as input...
+  initInputGPIO(GPIO_PORT_1, GPIO_PIN_5, GPIO_PULL_UP);
 }
 
 // Считывание кнопок

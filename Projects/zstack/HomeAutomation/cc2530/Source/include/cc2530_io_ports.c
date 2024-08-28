@@ -5,6 +5,63 @@
 #include "cc2530_io_ports.h"
 
 
+#define CC2530_OUTPUT          0 //!< Output.
+#define CC2530_INPUT_PULLUP    1 //!< pullup input.
+#define CC2530_INPUT_PULLDOWN  2 //!< pulldown input.
+#define CC2530_INPUT_TRISTATE  3 //!< 3-state.
+
+
+/*
+???#define CC2530_IOCTL_BV(x)      (1<<(x))
+  
+!!!#define CC2530_REGCFG_PxSEL(port, pin, val) do {        \
+    if(val == 0) P##port##SEL &= ~CC2530_IOCTL_BV(pin); \
+    else P##port##SEL |= CC2530_IOCTL_BV(pin);          \
+} while(0)
+ 
+!!!#define CC2530_REGCFG_PxDIR(port, pin, val) do {        \
+    if(val == 0) P##port##DIR &= ~CC2530_IOCTL_BV(pin); \
+    else P##port##DIR |= CC2530_IOCTL_BV(pin);          \
+} while(0)
+
+!!!#define CC2530_REGCFG_PxINP(port, pin, val) do {        \
+    if(val == 0) P##port##INP &= ~CC2530_IOCTL_BV(pin); \
+    else P##port##INP |= CC2530_IOCTL_BV(pin);          \
+} while(0)
+
+!!!#define CC2530_IO_OUTPUT(port, pin) do {    \
+    CC2530_REGCFG_PxDIR(port , pin , 1);    \
+    CC2530_REGCFG_PxSEL(port , pin , 0);    \
+} while(0)
+
+!!!#define CC2530_IO_INPUT(port, pin, mode) do {                                  \
+    if ((port) == 1 && ((pin) == 0 || (pin) == 1)) break;                      \
+                                                                               \
+    CC2530_REGCFG_PxDIR(port , pin , 0);                                       \
+    CC2530_REGCFG_PxSEL(port , pin , 0);                                       \
+                                                                               \
+    if (mode == CC2530_INPUT_TRISTATE) CC2530_REGCFG_PxINP(port , pin , 1);    \
+    else {                                                                     \
+        CC2530_REGCFG_PxINP(port , pin , 0);                                   \
+        if (mode == CC2530_INPUT_PULLUP) CC2530_REGCFG_PxINP(2 , (5+port), 0); \
+        else CC2530_REGCFG_PxINP(2 , (5+port), 1);                             \
+    }                                                                          \
+} while(0)
+
+!!!#define CC2530_IOCTL(port, pin, mode) do {                  \
+    if (port > 2 || pin > 7) break;                         \
+                                                            \
+    if (mode == CC2530_OUTPUT) CC2530_IO_OUTPUT(port, pin); \
+    else CC2530_IO_INPUT(port, pin, mode);                  \
+} while(0)
+
+#define CC2530_GPIO_SET(port, pin)      P##port##_##pin = 1
+#define CC2530_GPIO_CLEAR(port, pin)    P##port##_##pin = 0
+
+#define CC2530_GPIO_GET(port, pin)      P##port##_##pin
+*/
+
+
 /**
  * P0_4: General-purpose I/O, Output, Pullup, Interrupt enabled, Rising edge
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -354,22 +411,27 @@ void resetGPIO(uint8 gpioPort, uint8 gpioBit)
 	}
 }
 
-void initOutputGPIO(uint8 gpioPort, uint8 gpioBit)
+void initInputGPIO(int gpioPort, int gpioBit, int gpioPullUpDn)
 {
-	initGPIO(
-		gpioPort,
-		gpioBit,
-		//-- not used for Output
-		GPIO_FUNC_NONE,
-		//-- !!! Output !!!
-		GPIO_DIR_OUTPUT,
-		//-- not used for Output
-		GPIO_PULL_NONE,
-		//-- not used for Output
-		GPIO_INTERRUPT_NONE,
-		//-- not used for Output
-		GPIO_INTERRUPT_CTRL_NONE
-	);
+	switch(gpioPullUpDn)
+	{
+		case GPIO_PULL_UP:
+			CC2530_IOCTL(gpioPort, gpioBit, CC2530_INPUT_PULLUP);
+			break;
+		case GPIO_PULL_DOWN:
+			CC2530_IOCTL(gpioPort, gpioBit, CC2530_INPUT_PULLDOWN);
+			break;
+		case GPIO_PULL_TRISTATE:
+			CC2530_IOCTL(gpioPort, gpioBit, CC2530_INPUT_TRISTATE);
+			break;
+		default:
+			break;
+	}
+}
+
+void initOutputGPIO(int gpioPort, int gpioBit)
+{
+	CC2530_IOCTL(gpioPort, gpioBit, CC2530_OUTPUT);
 }
 
 void delayMs(uint16 nMs)
@@ -380,4 +442,126 @@ void delayMs(uint16 nMs)
   		//-- do nothing, just waiting...
   	}
   };
+}
+
+
+int CC2530_IOCTL_BV(int reg, int bit)
+{
+	reg |= (1 << bit);
+	return reg;
+}
+
+void CC2530_REGCFG_PxSEL(int port, int bit, int val)
+{
+  if(val == 0) {
+  	if(port == 0) {
+  		P0SEL &= ~(1 << bit);
+  	}
+  	if(port == 1) {
+  		P1SEL &= ~(1 << bit);
+  	}
+  	if(port == 2) {
+  		P2SEL &= ~(1 << bit);
+  	}
+  } else {
+  	if(port == 0) {
+  		P0SEL |= (1 << bit);
+  	}
+  	if(port == 1) {
+  		P1SEL |= (1 << bit);
+  	}
+  	if(port == 2) {
+  		P2SEL |= (1 << bit);
+  	}
+  }
+}
+
+void CC2530_REGCFG_PxDIR(int port, int bit, int val)
+{
+  if(val == 0) {
+  	if(port == 0) {
+  		P0DIR &= ~(1 << bit);
+  	}
+  	if(port == 1) {
+  		P1DIR &= ~(1 << bit);
+  	}
+  	if(port == 2) {
+  		P2DIR &= ~(1 << bit);
+  	}
+  } else {
+  	if(port == 0) {
+  		P0DIR |= (1 << bit);
+  	}
+  	if(port == 1) {
+  		P1DIR |= (1 << bit);
+  	}
+  	if(port == 2) {
+  		P2DIR |= (1 << bit);
+  	}
+  }
+}
+
+void CC2530_REGCFG_PxINP(int port, int bit, int val)
+{
+  if(val == 0) {
+  	if(port == 0) {
+  		P0INP &= ~(1 << bit);
+  	}
+  	if(port == 1) {
+  		P1INP &= ~(1 << bit);
+  	}
+  	if(port == 2) {
+  		P2INP &= ~(1 << bit);
+  	}
+  } else {
+  	if(port == 0) {
+  		P0INP |= (1 << bit);
+  	}
+  	if(port == 1) {
+  		P1INP |= (1 << bit);
+  	}
+  	if(port == 2) {
+  		P2INP |= (1 << bit);
+  	}
+  }
+}
+
+void CC2530_IO_OUTPUT(int port, int pin)
+{
+  CC2530_REGCFG_PxDIR(port , pin , 1);
+  CC2530_REGCFG_PxSEL(port , pin , 0);
+}
+
+void CC2530_IO_INPUT(int port, int pin, int mode)
+{
+  if(port == 1 && (pin == 0 || pin == 1)) {
+  	return;
+  }
+
+  CC2530_REGCFG_PxDIR(port , pin , 0);
+  CC2530_REGCFG_PxSEL(port , pin , 0);
+
+  if(mode == CC2530_INPUT_TRISTATE) {
+  	CC2530_REGCFG_PxINP(port , pin , 1);
+  } else {
+    CC2530_REGCFG_PxINP(port , pin , 0);
+    if(mode == CC2530_INPUT_PULLUP) {
+    	CC2530_REGCFG_PxINP(2 , (5 + port), 0);
+    } else {
+    	CC2530_REGCFG_PxINP(2 , (5 + port), 1);
+    }
+  }
+}
+
+void CC2530_IOCTL(int port, int pin, int mode)
+{
+  if(port > 2 || pin > 7) {
+  	return;
+  }
+
+  if(mode == CC2530_OUTPUT) {
+  	CC2530_IO_OUTPUT(port, pin);
+  } else {
+  	CC2530_IO_INPUT(port, pin, mode);
+  }
 }

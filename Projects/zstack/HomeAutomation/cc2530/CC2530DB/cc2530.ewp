@@ -1300,11 +1300,11 @@
                 <option>
                     <name>Input variant</name>
                     <version>2</version>
-                    <state>5</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>Input description</name>
-                    <state>No float.</state>
+                    <state>Automatic choice of formatter.</state>
                 </option>
                 <option>
                     <name>Output variant</name>
@@ -3471,16 +3471,7 @@
                 <name>$PROJ_DIR$\..\Source\include\cc2530_io_ports.h</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\Source\include\cc2530_ioctl.h</name>
-            </file>
-            <file>
                 <name>$PROJ_DIR$\..\Source\include\colors.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Source\include\common_cc2530.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Source\include\common_cc2530.h</name>
             </file>
         </group>
         <file>
