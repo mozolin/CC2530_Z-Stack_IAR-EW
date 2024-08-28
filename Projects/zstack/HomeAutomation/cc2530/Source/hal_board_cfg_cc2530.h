@@ -79,16 +79,58 @@
 #define PUSH1_ICTLBIT     BV(1) //-- P0IEN - P0.1 enable/disable bit
 
 //-- BTN #2 - P2_0
-#define PUSH2_BV          BV(0)
-#define PUSH2_SBIT        P2_0
-#define PUSH2_POLARITY    ACTIVE_LOW
-#define PUSH2_PORT        P2
-#define PUSH2_SEL         P2SEL
-#define PUSH2_DIR         P2DIR
-#define PUSH2_IEN         IEN2  //-- CPU interrupt mask register
-#define PUSH2_IENBIT      BV(1) //-- Mask bit for all of Port_0
-#define PUSH2_ICTL        P2IEN //-- Port Interrupt Control register
-#define PUSH2_ICTLBIT     BV(0) //-- P0IEN - P2.0 enable/disable bit
+#define PUSH2_BV          BV(0)      //-- Bit 0 (pin number in port 2)
+#define PUSH2_SBIT        P2_0       //-- GPIO
+#define PUSH2_POLARITY    ACTIVE_LOW //-- State
+#define PUSH2_PORT        P2         //-- Port number (P2)
+#define PUSH2_SEL         P2SEL      //-- Port 2 Function Select (P2SEL)
+#define PUSH2_DIR         P2DIR      //-- Port 2 Direction (P2DIR)
+#define PUSH2_IEN         IEN2       //-- Port 2 Interrupt Mask (P2IEN)
+#define PUSH2_IENBIT      BV(1)      //-- Mask bit for all of Port 2 (for IEN2)
+#define PUSH2_ICTL        P2IEN      //-- Port Interrupt Control register (IEN2)
+#define PUSH2_ICTLBIT     BV(0)      //-- Bit 0 for P2IEN: enable/disable Interrupts
+
+
+//-- BTN #3 - P1_5
+
+//-- Bit 5 (gpioBit, pin number in port 1)
+//-- P1INP &= ~(1 << gpioBit); => Pullup or pulldown (0)
+//-- P1INP |= (1 << gpioBit);  => 3-state (1)
+//-- P1INP |= PUSH3_BV;        => set 3-state for bit 5
+#define PUSH3_BV          BV(5)
+//-- GPIO
+//-- uses: HAL_PUSH_BUTTON3() (PUSH3_POLARITY(PUSH3_SBIT))
+#define PUSH3_SBIT        P1_5
+//-- State
+//-- uses: HAL_PUSH_BUTTON3() (PUSH3_POLARITY(PUSH3_SBIT))
+#define PUSH3_POLARITY    ACTIVE_LOW
+//-- Port number (P1)
+//-- uses: ???
+#define PUSH3_PORT        P1
+//-- Port 1 Function Select (P1SEL)
+//-- P1SEL &= ~(1 << gpioBit); => GPIO_FUNC_GENERAL_PURPOSE (0)
+//-- P1SEL |= (1 << gpioBit);  => GPIO_FUNC_PERIPHERAL (1)
+//-- PUSH3_SEL &= ~(PUSH3_BV); => set general-purpose finction for pin 5
+#define PUSH3_SEL         P1SEL
+//-- Port 1 Direction (P1DIR)
+//-- P1DIR &= ~(1 << gpioBit); => GPIO_DIR_INPUT (0)
+//-- P1DIR |= (1 << gpioBit);  => GPIO_DIR_OUTPUT (1)
+//-- PUSH3_DIR &= ~(PUSH3_BV); => set Input for bit 5
+#define PUSH3_DIR         P1DIR
+//-- Bit 5 for all of Port 1 (for IEN1)
+#define PUSH3_IENBIT      BV(5)
+//-- Port 1 Interrupt Mask (P1IEN)
+//-- P1IEN &= ~(1 << gpioBit); => Interrupts are disabled (0)
+//-- P1IEN |= (1 << gpioBit);  => Interrupts are enabled (1)
+//-- PUSH3_IEN &= ~(PUSH3_IENBIT); => Clear interrupt enable for bit 5
+#define PUSH3_IEN         IEN1
+//-- Bit 4 for P2IEN: enable/disable Interrupts
+#define PUSH3_ICTLBIT     BV(4)
+//-- Port Interrupt Control register (IEN1)
+//-- IEN2 &= ~(1 << 4);        => Port 1 Interrupt disabled (0)
+//-- IEN2 |= (1 << 4);         => Port 1 Interrupt enabled (1)
+//-- PUSH3_ICTL &= ~(PUSH3_ICTLBIT); => Don't generate interrupt for port 1
+#define PUSH3_ICTL        P1IEN
 
 
 // OSAL NV - постоянная внутренняя flash-память
@@ -162,43 +204,7 @@
 // Внешняя функция инициализации кнопок
 extern void cc2530_HalKeyInit( void );
 
-// Инициализация оборудования (для модулей без усилителей)
-#if !defined (HAL_PA_LNA) && \
-    !defined (HAL_PA_LNA_CC2590) && !defined (HAL_PA_LNA_SE2431L) && \
-    !defined (HAL_PA_LNA_CC2592)
-
-#define HAL_BOARD_INIT()                                         \
-{                                                                \
-  uint16 i;                                                      \
-                                                                 \
-  SLEEPCMD &= ~OSC_PD;                       /* turn on 16MHz RC and 32MHz XOSC */                \
-  while (!(SLEEPSTA & XOSC_STB));            /* wait for 32MHz XOSC stable */                     \
-  asm("NOP");                                /* chip bug workaround */                            \
-  for (i=0; i<504; i++) asm("NOP");          /* Require 63us delay for all revs */                \
-  CLKCONCMD = (CLKCONCMD_32MHZ | OSC_32KHZ); /* Select 32MHz XOSC and the source for 32K clock */ \
-  while (CLKCONSTA != (CLKCONCMD_32MHZ | OSC_32KHZ)); /* Wait for the change to be effective */   \
-  SLEEPCMD |= OSC_PD;                        /* turn off 16MHz RC */                              \
-                                                                 \
-  /* Turn on cache prefetch mode */                              \
-  PREFETCH_ENABLE();                                             \
-                                                                 \
-  HAL_TURN_OFF_LED1();                                           \
-  LED1_DDR |= LED1_BV;                                           \
-  HAL_TURN_OFF_LED2();                                           \
-  LED2_DDR |= LED2_BV;                                           \
-  HAL_TURN_OFF_LED3();                                           \
-  LED3_DDR |= LED3_BV;                                           \
-  HAL_TURN_OFF_LED4();                                           \
-  LED4_SET_DIR();                                                \
-                                                                 \
-  /* configure tristates */                                      \
-  P0INP |= PUSH2_BV;                                             \
-  cc2530_HalKeyInit();                                         \
-}
-
 // Инициализация оборудования (для модулей с усилителем cc2590, cc2591)
-#elif defined (HAL_PA_LNA) || defined (HAL_PA_LNA_CC2590)
-
 #define HAL_BOARD_INIT()                                         \
 {                                                                \
   uint16 i;                                                      \
@@ -227,52 +233,14 @@ extern void cc2530_HalKeyInit( void );
   /* setup RF frontend if necessary */                           \
   HAL_BOARD_RF_FRONTEND_SETUP();                                 \
 }
-
-// Инициализация оборудования (для модулей с усилителем cc2592)
-#elif defined (HAL_PA_LNA_CC2592) || defined (HAL_PA_LNA_SE2431L)
-
-#define HAL_BOARD_INIT()                                         \
-{                                                                \
-  uint16 i;                                                      \
-                                                                 \
-  SLEEPCMD &= ~OSC_PD;                       /* turn on 16MHz RC and 32MHz XOSC */                \
-  while (!(SLEEPSTA & XOSC_STB));            /* wait for 32MHz XOSC stable */                     \
-  asm("NOP");                                /* chip bug workaround */                            \
-  for (i=0; i<504; i++) asm("NOP");          /* Require 63us delay for all revs */                \
-  CLKCONCMD = (CLKCONCMD_32MHZ | OSC_32KHZ); /* Select 32MHz XOSC and the source for 32K clock */ \
-  while (CLKCONSTA != (CLKCONCMD_32MHZ | OSC_32KHZ)); /* Wait for the change to be effective */   \
-  SLEEPCMD |= OSC_PD;                        /* turn off 16MHz RC */                              \
-                                                                 \
-  /* Turn on cache prefetch mode */                              \
-  PREFETCH_ENABLE();                                             \
-                                                                 \
-  /* set direction for GPIO outputs  */                          \
-  /* For SE2431L PA LNA this sets ANT_SEL to output */           \
-  /* For CC2592 this enables LNA */                              \
-  P1DIR |= BV(0);                                                \
-                                                                 \
-  LED3_DDR |= LED3_BV;                                           \
-                                                                 \
-  /* Set PA/LNA HGM control P0_7 */                              \
-  P0DIR |= BV(7);                                                \
-                                                                 \
-  /* configure tristates */                                      \
-  P0INP |= PUSH2_BV;                                             \
-  cc2530_HalKeyInit();                                         \
-                                                                 \
-  /* setup RF frontend if necessary */                           \
-  HAL_BOARD_RF_FRONTEND_SETUP();                                 \
-}
-#endif
-
 
 // Макрос защиты от дребезга контактов
 #define HAL_DEBOUNCE(expr)    { int i; for (i=0; i<500; i++) { if (!(expr)) i = 0; } }
 
 // Макросы для проверки кнопок
-#define HAL_PUSH_BUTTON1()        (PUSH1_POLARITY (PUSH1_SBIT))
-#define HAL_PUSH_BUTTON2()        (PUSH2_POLARITY (PUSH2_SBIT))
-#define HAL_PUSH_BUTTON3()        (0)
+#define HAL_PUSH_BUTTON1()        (PUSH1_POLARITY(PUSH1_SBIT))
+#define HAL_PUSH_BUTTON2()        (PUSH2_POLARITY(PUSH2_SBIT))
+#define HAL_PUSH_BUTTON3()        (PUSH3_POLARITY(PUSH3_SBIT))
 #define HAL_PUSH_BUTTON4()        (0)
 #define HAL_PUSH_BUTTON5()        (0)
 #define HAL_PUSH_BUTTON6()        (0)

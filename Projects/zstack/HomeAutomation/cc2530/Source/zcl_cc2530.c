@@ -213,7 +213,7 @@ void zclcc2530_Init(byte task_id)
   uint8 state = initUart0(uart0RxCb);
   
   printf(FONT_COLOR_GREEN);
-  printf("UART0 Init Done! State: %d\r\n", state);
+  printf("UART initiated\n");
   printf(STYLE_COLOR_RESET);
 
 	cc2530_init();
@@ -252,7 +252,7 @@ uint16 zclcc2530_event_loop(uint8 task_id, uint16 events)
             (zclcc2530_NwkState == DEV_END_DEVICE)) {
             
             printf(FONT_COLOR_GREEN);
-  					printf("Joined network!\r\n");
+  					printf("Joined network!\n");
   					printf(STYLE_COLOR_RESET);
             
             //-- отключаем мигание
@@ -280,7 +280,7 @@ uint16 zclcc2530_event_loop(uint8 task_id, uint16 events)
   //-- событие cc2530_EVT_BLINK
   if(events & cc2530_EVT_BLINK)
   {
-    printf("Blinking...\r\n");
+    printf("Blinking...\n");
     //-- переключим светодиод
     HalLedSet(HAL_LED_2, HAL_LED_MODE_TOGGLE);
     return (events ^ cc2530_EVT_BLINK);
@@ -288,7 +288,7 @@ uint16 zclcc2530_event_loop(uint8 task_id, uint16 events)
   // событие cc2530_EVT_LONG
   if(events & cc2530_EVT_LONG)
   {
-    printf("Long pressed!\r\n");
+    printf("Long pressed!\n");
     // Проверяем текущее состояние устройства
     // В сети или не в сети?
     if(bdbAttributes.bdbNodeIsOnANetwork) {
@@ -296,7 +296,7 @@ uint16 zclcc2530_event_loop(uint8 task_id, uint16 events)
       zclcc2530_LeaveNetwork();
       
       printf(FONT_COLOR_RED);
-      printf("Leave Network\r\n");
+      printf("Leave Network\n");
   		printf(STYLE_COLOR_RESET);
     }
     else 
@@ -312,7 +312,7 @@ uint16 zclcc2530_event_loop(uint8 task_id, uint16 events)
       osal_start_timerEx(zclcc2530_TaskID, cc2530_EVT_BLINK, 500);
       
       printf(FONT_COLOR_YELLOW);
-      printf("Start Commissioning...\r\n");
+      printf("Start Commissioning...\n");
   		printf(STYLE_COLOR_RESET);
     }
     
@@ -355,15 +355,20 @@ static void zclcc2530_HandleKeys(byte shift, byte keys)
   }
 
   if(keys & HAL_KEY_SW_2) {
-  	printf("Key #2 pressed\r\n");
+  	printf("Key #2 pressed\n");
   	HalLedSet(HAL_LED_3, HAL_LED_MODE_TOGGLE);
-
+  	/*
   	if(P0_4 == 0) {
   		P0_4 = 1;
   	} else {
   		P0_4 = 0;
   	}
-  	
+  	*/
+  }
+
+  if(keys & HAL_KEY_SW_3) {
+  	printf("Key #3 pressed: %d\n", P1_5);
+  	P0_4 = (P0_4 == 0) ? 1 : 0;
   }
 
 }
@@ -629,6 +634,39 @@ void cc2530_HalKeyInit(void)
   
   PUSH2_ICTL &= ~(PUSH2_ICTLBIT); /* don't generate interrupt */
   PUSH2_IEN &= ~(PUSH2_IENBIT);   /* Clear interrupt enable bit */
+
+  setInterrupts(false);
+
+  printf("PUSH3...\n");
+  
+  initGPIO(
+		GPIO_PORT_1,
+		GPIO_PIN_5,
+		GPIO_FUNC_GENERAL_PURPOSE,
+		GPIO_DIR_INPUT,
+		GPIO_PULL_UP,
+		GPIO_INTERRUPT_NONE,
+		GPIO_INTERRUPT_CTRL_NONE
+	);
+
+	/*
+	PUSH3_SEL &= ~(PUSH3_BV);
+  PUSH3_DIR &= ~(PUSH3_BV);
+  PUSH3_ICTL |= (PUSH3_ICTLBIT);
+  PUSH3_IEN |= (PUSH3_IENBIT);
+  */
+
+  /*
+  //-- PUSH3_BV = BV(5)=> gpioBit = 5
+  //-- P1SEL &= ~(1 << gpioBit); => GPIO_FUNC_GENERAL_PURPOSE (0)
+  PUSH3_SEL &= ~(PUSH3_BV);
+  //-- P1DIR &= ~(1 << gpioBit); => GPIO_DIR_INPUT (0)
+  PUSH3_DIR &= ~(PUSH3_BV);
+  //-- IEN2 &= ~(1 << 4); => Port 1 Interrupt disabled (0)
+  PUSH3_ICTL &= ~(PUSH3_ICTLBIT);
+  //-- P1IEN &= ~(1 << gpioBit); => Interrupts are disabled (0)
+  PUSH3_IEN &= ~(PUSH3_IENBIT);
+  */
 }
 
 // Считывание кнопок
@@ -644,6 +682,11 @@ void cc2530_HalKeyPoll (void)
   // нажата кнопка 2 ?
   if(HAL_PUSH_BUTTON2()) {
     keys |= HAL_KEY_SW_2;
+  }
+
+  // нажата кнопка 3 ?
+  if(HAL_PUSH_BUTTON3()) {
+    keys |= HAL_KEY_SW_3;
   }
   
   if(keys == halKeySavedKeys) {
@@ -666,7 +709,7 @@ void updateRelay(bool value)
     RELAY_STATE = 0;
   }
 
-  printf("Relay (updateRelay): %d\r\n", RELAY_STATE);
+  printf("Relay (updateRelay): %d\n", RELAY_STATE);
 
   //-- сохраняем состояние реле
   osal_nv_write(NV_cc2530_RELAY_STATE_ID, 0, 1, &RELAY_STATE);
@@ -715,7 +758,7 @@ void zclcc2530_LeaveNetwork(void)
 // Обработчик команд кластера OnOff
 static void zclcc2530_OnOffCB(uint8 cmd)
 {
-  printf("OnOff? -> %d (on=%d, off=%d, toggle=%d)\r\n", cmd, COMMAND_ON, COMMAND_OFF, COMMAND_TOGGLE);
+  printf("OnOff? -> %d (on=%d, off=%d, toggle=%d)\n", cmd, COMMAND_ON, COMMAND_OFF, COMMAND_TOGGLE);
   // запомним адрес откуда пришла команда
   // чтобы отправить обратно отчет
   afIncomingMSGPacket_t *pPtr = zcl_getRawAFMsg();
