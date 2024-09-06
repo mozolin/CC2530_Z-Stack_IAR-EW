@@ -1,0 +1,2 @@
+
+extern void HalOledInit(void);
