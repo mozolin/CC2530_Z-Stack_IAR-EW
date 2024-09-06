@@ -33,8 +33,10 @@
 #include "colors.h"
 #include "cc2530_io_ports.h"
 
-#include <stdlib.h>
+//#include <stdlib.h>
 #include <string.h>
+
+#include "utils.h"
 
 // Идентификатор задачи нашего приложения
 byte zclcc2530_TaskID;
@@ -217,76 +219,9 @@ void zclcc2530_Init(byte task_id)
   printf(FONT_COLOR_GREEN);
   printf("UART initiated\n");
   printf(STYLE_COLOR_RESET);
-
-  
-  
-  /*
-  static const uint8 binary[] = {
-		//#include "array.c"
-		char str[] = "hello";
-		int i;
-		int strLength = strlen(str);
-		for(i = 0; i < strLength; i++) {
-	  	printf("'%c'", str[i]);         	
-		}
-	};
-	*/
-  
-  /*
-  //const uint8 zclcc2530_Test[] = {};
-  //uint16 *arr;
-
-  char str[] = "hello";
-  //int i;
-  int strLength = strlen(str);
-
-  const uint8 zclcc2530_Test[] = {};
-
-  uint16 nnn = strLength + 1;
-  uint8 *p[] = {(uint8*)nnn};
-  zclcc2530_Test = osal_mem_alloc(nnn);
-  if(p == NULL) {
-    printf("Unable to allocate memory :(\n");
-  }
-  printf("Allocated %d bytes of memory\n", nnn);
-
-  p[0] = (uint8*)1;
-  p[1] = (uint8*)2;
-  p[2] = (uint8*)3;
-  p[3] = (uint8*)4;
-  p[4] = (uint8*)5;
-  p[5] = (uint8*)6;
-
-  //printf("p:%d\n", sizeof(p) * sizeof(uint16));
-  printf("p:%d\n", sizeof(p) * sizeof(uint8));
-  */
-
-  /*
-  arr[0] = strLength;
-
-
-  printf("length:%d|", strLength);
-  for(i = 0; i < strLength; i++) {
-    //printf("'%c'", str[i]);
-    size++;
-    //arr = (uint16*) osal_mem_alloc(size * sizeof(uint16));
-    arr = (uint16*) osal_mem_alloc(size);
-    arr[i+1] = str[i];
-  }
-
-	int n = sizeof(arr);
-	printf("n:%d|", n);
-
-  for(i = 0; i < sizeof(arr); i++) {
-  	printf("'%c'", arr[i]);
-  }
-  printf("\n");
-
-	//printf("Array %d\n", sizeof(arr));
-	*/
 }
 
-// Основной цикл обрабоки событий задачи
+// Основной цикл обработки событий задачи
 uint16 zclcc2530_event_loop(uint8 task_id, uint16 events)
 {
   afIncomingMSGPacket_t *MSGpkt;

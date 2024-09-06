@@ -1628,6 +1628,7 @@
                     <state>$PROJ_DIR$</state>
                     <state>$PROJ_DIR$\..\Source</state>
                     <state>$PROJ_DIR$\..\Source\include</state>
+                    <state>$PROJ_DIR$\..\Source\include\u8g2</state>
                     <state>$PROJ_DIR$\..\..\Source</state>
                     <state>$PROJ_DIR$\..\..\..\ZMain\TI2530DB</state>
                     <state>$PROJ_DIR$\..\..\..\..\..\Components\hal\include</state>
@@ -3472,6 +3473,12 @@
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Source\include\colors.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Source\include\utils.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Source\include\utils.h</name>
             </file>
         </group>
         <file>

@@ -414,3 +414,8 @@ st( \
 /* USB is not used for cc2530 configuration */
 #define HAL_UART_USB  0
 #endif
+
+
+#ifndef HAL_OLED 
+ #define HAL_OLED TRUE 
+#endif

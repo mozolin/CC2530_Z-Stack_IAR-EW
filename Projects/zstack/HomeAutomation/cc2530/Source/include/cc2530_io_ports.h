@@ -78,7 +78,6 @@ void initInputGPIO(int gpioPort, int gpioBit, int gpioPullUpDn);
 void delayMs(uint16 nMs);
 
 
-
 int CC2530_IOCTL_BV(int reg, int bit);
 void CC2530_REGCFG_PxSEL(int port, int bit, int val);
 void CC2530_REGCFG_PxDIR(int port, int bit, int val);

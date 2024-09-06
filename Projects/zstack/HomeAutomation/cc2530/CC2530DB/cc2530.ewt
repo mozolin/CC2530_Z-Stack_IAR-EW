@@ -3158,6 +3158,12 @@
             <file>
                 <name>$PROJ_DIR$\..\Source\include\colors.h</name>
             </file>
+            <file>
+                <name>$PROJ_DIR$\..\Source\include\utils.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Source\include\utils.h</name>
+            </file>
         </group>
         <file>
             <name>$PROJ_DIR$\..\Source\ds18b20.c</name>
