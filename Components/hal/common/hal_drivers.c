@@ -59,7 +59,7 @@
 #include "hal_timer.h"
 #include "hal_types.h"
 #include "hal_uart.h"
-#include "hal_oled.h"
+//#include "hal_oled.h"
 
 #ifdef CC2591_COMPRESSION_WORKAROUND
 #include "mac_rx.h"
@@ -164,9 +164,9 @@ void HalDriverInit (void)
 
 
 /* OLED */
-#if (defined HAL_OLED) && (HAL_OLED == TRUE) 
- HalOledInit(); 
-#endif
+//#if (defined HAL_OLED) && (HAL_OLED == TRUE) 
+// HalOledInit(); 
+//#endif
 }
 
 /**************************************************************************************************

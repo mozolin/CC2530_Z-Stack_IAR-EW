@@ -1309,11 +1309,11 @@
                 <option>
                     <name>Output variant</name>
                     <version>2</version>
-                    <state>6</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>Output description</name>
-                    <state>No float, no field width, no precision.</state>
+                    <state>Automatic choice of formatter.</state>
                 </option>
                 <option>
                     <name>GeneralEnableMisra</name>
@@ -1491,7 +1491,7 @@
                 </option>
                 <option>
                     <name>CCListAssFile</name>
-                    <state>1</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>CCListAssSource</name>
@@ -1531,7 +1531,7 @@
                 </option>
                 <option>
                     <name>CCRequirePrototypes</name>
-                    <state>1</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>CCMultibyteSupport</name>
@@ -1628,7 +1628,6 @@
                     <state>$PROJ_DIR$</state>
                     <state>$PROJ_DIR$\..\Source</state>
                     <state>$PROJ_DIR$\..\Source\include</state>
-                    <state>$PROJ_DIR$\..\Source\include\u8g2</state>
                     <state>$PROJ_DIR$\..\..\Source</state>
                     <state>$PROJ_DIR$\..\..\..\ZMain\TI2530DB</state>
                     <state>$PROJ_DIR$\..\..\..\..\..\Components\hal\include</state>
@@ -3536,7 +3535,7 @@
             <name>$PROJ_DIR$\..\..\..\..\..\Components\stack\bdb\bdb_touchlink.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\..\..\Components\stack\bdb\bdb_touchlink.h</name>
+            <name>$PROJ_DIR$\..\..\..\..\..\Components\stack\bdb\bdb_touchLink.h</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\..\..\Components\stack\bdb\bdb_touchlink_initiator.c</name>

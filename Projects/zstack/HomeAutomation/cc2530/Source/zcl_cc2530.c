@@ -215,7 +215,7 @@ void zclcc2530_Init(byte task_id)
   //-- init UART to use "printf" for serial monitor
   HalUARTInit();
   uint8 state = initUart0(uart0RxCb);
-  
+
   printf(FONT_COLOR_GREEN);
   printf("UART initiated\n");
   printf(STYLE_COLOR_RESET);

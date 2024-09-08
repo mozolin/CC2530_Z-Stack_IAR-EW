@@ -38,4 +38,3 @@
 
 
 #include "hal_board_cfg_cc2530.h"
-#include "u8x8.h"
