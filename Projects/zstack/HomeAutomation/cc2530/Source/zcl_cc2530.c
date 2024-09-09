@@ -203,11 +203,11 @@ void zclcc2530_Init(byte task_id)
   // применяем состояние реле
   applyRelay();
 
-  // запускаем повторяемый таймер события HAL_KEY_EVENT через 100мс
-  osal_start_reload_timer(zclcc2530_TaskID, HAL_KEY_EVENT, 100);
+  // запускаем повторяемый таймер события HAL_KEY_EVENT (мс)
+  osal_start_reload_timer(zclcc2530_TaskID, HAL_KEY_EVENT, TIMER_INTERVAL_HAL_KEY_EVENT);
   
-  //-- запускаем повторяемый таймер для информирования о температуре (5 сек)
-  osal_start_reload_timer(zclcc2530_TaskID, cc2530_REPORTING_EVT, 5000);
+  //-- запускаем повторяемый таймер для информирования о температуре (мс)
+  osal_start_reload_timer(zclcc2530_TaskID, cc2530_REPORTING_EVT, TIMER_INTERVAL_REPORTING_EVT);
   
   // Старт процесса возвращения в сеть
   bdb_StartCommissioning(BDB_COMMISSIONING_MODE_PARENT_LOST);
@@ -310,7 +310,7 @@ uint16 zclcc2530_event_loop(uint8 task_id, uint16 events)
         BDB_COMMISSIONING_MODE_INITIATOR_TL
      );
       // будем мигать пока не подключимся
-      osal_start_timerEx(zclcc2530_TaskID, cc2530_EVT_BLINK, 500);
+      osal_start_timerEx(zclcc2530_TaskID, cc2530_EVT_BLINK, TIMER_INTERVAL_EVT_BLINK);
       
       printf(FONT_COLOR_YELLOW);
       printf("Start Commissioning...\n");
@@ -773,11 +773,24 @@ void zclcc2530_ReportOnOff(void) {
   osal_mem_free(pReportCmd);
 }
 
-// Информирование о температуре
+//-- temperature report
 void zclcc2530_ReportTemp(void)
 {
-  // читаем температуру
+  //-- reading the temperature
   zclcc2530_MeasuredValue = readTemperature();
+
+  double number = (zclcc2530_MeasuredValue / 100.0);
+
+  printf(FONT_COLOR_YELLOW);
+  printf("DS18B20 sensor: ");
+  
+  printf(STYLE_COLOR_BOLD);
+  printf(FONT_COLOR_CYAN);
+  printNumber(number, 2);
+
+  printf(FONT_COLOR_YELLOW);
+  printf(" °С\n");
+  printf(STYLE_COLOR_RESET);
   
   const uint8 NUM_ATTRIBUTES = 1;
 

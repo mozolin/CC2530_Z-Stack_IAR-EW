@@ -42,15 +42,16 @@ const uint8 zclcc2530_HWRevision = cc2530_HWVERSION;
 // версия ZCL
 const uint8 zclcc2530_ZCLVersion = cc2530_ZCLVERSION;
 // производитель
-const uint8 zclcc2530_ManufacturerName[] = { 6, 'D','I','Y','R','u','Z' };
+const uint8 zclcc2530_ManufacturerName[] = {17, 'T','e','x','a','s',' ','I','n','s','t','r','u','m','e','n','t','s'};
 // модель устройства
-const uint8 zclcc2530_ModelId[] = { 9, 'D','I','Y','R','u','Z', '_', 'R','T' };
+const uint8 zclcc2530_ModelId[] = {15, 'M','I','K','E','.','C','C','2','5','3','0','.','I','A','R'};
 // дата версии
-const uint8 zclcc2530_DateCode[] = { 8, '2','0','2','0','0','4','0','5' };
+const uint8 zclcc2530_DateCode[] = {8, '2','0','2','4','0','9','0','9'};
 // вид питания POWER_SOURCE_MAINS_1_PHASE - питание от сети с одной фазой
 const uint8 zclcc2530_PowerSource = POWER_SOURCE_MAINS_1_PHASE;
 // расположение устройства
-uint8 zclcc2530_LocationDescription[17] = { 16, ' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ' };
+//uint8 zclcc2530_LocationDescription[17] = {16, ' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
+uint8 zclcc2530_LocationDescription[19] = {18, 'B','a','s','e','d',' ','o','n',' ','T','I',' ','C','C','2','5','3','0'};
 uint8 zclcc2530_PhysicalEnvironment = 0;
 uint8 zclcc2530_DeviceEnable = DEVICE_ENABLED;
 

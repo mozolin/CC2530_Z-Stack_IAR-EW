@@ -36,5 +36,11 @@
 //#define HAL_UART_ISR 1 
 #define HAL_UART_DMA 1
 
+//-- интервал повторяемого таймера события HAL_KEY_EVENT (мс)
+#define TIMER_INTERVAL_HAL_KEY_EVENT 100
+//-- интервал повторяемого таймера для информирования о температуре (мс)
+#define TIMER_INTERVAL_REPORTING_EVT 10000
+//-- интервал таймера для мигания (мс)
+#define TIMER_INTERVAL_EVT_BLINK 1000
 
 #include "hal_board_cfg_cc2530.h"

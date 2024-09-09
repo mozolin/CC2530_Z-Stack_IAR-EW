@@ -24,6 +24,6 @@
 #define DISABLE_GREENPOWER_BASIC_PROXY
 //#define DEFAULT_CHANLIST 0x07FFF800  // Маска для работы на всех каналах
 
-#define HAL_SONOFF // признак сборки для Sonoff Zigbee
+//#define HAL_SONOFF // признак сборки для Sonoff Zigbee
 
 #include "hal_board_cfg_DIYRuZRT.h"

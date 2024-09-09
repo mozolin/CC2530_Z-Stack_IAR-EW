@@ -221,7 +221,14 @@ extern void cc2530_HalKeyInit( void );
   PREFETCH_ENABLE();                                             \
                                                                  \
   /* set direction for GPIO outputs  */                          \
+  HAL_TURN_OFF_LED1();                                           \
   LED1_DDR |= LED1_BV;                                           \
+  HAL_TURN_OFF_LED2();                                           \
+  LED2_DDR |= LED2_BV;                                           \
+  HAL_TURN_OFF_LED3();                                           \
+  LED3_DDR |= LED3_BV;                                           \
+  HAL_TURN_OFF_LED4();                                           \
+  LED4_SET_DIR();                                                \
                                                                  \
   /* Set PA/LNA HGM control P0_7 */                              \
   P0DIR |= BV(7);                                                \
