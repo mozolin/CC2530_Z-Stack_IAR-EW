@@ -1,0 +1,23 @@
+ -------------------------------------------------
+ | GPIO | on board |  external  | pin direction  |
+ -------------------------------------------------
+ | P0_0 | OLED DC  |            | Input / Output |
+ | P0_1 | BTN #1   |            | Input / Output |
+ | P0_2 |          |            | Input / Output |
+ | P0_3 | OLED CS  |            | Input / Output |
+ | P0_4 |          | LED Green  | Input / Output |
+ | P0_5 |          |            | Input / Output |
+ | P0_6 |          |            | Input / Output |
+ | P0_7 |          |            | Input / Output |
+ | P1_0 | LED #1   | Relay      | Output         |
+ | P1_1 | LED #2   |            | Output         |
+ | P1_2 | OLED SCK |            | Input / Output |
+ | P1_3 | OLED SDA | DS18B20    | Input / Output |
+ | P1_4 | LED #3   | LED Yellow | Input / Output |
+ | P1_5 |          | BTN #3     | Input / Output |
+ | P1_6 |          |            | Input / Output |
+ | P1_7 | OLED RST |            | Input / Output |
+ | P2_0 | BTN #2   |            | Input / Output |
+ | P2_1 |          |            | Input / Output |
+ | P2_2 |          |            | Input / Output |
+ -------------------------------------------------

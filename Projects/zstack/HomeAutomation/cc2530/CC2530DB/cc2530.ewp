@@ -1627,7 +1627,11 @@
                     <name>CCIncludePath2</name>
                     <state>$PROJ_DIR$</state>
                     <state>$PROJ_DIR$\..\Source</state>
-                    <state>$PROJ_DIR$\..\Source\include</state>
+                    <state>$PROJ_DIR$\..\Source\includes</state>
+                    <state>$PROJ_DIR$\..\Source\includes\ds18b20</state>
+                    <state>$PROJ_DIR$\..\Source\includes\fonts</state>
+                    <state>$PROJ_DIR$\..\Source\includes\oled</state>
+                    <state>$PROJ_DIR$\..\Source\includes\oled\spi_driver</state>
                     <state>$PROJ_DIR$\..\..\Source</state>
                     <state>$PROJ_DIR$\..\..\..\ZMain\TI2530DB</state>
                     <state>$PROJ_DIR$\..\..\..\..\..\Components\hal\include</state>
@@ -3463,29 +3467,86 @@
     <group>
         <name>App</name>
         <group>
-            <name>include</name>
+            <name>includes</name>
+            <group>
+                <name>ds18b20</name>
+                <file>
+                    <name>$PROJ_DIR$\..\Source\includes\ds18b20\ds18b20.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Source\includes\ds18b20\ds18b20.h</name>
+                </file>
+            </group>
+            <group>
+                <name>fonts</name>
+                <file>
+                    <name>$PROJ_DIR$\..\Source\includes\fonts\font_chinese_h_16x16.h</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Source\includes\fonts\font_chinese_v_16x16.h</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Source\includes\fonts\font_h_8x16.h</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Source\includes\fonts\font_rgb_picture.h</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Source\includes\fonts\font_v_8x16.h</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Source\includes\fonts\font_v_picture.h</name>
+                </file>
+            </group>
+            <group>
+                <name>oled</name>
+                <group>
+                    <name>spi_driver</name>
+                    <file>
+                        <name>$PROJ_DIR$\..\Source\includes\oled\spi_driver\hw_spi.c</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\Source\includes\oled\spi_driver\hw_spi.h</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\Source\includes\oled\spi_driver\spi_common.h</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\Source\includes\oled\spi_driver\sw_spi.c</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\Source\includes\oled\spi_driver\sw_spi.h</name>
+                    </file>
+                </group>
+                <file>
+                    <name>$PROJ_DIR$\..\Source\includes\oled\hal_lcd_spi.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Source\includes\oled\hal_lcd_spi.h</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Source\includes\oled\hal_oled12864.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Source\includes\oled\hal_oled12864.h</name>
+                </file>
+            </group>
             <file>
-                <name>$PROJ_DIR$\..\Source\include\cc2530_io_ports.c</name>
+                <name>$PROJ_DIR$\..\Source\includes\cc2530_io_ports.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\Source\include\cc2530_io_ports.h</name>
+                <name>$PROJ_DIR$\..\Source\includes\cc2530_io_ports.h</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\Source\include\colors.h</name>
+                <name>$PROJ_DIR$\..\Source\includes\colors.h</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\Source\include\utils.c</name>
+                <name>$PROJ_DIR$\..\Source\includes\utils.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\Source\include\utils.h</name>
+                <name>$PROJ_DIR$\..\Source\includes\utils.h</name>
             </file>
         </group>
-        <file>
-            <name>$PROJ_DIR$\..\Source\ds18b20.c</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\Source\ds18b20.h</name>
-        </file>
         <file>
             <name>$PROJ_DIR$\..\Source\hal_board_cfg_cc2530.h</name>
         </file>
@@ -3535,7 +3596,7 @@
             <name>$PROJ_DIR$\..\..\..\..\..\Components\stack\bdb\bdb_touchlink.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\..\..\Components\stack\bdb\bdb_touchLink.h</name>
+            <name>$PROJ_DIR$\..\..\..\..\..\Components\stack\bdb\bdb_touchlink.h</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\..\..\Components\stack\bdb\bdb_touchlink_initiator.c</name>

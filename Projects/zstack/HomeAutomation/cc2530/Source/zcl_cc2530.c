@@ -26,17 +26,21 @@
 #include "hal_led.h"
 #include "hal_key.h"
 #include "hal_drivers.h"
-#include "hal_uart.h" 
+#include "hal_uart.h"
 
 //-- extra libs
 #include "ds18b20.h"
 #include "colors.h"
 #include "cc2530_io_ports.h"
 
-//#include <stdlib.h>
 #include <string.h>
-
 #include "utils.h"
+
+//-- OLED
+#include "hal_oled12864.h"
+#include "font_v_picture.h"
+#include "cc2530_io_ports.h"
+
 
 // Идентификатор задачи нашего приложения
 byte zclcc2530_TaskID;
@@ -92,6 +96,9 @@ void zclcc2530_ReportTemp(void);
 
 uint8 initUart0(halUARTCBack_t pf);
 void uart0RxCb(uint8 port, uint8 event);
+
+//-- Init & Draw SSD1306 OLED
+void SSD1306Draw(void);
 
 /*********************************************************************
  * Таблица обработчиков основных ZCL команд
@@ -211,14 +218,73 @@ void zclcc2530_Init(byte task_id)
   
   // Старт процесса возвращения в сеть
   bdb_StartCommissioning(BDB_COMMISSIONING_MODE_PARENT_LOST);
-
+  
   //-- init UART to use "printf" for serial monitor
   HalUARTInit();
   uint8 state = initUart0(uart0RxCb);
 
   printf(FONT_COLOR_GREEN);
-  printf("UART initiated\n");
+  printf("\nUART initiated\n");
   printf(STYLE_COLOR_RESET);
+
+  SSD1306Draw();
+
+  /*
+  halOLED12864ClearScreen();
+  halOLED12864ShowX16(0, 0, "CC2530!МАЙК!IAR");
+  halOLED12864ShowX16(1, 0, "---------------");
+  halOLED12864ShowX16(2, 0, "UART initiated!");
+  */
+
+  //-- Test1 - Show 8x16 Char
+  halOLED12864ClearScreen();
+  //halOLED12864ShowX16(0, 0, "9ЁёАБ");
+  /*
+  halOLED12864ShowX16(0, 0, "123456789012345678901234567890");
+  halOLED12864ShowX16(1, 0, "1прЁё");
+  halOLED12864ShowX16(2, 0, "1прЁё");
+  halOLED12864ShowX16(3, 0, "1прЁё");
+  */
+  halOLED12864ShowX16(0, 0, "АБВГДЕЖЗИЙКЛМНОП");
+	halOLED12864ShowX16(1, 0, "РСТУФХЦЧШЩЪЫЬЭЮЯ");
+	halOLED12864ShowX16(2, 0, "абвгдежзийклмноп");
+	halOLED12864ShowX16(3, 0, "рстуфхцчшщъыьэюя");
+	halOLED12864ShowX16(3, 0, "Ёё");
+
+	halOLED12864ShowX16(0, 0, "ABCDEFGHIJKLMNOP");
+	halOLED12864ShowX16(1, 0, "QRSTUVWXYZabcdef");
+	halOLED12864ShowX16(2, 0, "ghijklmnopqrstuv");
+	halOLED12864ShowX16(3, 0, "wxyz0123456789.,");
+
+	//halOLED12864ShowX16(3, 0, "aaaaaaaaaaaaaaaa");
+
+	halOLED12864ShowX16(2, 0, "\"'?!@_*#$%&()+-/");
+	halOLED12864ShowX16(3, 0, ":;<=>[\\]^`{|}~");
+
+
+  /*
+  //-- RUS #1
+  А - 208:144 = 1040 => 0
+  Й - 208:153 = 1049
+  Я - 208:175 = 1071
+  а - 208:176 = 1072
+  й - 208:185 = 1081
+  п - 208:191 = 1087 => 47
+  
+  //-- RUS #2
+  р - 209:128 = 1088 => 0
+  я - 209:143 = 1103 => 15
+  
+  //-- RUS #3
+  Ё - 208:129 = 1025
+  ё - 209:145 = 1105
+  */
+
+  //halOLED12864ShowX16(0, 0, "0123456789");
+  //halOLED12864ShowX16(1, 0, "abcdefghiABCDE");
+  //halOLED12864ShowX16(2, 0, "{}[]()!@#$%-_/");
+  //halOLED12864ShowX16(3, 0, "абвгдеёйАБВГЁЙ");
+
 }
 
 // Основной цикл обработки событий задачи
@@ -350,6 +416,7 @@ static void zclcc2530_HandleKeys(byte shift, byte keys)
     osal_start_timerEx(zclcc2530_TaskID, cc2530_EVT_LONG, 5000);
     //-- Переключаем реле
     updateRelay(RELAY_STATE == 0);
+    halOLED12864ShowX16(2, 0, "Key #1 pressed");
   } else {
     //-- Останавливаем таймер ожидания долгого нажатия
     osal_stop_timerEx(zclcc2530_TaskID, cc2530_EVT_LONG);
@@ -358,11 +425,13 @@ static void zclcc2530_HandleKeys(byte shift, byte keys)
   if(keys & HAL_KEY_SW_2) {
   	printf("Key #2 pressed\n");
   	HalLedSet(HAL_LED_3, HAL_LED_MODE_TOGGLE);
+  	halOLED12864ShowX16(2, 0, "Key #2 pressed");
   }
 
   if(keys & HAL_KEY_SW_3) {
   	P0_4 = (P0_4 == 0) ? 1 : 0;
   	printf("Key #3 pressed: %d\n", P0_4);
+  	halOLED12864ShowX16(2, 0, "Key #3 pressed");
   }
 
 }
@@ -779,6 +848,7 @@ void zclcc2530_ReportTemp(void)
   //-- reading the temperature
   zclcc2530_MeasuredValue = readTemperature();
 
+  /*
   double number = (zclcc2530_MeasuredValue / 100.0);
 
   printf(FONT_COLOR_YELLOW);
@@ -791,6 +861,14 @@ void zclcc2530_ReportTemp(void)
   printf(FONT_COLOR_YELLOW);
   printf(" °С\n");
   printf(STYLE_COLOR_RESET);
+  */
+
+  /*
+  char buffer2[sizeof(int) * 8 + 1];
+  char* str2 = itoa(number, buffer2);
+  halOLED12864ShowX16(3, 0, "DS18B20:");
+  halOLED12864ShowX16(3, 9, str2);
+  */
   
   const uint8 NUM_ATTRIBUTES = 1;
 
@@ -845,4 +923,57 @@ void uart0RxCb(uint8 port, uint8 event)
     // Read one byte from UART to ch
     HalUARTRead (port, &ch, 1);
   }
+}
+
+void SSD1306Draw(void)
+{
+  /*
+  //-- LED initiated as output...
+  CC2530_IO_OUTPUT(1, 2);
+  P1_2 = 1;
+
+  CC2530_IO_OUTPUT(1, 3);
+  P1_3 = 1;
+
+  CC2530_IO_OUTPUT(1, 7);
+  P1_7 = 1;
+
+  CC2530_IO_OUTPUT(0, 0);
+  P0_0 = 1;
+  
+  CC2530_IO_OUTPUT(0, 4);
+  P0_4 = 1;
+  */
+
+  setSystemClk32MHZ();
+
+  halOLED12864Init();
+
+  /*
+  //-- Test1 - Show 8x16 Char
+  halOLED12864ShowX16(0, 0, "0123456789");
+  halOLED12864ShowX16(1, 0, "abcdefghiABCDE");
+  halOLED12864ShowX16(2, 0, "{}[]()!@#$%");
+  halOLED12864ShowX16(3, 0, "абвгдеёйАБВГЁЙ");
+
+  delayMs32MHZ(4000);
+  halOLED12864ClearScreen();
+
+  //-- Test2 - Show 8x16 Char and 16x16 Chinese Char
+  halOLED12864ShowX16(0, 0,  "�������£�");
+  halOLED12864ShowX16(1, 30, "�¶ȣ�22 ��");
+  halOLED12864ShowX16(2, 30, "ʪ�ȣ�30 %");
+
+  delayMs32MHZ(4000);
+  halOLED12864ClearScreen();
+
+  //-- Test3 - Show 32x32 Picture in point: (30, 30)
+  halOLED12864ShowPicture(30, 30, 32, 32, Picture_32x32_AppleIco);
+
+  delayMs32MHZ(4000);
+  halOLED12864ClearScreen();
+
+  //-- Test4 - Show 128x64 Picture in point: (0, 0)
+  halOLED12864ShowPicture(0, 0, 128, 64, Picture_128x128_SuccessPic);
+  */
 }

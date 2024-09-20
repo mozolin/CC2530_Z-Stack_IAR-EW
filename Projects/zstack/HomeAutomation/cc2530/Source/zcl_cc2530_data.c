@@ -46,7 +46,7 @@ const uint8 zclcc2530_ManufacturerName[] = {17, 'T','e','x','a','s',' ','I','n',
 // модель устройства
 const uint8 zclcc2530_ModelId[] = {15, 'M','I','K','E','.','C','C','2','5','3','0','.','I','A','R'};
 // дата версии
-const uint8 zclcc2530_DateCode[] = {8, '2','0','2','4','0','9','0','9'};
+const uint8 zclcc2530_DateCode[] = {8, '2','0','2','4','0','9','1','2'};
 // вид питания POWER_SOURCE_MAINS_1_PHASE - питание от сети с одной фазой
 const uint8 zclcc2530_PowerSource = POWER_SOURCE_MAINS_1_PHASE;
 // расположение устройства
