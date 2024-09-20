@@ -227,63 +227,11 @@ void zclcc2530_Init(byte task_id)
   printf("\nUART initiated\n");
   printf(STYLE_COLOR_RESET);
 
+  //-- init OLED
+  setSystemClk32MHZ();
+  halOLED12864Init();
+  
   SSD1306Draw();
-
-  /*
-  halOLED12864ClearScreen();
-  halOLED12864ShowX16(0, 0, "CC2530!МАЙК!IAR");
-  halOLED12864ShowX16(1, 0, "---------------");
-  halOLED12864ShowX16(2, 0, "UART initiated!");
-  */
-
-  //-- Test1 - Show 8x16 Char
-  halOLED12864ClearScreen();
-  //halOLED12864ShowX16(0, 0, "9ЁёАБ");
-  /*
-  halOLED12864ShowX16(0, 0, "123456789012345678901234567890");
-  halOLED12864ShowX16(1, 0, "1прЁё");
-  halOLED12864ShowX16(2, 0, "1прЁё");
-  halOLED12864ShowX16(3, 0, "1прЁё");
-  */
-  halOLED12864ShowX16(0, 0, "АБВГДЕЖЗИЙКЛМНОП");
-	halOLED12864ShowX16(1, 0, "РСТУФХЦЧШЩЪЫЬЭЮЯ");
-	halOLED12864ShowX16(2, 0, "абвгдежзийклмноп");
-	halOLED12864ShowX16(3, 0, "рстуфхцчшщъыьэюя");
-	halOLED12864ShowX16(3, 0, "Ёё");
-
-	halOLED12864ShowX16(0, 0, "ABCDEFGHIJKLMNOP");
-	halOLED12864ShowX16(1, 0, "QRSTUVWXYZabcdef");
-	halOLED12864ShowX16(2, 0, "ghijklmnopqrstuv");
-	halOLED12864ShowX16(3, 0, "wxyz0123456789.,");
-
-	//halOLED12864ShowX16(3, 0, "aaaaaaaaaaaaaaaa");
-
-	halOLED12864ShowX16(2, 0, "\"'?!@_*#$%&()+-/");
-	halOLED12864ShowX16(3, 0, ":;<=>[\\]^`{|}~");
-
-
-  /*
-  //-- RUS #1
-  А - 208:144 = 1040 => 0
-  Й - 208:153 = 1049
-  Я - 208:175 = 1071
-  а - 208:176 = 1072
-  й - 208:185 = 1081
-  п - 208:191 = 1087 => 47
-  
-  //-- RUS #2
-  р - 209:128 = 1088 => 0
-  я - 209:143 = 1103 => 15
-  
-  //-- RUS #3
-  Ё - 208:129 = 1025
-  ё - 209:145 = 1105
-  */
-
-  //halOLED12864ShowX16(0, 0, "0123456789");
-  //halOLED12864ShowX16(1, 0, "abcdefghiABCDE");
-  //halOLED12864ShowX16(2, 0, "{}[]()!@#$%-_/");
-  //halOLED12864ShowX16(3, 0, "абвгдеёйАБВГЁЙ");
 
 }
 
@@ -927,53 +875,111 @@ void uart0RxCb(uint8 port, uint8 event)
 
 void SSD1306Draw(void)
 {
-  /*
-  //-- LED initiated as output...
-  CC2530_IO_OUTPUT(1, 2);
-  P1_2 = 1;
+  //-- !! halOLED12864ShowX8:  21 chars in row (+2 px) !!
+  //-- !! halOLED12864ShowX16: 16 chars in row (exact) !!
 
-  CC2530_IO_OUTPUT(1, 3);
-  P1_3 = 1;
+	/*
+	//-- ASCII table #1 (8x16)
+	//delayMs32MHZ(4000);
+	halOLED12864ClearScreen();
+	halOLED12864ShowX16(0, 0, "ABCDEFGHIJKLMNOP");
+	halOLED12864ShowX16(1, 0, "QRSTUVWXYZabcdef");
+	halOLED12864ShowX16(2, 0, "ghijklmnopqrstuv");
+	halOLED12864ShowX16(3, 0, "wxyz0123456789.,");
 
-  CC2530_IO_OUTPUT(1, 7);
-  P1_7 = 1;
+	//-- ASCII table #2 (8x16)
+	delayMs32MHZ(4000);
+	halOLED12864ClearScreen();
+	halOLED12864ShowX16(0, 0, "\"'?!@_*#$%&()+-/");
+	halOLED12864ShowX16(1, 0, ":;<=>[\\]^`{|}~");
+	halOLED12864ShowX16(2, 0, "................");
+	halOLED12864ShowX16(3, 0, "................");
 
-  CC2530_IO_OUTPUT(0, 0);
-  P0_0 = 1;
-  
-  CC2530_IO_OUTPUT(0, 4);
-  P0_4 = 1;
+  //-- Russian table #1 (8x16)
+  delayMs32MHZ(4000);
+	halOLED12864ClearScreen();
+  halOLED12864ShowX16(0, 0, "АБВГДЕЖЗИЙКЛМНОП");
+	halOLED12864ShowX16(1, 0, "РСТУФХЦЧШЩЪЫЬЭЮЯ");
+	halOLED12864ShowX16(2, 0, "абвгдежзийклмноп");
+	halOLED12864ShowX16(3, 0, "рстуфхцчшщъыьэюя");
+
+	//-- Russian table #2 (8x16)
+	delayMs32MHZ(4000);
+	halOLED12864ClearScreen();
+	halOLED12864ShowX16(0, 0, "Ёё °C");
+	halOLED12864ShowX16(1, 0, "................");
+	halOLED12864ShowX16(2, 0, "................");
+	halOLED12864ShowX16(3, 0, "................");
+
+	
+	//-- ASCII table #1 (8x8)
+	delayMs32MHZ(4000);
+	halOLED12864ClearScreen();
+	halOLED12864ShowX8(0, 0, "ABCDEFGHIJKLMNOPQRSTU");
+	halOLED12864ShowX8(1, 0, "VWXYZabcdefghijklmnop");
+	halOLED12864ShowX8(2, 0, "qrstuvwxyz0123456789.");
+	halOLED12864ShowX8(3, 0, ",\"'?!@_*#$%&()+-/:;<=");
+	halOLED12864ShowX8(4, 0, ">[\\]^`{|}~");
+	halOLED12864ShowX8(5, 0, ".....................");
+	halOLED12864ShowX8(6, 0, ".....................");
+	halOLED12864ShowX8(7, 0, ".....................");
+
+	//-- Russian table #1 (8x8)
+	delayMs32MHZ(4000);
+	halOLED12864ClearScreen();
+	halOLED12864ShowX8(0, 2, "ЁАБВГДЕЖЗИЙКЛМНОПРСТУ");
+	halOLED12864ShowX8(1, 2, "ФХЦЧШЩЪЫЬЭЮЯабвгдежзи");
+	halOLED12864ShowX8(2, 2, "йклмнопрстуфхцчшщъыьэ");
+	halOLED12864ShowX8(3, 2, "юяё °C");
+	halOLED12864ShowX8(4, 2, ".....................");
+	halOLED12864ShowX8(5, 2, ".....................");
+	halOLED12864ShowX8(6, 2, ".....................");
+	halOLED12864ShowX8(7, 2, ".....................");
+
+	//-- Icons table
+	delayMs32MHZ(4000);
+	halOLED12864ClearScreen();
+  halOLED12864ShowIcon(10, 10, 7, 154);
+  halOLED12864ShowIcon(20, 20, 8, 154);
   */
 
-  setSystemClk32MHZ();
+  halOLED12864ClearScreen();
+  
+  /*
+  halOLED12864ShowX16(0, 0, "АБВГДЕЖЗИЙКЛМНОП");
+	halOLED12864ShowX16(1, 0, "РСТУФХЦЧШЩЪЫЬЭЮЯ");
+	halOLED12864ShowX16(2, 0, "абвгдежзийклмноп");
+	halOLED12864ShowX16(3, 0, "рстуфхцчшщъыьэюя");
+	*/
 
-  halOLED12864Init();
+  //halOLED12864ShowPicture(0, 0, 32, 32, Picture_32x32_AppleIco);
+  //halOLED12864ShowPicture(32, 32, 32, 32, Picture_32x32_AppleIco);
+  //halOLED12864ShowPicture(0, 64, 64, 64, Picture_32x32_AppleIco);
+  //halOLED12864ShowIcon(32, 32, 8, 154);
+  
+  halOLED12864ShowIcon(0, 0, 8, 154);
+  /*
+  halOLED12864ShowIcon(8, 8, 8, 154);
+  halOLED12864ShowIcon(16, 16, 8, 154);
+  halOLED12864ShowIcon(24, 24, 8, 154);
+  halOLED12864ShowIcon(32, 32, 8, 154);
+  halOLED12864ShowIcon(40, 40, 8, 154);
+  halOLED12864ShowIcon(48, 48, 8, 154);
+  halOLED12864ShowIcon(56, 56, 8, 154);
+  */
+
+  halOLED12864ShowX16(0, 0, "А");
 
   /*
-  //-- Test1 - Show 8x16 Char
-  halOLED12864ShowX16(0, 0, "0123456789");
-  halOLED12864ShowX16(1, 0, "abcdefghiABCDE");
-  halOLED12864ShowX16(2, 0, "{}[]()!@#$%");
-  halOLED12864ShowX16(3, 0, "абвгдеёйАБВГЁЙ");
+  halOLED12864ShowX16(0, 0, "АБВГДЕЖЗИЙКЛМНОП");
+	halOLED12864ShowX16(1, 0, "РСТУФХЦЧШЩЪЫЬЭЮЯ");
+	halOLED12864ShowX16(2, 0, "абвгдежзийклмноп");
+	halOLED12864ShowX16(3, 0, "рстуфхцчшщъыьэюя");
+	*/
 
-  delayMs32MHZ(4000);
-  halOLED12864ClearScreen();
-
-  //-- Test2 - Show 8x16 Char and 16x16 Chinese Char
-  halOLED12864ShowX16(0, 0,  "�������£�");
-  halOLED12864ShowX16(1, 30, "�¶ȣ�22 ��");
-  halOLED12864ShowX16(2, 30, "ʪ�ȣ�30 %");
-
-  delayMs32MHZ(4000);
-  halOLED12864ClearScreen();
-
-  //-- Test3 - Show 32x32 Picture in point: (30, 30)
+  /*
+  halOLED12864ShowIcon(10, 10, 7, 154);
+  halOLED12864ShowIcon(20, 20, 8, 154);
   halOLED12864ShowPicture(30, 30, 32, 32, Picture_32x32_AppleIco);
-
-  delayMs32MHZ(4000);
-  halOLED12864ClearScreen();
-
-  //-- Test4 - Show 128x64 Picture in point: (0, 0)
-  halOLED12864ShowPicture(0, 0, 128, 64, Picture_128x128_SuccessPic);
   */
 }

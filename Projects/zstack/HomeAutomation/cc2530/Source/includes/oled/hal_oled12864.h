@@ -15,13 +15,13 @@ extern "C" {
  *  8x16
  */
 #define FONT_TABLE_8x16           FontTable_H_8X16                //!< 8x16 ASCII Char.
-#define FONT_TABLE_CHINESE_16x16  FontTable_Chinese_V_16X16       //!< 16x16 Chinese Char.
-#define FONT_TABLE_CHINESE_SIZE   FONTTABLE_CHINESE_V_16x16_NUM   //!< Length of the table.
-#define FONT_TABLE_COURIER_8x16   Courier_New8x16                 //!< 8x16 ASCII Char.
-#define FONT_TABLE_COURIER_RUS1   Courier_New8x16_Rus1
-#define FONT_TABLE_COURIER_RUS2   Courier_New8x16_Rus2
-#define FONT_TABLE_COURIER_RUS3   Courier_New8x16_Rus3
-
+#define FONT_TABLE_MIKE_8x16      Mike_8x16                 //!< 8x16 ASCII Char.
+#define FONT_TABLE_MIKE_RUS1      Mike_8x16_Rus1
+#define FONT_TABLE_MIKE_RUS2      Mike_8x16_Rus2
+#define FONT_TABLE_MIKE_OTHER     Mike_8x16_Other
+#define FONT_TABLE_GYVER          Gyver_5x8
+#define ICON_TABLE_7x7            Icons_7x7
+#define ICON_TABLE_8x8            Icons_8x8
 
 /**
  * @fn      halOLED12864Init
@@ -41,17 +41,14 @@ void halOLED12864ClearScreen(void);
  * @fn      halOLED12864Show
  * 
  * @brief	Show x16(Height: 16) String, Supported Font: 
- *          1. ASCII - 8x16 2. Chinese 16x16 characters
+ *          1. ASCII - 8x16 2. Russian 8x16 characters
  *
  * @param   line - 0 ~ 3
  * @param   column - 0 ~ 127
  * @param   str - string
- *
- * @warning Chinese 16x16 characters must found in table:
- *          FONT_TABLE_CHINESE_16x16
  */
-//void halOLED12864ShowX16(unsigned char line, unsigned char column, const unsigned char *str);
 void halOLED12864ShowX16(uint8 line, uint8 column, const uint8 *str);
+void halOLED12864ShowX8(uint8 line, uint8 column, const uint8 *str);
 
 /**
  * @fn      halOLED12864ShowPicture
@@ -65,6 +62,7 @@ void halOLED12864ShowX16(uint8 line, uint8 column, const uint8 *str);
  * @param   pic - picture
  */
 void halOLED12864ShowPicture(unsigned char x, unsigned char y, unsigned char picWidth, unsigned char picHeight, const unsigned char *pic);
+void halOLED12864ShowIcon(uint8 x, uint8 y, uint8 size, uint8 idx);
 
 
 #ifdef __cplusplus

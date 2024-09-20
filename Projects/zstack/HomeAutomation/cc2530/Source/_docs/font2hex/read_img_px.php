@@ -2,15 +2,20 @@
 
 $tableNum = 2;
 
+//$fn   = "./fonts/degree_C.png";
+//$fnCh = "./fonts/degree_C.txt";
+//$fnH  = "./font_degree_C.h";
 
 //=====================================================
 //=====================================================
 //=====================================================
 
+if(!isset($fn) && !isset($fnCh) && !isset($fnH)) {
+	$fn   = "./fonts/font_0".$tableNum.".png";
+	$fnCh = "./fonts/font_0".$tableNum.".txt";
+	$fnH  = "./font_0".$tableNum.".h";
+}
 
-$fn   = "./fonts/font_0".$tableNum.".png";
-$fnCh = "./fonts/font_0".$tableNum.".txt";
-$fnH  = "./font_0".$tableNum.".h";
 $imSrc = imagecreatefrompng($fn);
 
 $w = 16;
@@ -19,9 +24,6 @@ $h = 8;
 $cArr = [];
 
 $charsList = mb_str_split(file_get_contents($fnCh));
-echo $charsList[0]."\n";
-echo $charsList[1]."\n";
-echo $charsList[2]."\n";
 
 if($imSrc !== false) {
 

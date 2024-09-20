@@ -3489,6 +3489,9 @@
                     <name>$PROJ_DIR$\..\Source\includes\fonts\font_h_8x16.h</name>
                 </file>
                 <file>
+                    <name>$PROJ_DIR$\..\Source\includes\fonts\font_mike_new8x16.h</name>
+                </file>
+                <file>
                     <name>$PROJ_DIR$\..\Source\includes\fonts\font_rgb_picture.h</name>
                 </file>
                 <file>

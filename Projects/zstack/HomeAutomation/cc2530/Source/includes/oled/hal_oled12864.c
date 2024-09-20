@@ -1,13 +1,14 @@
 #include "hal_oled12864.h"
-#include "font_chinese_v_16x16.h"
-#include "font_h_8x16.h"
-//#include "font_v_8x16.h"
-#include "font_courier_new8x16.h"
+#include "font_mike_8x16.h"
+#include "font_gyver_5x8.h"
+#include "icons_7x7.h"
+#include "icons_8x8.h"
 #include "hal_lcd_spi.h"
 #include "cc2530_io_ports.h"
 
 #include <stdio.h>
 #include "hal_uart.h"
+#include "colors.h"
 
 static void halOLED12864Reset(void);
 static void halOLED12864ChipInit(void);
@@ -16,9 +17,9 @@ static void halOLED12864SetPosition(uint8 page, uint8 x);
 static void halOLEDShowChar8x16(uint16 x, uint16 page, uint8 ch);
 static void halOLEDShowCharRus1(uint16 x, uint16 page, uint8 ch);
 static void halOLEDShowCharRus2(uint16 x, uint16 page, uint8 ch);
-static void halOLEDShowCharRus3(uint16 x, uint16 page, uint8 ch);
+static void halOLEDShowCharOther(uint16 x, uint16 page, uint8 ch);
+static uint8 halOLEDShowCharGyver(uint16 x, uint16 page, uint8 chL, uint8 chR);
 
-//static void halOLEDShowChineseChar16x16(uint16 x, uint16 page, uint8 chL, uint8 chR);
 
 void halOLED12864Init(void)
 {    
@@ -51,71 +52,80 @@ void halOLED12864ClearScreen(void)
 
 void halOLED12864ShowX16(uint8 line, uint8 column, const uint8 *str)
 {
-    if (!str || line > 3) return;
+  if (!str || line > 3) return;
 
-    //-- 2 page per line
-    uint8 page = line * 2;
-    //-- text
-    const uint8 *ptext = str;
+  //-- 2 page per line
+  uint8 page = line * 2;
+  //-- text
+  const uint8 *ptext = str;
+  
+  //-- Show text
+  while(*ptext != 0) {
+    //-- End of line
+    if((column + 8) > HAL_OLED12864_X) return;
     
-    //-- Show text
-    while(*ptext != 0) {
-      //printf("^%d|", *ptext);
-      //printf("-");
-      //-- End of line
-      if((column + 8) > HAL_OLED12864_X) return;
-      
-      if((*ptext) < 128) {
-        //printf("0");
-        //-- ASCII Code: 0~127
-        halOLEDShowChar8x16(column, page, *ptext);
+    if((*ptext) < 128) {
+      //-- ASCII Code: 0~127
+     	halOLEDShowChar8x16(column, page, *ptext);
+    } else {
+      if((*ptext) == 208 && *(ptext+1) == 129) {
+      	//-- Other 8x16 characters #3 (Ё)
+      	halOLEDShowCharOther(column, page, 0);
+      } else if((*ptext) == 209 && *(ptext+1) == 145) {
+      	//-- Other 8x16 characters #3 (ё)
+      	halOLEDShowCharOther(column, page, 1);
+      } else if((*ptext) == 194 && *(ptext+1) == 176) {
+      	//-- Other 8x16 characters #3 (° - degrees Celsius)
+      	halOLEDShowCharOther(column, page, 2);
+      } else if((*ptext) == 208) {
+      	//-- Russian 8x16 characters #1
+        halOLEDShowCharRus1(column, page, *(ptext+1));
+      } else if((*ptext) == 209) {
+      	//-- Russian 8x16 characters #2
+        halOLEDShowCharRus2(column, page, *(ptext+1));
       } else {
-        //printf("^%d|", *ptext);
-        if((*ptext) == 208 && *(ptext+1) == 129) {
-        	//printf("1");
-        	//-- Russian 8x16 characters #3 (Ё)
-        	halOLEDShowCharRus3(column, page, 0);
-        } else if((*ptext) == 209 && *(ptext+1) == 145) {
-        	//printf("2");
-        	//-- Russian 8x16 characters #3 (ё)
-        	halOLEDShowCharRus3(column, page, 1);
-        } else if((*ptext) == 208) {
-        	//printf("3");
-        	//-- Russian 8x16 characters #1
-          halOLEDShowCharRus1(column, page, *(ptext+1));
-        } else if((*ptext) == 209) {
-        	//printf("4");
-        	//-- Russian 8x16 characters #2
-          halOLEDShowCharRus2(column, page, *(ptext+1));
-        } else {
-        	//printf("5");
-        }
+      	//-- skip...
       }
+    }
 
-      if(*ptext != 208 && *ptext != 209) {
-      	column += 8;
-      }
-      ptext++;
-
-      /*
-      //-- Chinese 16x16 characters
-      else {
-          printf("~%d:%d|", *ptext, *(ptext+1));
-          
-          //-- End of line
-          if((column + 16) > HAL_OLED12864_X) return;
-
-          
-          halOLEDShowChineseChar16x16(column, page, *ptext, *(ptext + 1));
-          column += 16;
-          
-          ptext += 2;
-      }
-      */
-    } //-- while(*ptext != 0)
-
-    //printf("\n=========\n");
+    if(*ptext != 208 && *ptext != 209) {
+    	column += 8;
+    }
+    ptext++;
+  } //-- while(*ptext != 0)
 }
+
+void halOLED12864ShowX8(uint8 line, uint8 column, const uint8 *str)
+{
+  //-- up to 8 rows on screen
+  if(!str || line > 7) return;
+
+  //-- state
+  uint8 state = 0;
+
+  //-- text
+  const uint8 *ptext = str;
+  
+  //-- Show text
+  while(*ptext != 0) {
+    //-- End of line
+    if((column + 6) > HAL_OLED12864_X) return;
+    
+    if((*ptext) < 128) {
+    	//-- ASCII Code: 0~127
+    	state = halOLEDShowCharGyver(column, line, *ptext, 0);
+    } else {
+    	state = halOLEDShowCharGyver(column, line, *ptext, *(ptext + 1));
+    }
+
+    if(state == 1) {
+    	column += 6;
+    }
+    ptext++;
+    
+  } //-- while(*ptext != 0)
+}
+
 
 void halOLED12864ShowPicture(uint8 x, uint8 y, uint8 picWidth, uint8 picHeight, const uint8 *pic)
 {
@@ -130,6 +140,41 @@ void halOLED12864ShowPicture(uint8 x, uint8 y, uint8 picWidth, uint8 picHeight, 
         for(uint8 column = xs; column < (xe + 1); column++) halLcdSpiTxData( pic[charIndex++] );
     }
 }
+
+void halOLED12864ShowIcon(uint8 x, uint8 y, uint8 size, uint8 idx)
+{
+  //-- 7x7 or 8x8 only!
+  if(size != 7 && size != 8) return;
+  if(x > (127 - size) || y > (64 - size)) return;
+
+  //halOLED12864SetPosition(0, 0);
+  
+  uint16 charIndex = idx * size;
+  uint8 xs = x, xe = x + size - 1;
+  uint8 ys =  y / 8, ye = (y + size - 1) / 8;
+  ye = 7;
+
+  printf("xs:%d|xe:%d|ys:%d|ye:%d|idx:%d", xs, xe, ys, ye, charIndex);
+ 
+  for(uint8 line = ys; line < ye; line++) {
+    printf("3");
+    
+    halOLED12864SetPosition(line, x);
+    for(uint8 column = xs; column < (xe + 1); column++) {
+    	//halLcdSpiTxData(pic[charIndex++]);
+    	if(size == 7) {
+  			halLcdSpiTxData(ICON_TABLE_7x7[charIndex++]);
+  		}
+  		if(size == 8) {
+  			halLcdSpiTxData(ICON_TABLE_8x8[charIndex++]);
+  		}
+    }
+  }
+
+  printf("\n");
+
+}
+
 
 static void halOLED12864Reset(void)
 {
@@ -197,14 +242,14 @@ static void halOLEDShowChar8x16(uint16 x, uint16 page, uint8 ch)
   halOLED12864SetPosition(page, x);
   //for (uint8 j = 0; j < 8; j++)  halLcdSpiTxData( FONT_TABLE_8x16[charIndex + j] );
   for (j = 0; j < 8; j++) {
-  	halLcdSpiTxData(FONT_TABLE_COURIER_8x16[charIndex + j]);
+  	halLcdSpiTxData(FONT_TABLE_MIKE_8x16[charIndex + j]);
   }
   
   //-- Set second page
   halOLED12864SetPosition(page + 1, x);
   //for (uint8 j = 0; j < 8; j++) halLcdSpiTxData( FONT_TABLE_8x16[charIndex + j + 8] );
   for (j = 0; j < 8; j++) {
-  	halLcdSpiTxData(FONT_TABLE_COURIER_8x16[charIndex + j + 8]);
+  	halLcdSpiTxData(FONT_TABLE_MIKE_8x16[charIndex + j + 8]);
   }
 }
 
@@ -219,13 +264,13 @@ static void halOLEDShowCharRus1(uint16 x, uint16 page, uint8 ch)
   //-- Set first page
   halOLED12864SetPosition(page, x);
   for (j = 0; j < 8; j++) {
-  	halLcdSpiTxData(FONT_TABLE_COURIER_RUS1[charIndex + j]);
+  	halLcdSpiTxData(FONT_TABLE_MIKE_RUS1[charIndex + j]);
   }
   
   //-- Set second page
   halOLED12864SetPosition(page + 1, x);
   for (j = 0; j < 8; j++) {
-  	halLcdSpiTxData(FONT_TABLE_COURIER_RUS1[charIndex + j + 8]);
+  	halLcdSpiTxData(FONT_TABLE_MIKE_RUS1[charIndex + j + 8]);
   }
 }
 
@@ -240,51 +285,77 @@ static void halOLEDShowCharRus2(uint16 x, uint16 page, uint8 ch)
   //-- Set first page
   halOLED12864SetPosition(page, x);
   for(j = 0; j < 8; j++) {
-  	halLcdSpiTxData(FONT_TABLE_COURIER_RUS2[charIndex + j]);
+  	halLcdSpiTxData(FONT_TABLE_MIKE_RUS2[charIndex + j]);
   }
   
   //-- Set second page
   halOLED12864SetPosition(page + 1, x);
   for(j = 0; j < 8; j++) {
-  	halLcdSpiTxData(FONT_TABLE_COURIER_RUS2[charIndex + j + 8]);
+  	halLcdSpiTxData(FONT_TABLE_MIKE_RUS2[charIndex + j + 8]);
   }
 }
 
-static void halOLEDShowCharRus3(uint16 x, uint16 page, uint8 ch)
+static void halOLEDShowCharOther(uint16 x, uint16 page, uint8 ch)
 {
   uint16 charIndex;
   uint8 j;
   
   //-- index of font table, height: 16
-  charIndex = (ch == 0) ? 0 : 16;
+  charIndex = ch * 16;
   
   //-- Set first page
   halOLED12864SetPosition(page, x);
   for(j = 0; j < 8; j++) {
-  	halLcdSpiTxData(FONT_TABLE_COURIER_RUS3[charIndex + j]);
+  	halLcdSpiTxData(FONT_TABLE_MIKE_OTHER[charIndex + j]);
   }
   
   //-- Set second page
   halOLED12864SetPosition(page + 1, x);
   for(j = 0; j < 8; j++) {
-  	halLcdSpiTxData(FONT_TABLE_COURIER_RUS3[charIndex + j + 8]);
+  	halLcdSpiTxData(FONT_TABLE_MIKE_OTHER[charIndex + j + 8]);
   }
 }
 
-/*
-static void halOLEDShowChineseChar16x16(uint16 x, uint16 page, 
-                                        uint8 chL, uint8 chR)
+static uint8 halOLEDShowCharGyver(uint16 x, uint16 page, uint8 chL, uint8 chR)
 {
-    for (uint16 i = 0; i < FONT_TABLE_CHINESE_SIZE; i++) {
-        if (FONT_TABLE_CHINESE_16x16[i].Char16x16[0] != chL || FONT_TABLE_CHINESE_16x16[i].Char16x16[1] != chR) continue;
-        
-        halOLED12864SetPosition(page, x);
-        for(uint8 j = 0; j < 16; j++) halLcdSpiTxData( FONT_TABLE_CHINESE_16x16[i].code[j] );
-        
-        halOLED12864SetPosition(page + 1, x);
-        for(uint8 j = 0; j < 16; j++)  halLcdSpiTxData( FONT_TABLE_CHINESE_16x16[i].code[j + 16] );
+  uint16 charIndex, tableFontRow;
+  uint8 j, state = 1;
+  
+  tableFontRow = 0;
 
-        break;
+  if(chL < 127) {
+  	//-- ASCII Code: 0~127
+  	tableFontRow = chL - 32;
+  } else {
+    if(chL == 209 && chR == 145) {
+    	//-- Other 5x8 characters #3 (ё) => row=159
+    	tableFontRow = 159;
+    } else if(chL == 208 && chR == 129) {
+    	//-- Other 5x8 characters #3 (Ё) => row=160
+    	tableFontRow = 160;
+    } else if(chL == 194 && chR == 176) {
+    	//-- Other 5x8 characters #3 (° - degrees Celsius) => row=161
+    	tableFontRow = 161;
+    } else if(chL == 208) {
+    	//-- Russian 5x8 characters from "А" to "п"
+      tableFontRow = chR - 49;
+    } else if(chL == 209) {
+    	//-- Russian 5x8 characters from "р" to "я"
+      tableFontRow = chR + 15;
+    } else {
+    	//-- skip...
+    	state = 0;
     }
+  }
+
+  if(state == 1) {
+  	charIndex = (chL > 32) ? tableFontRow * 5 : 0;
+
+  	halOLED12864SetPosition(page, x);
+  	for(j = 0; j < 5; j++) {
+  		halLcdSpiTxData(FONT_TABLE_GYVER[charIndex + j]);
+  	}
+  }
+
+  return state;
 }
-*/
