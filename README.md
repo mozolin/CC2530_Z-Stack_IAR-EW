@@ -13,7 +13,7 @@ URL: https://github.com/mozolin/CC2530_Z-Stack_IAR-EW
 4) Set hot keys  
 ![](img/IAR_EW_04-set_hot_keys.png)
 
-5) Build  
+5) Built  
 ![](img/IAR_EW_05-built.png)
 
 6) HEX file  
