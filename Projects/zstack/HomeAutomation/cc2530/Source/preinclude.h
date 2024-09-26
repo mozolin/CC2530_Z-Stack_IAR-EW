@@ -43,5 +43,7 @@
 //-- интервал таймера для мигания (мс)
 #define TIMER_INTERVAL_EVT_BLINK 1000
 
+#define uint8_t uint8
+
 #include "hal_lcd_cfg.h"
 #include "hal_board_cfg_cc2530.h"

@@ -1630,6 +1630,7 @@
                     <state>$PROJ_DIR$\..\Source\includes</state>
                     <state>$PROJ_DIR$\..\Source\includes\ds18b20</state>
                     <state>$PROJ_DIR$\..\Source\includes\fonts</state>
+                    <state>$PROJ_DIR$\..\Source\includes\images</state>
                     <state>$PROJ_DIR$\..\Source\includes\oled</state>
                     <state>$PROJ_DIR$\..\Source\includes\oled\spi_driver</state>
                     <state>$PROJ_DIR$\..\..\Source</state>
@@ -3478,30 +3479,6 @@
                 </file>
             </group>
             <group>
-                <name>fonts</name>
-                <file>
-                    <name>$PROJ_DIR$\..\Source\includes\fonts\font_chinese_h_16x16.h</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\Source\includes\fonts\font_chinese_v_16x16.h</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\Source\includes\fonts\font_h_8x16.h</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\Source\includes\fonts\font_mike_new8x16.h</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\Source\includes\fonts\font_rgb_picture.h</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\Source\includes\fonts\font_v_8x16.h</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\Source\includes\fonts\font_v_picture.h</name>
-                </file>
-            </group>
-            <group>
                 <name>oled</name>
                 <group>
                     <name>spi_driver</name>
@@ -3528,10 +3505,10 @@
                     <name>$PROJ_DIR$\..\Source\includes\oled\hal_lcd_spi.h</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\..\Source\includes\oled\hal_oled12864.c</name>
+                    <name>$PROJ_DIR$\..\Source\includes\oled\hal_oled_128x64.c</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\..\Source\includes\oled\hal_oled12864.h</name>
+                    <name>$PROJ_DIR$\..\Source\includes\oled\hal_oled_128x64.h</name>
                 </file>
             </group>
             <file>
