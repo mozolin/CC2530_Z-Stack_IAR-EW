@@ -973,7 +973,7 @@ void SSD1306Draw(void)
   halOLED128x64ShowIcon(20, 0, 8, 0);
   halOLED128x64ShowIcon(20, 2, 7, 0);
 
-  halOLED128x64ShowPicture(0, 0, 16, 16, danger_16x16);
+  halOLED128x64ShowPicture(0, 8, 16, 16, danger_16x16);
 	halOLED128x64ShowPicture(0, 24, 16, 16, empty_16x16);
 	halOLED128x64ShowPicture(0, 48, 16, 16, motion_16x16);
 	

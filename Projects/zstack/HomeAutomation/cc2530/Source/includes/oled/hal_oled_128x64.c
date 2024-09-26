@@ -126,6 +126,7 @@ void halOLED128x64ShowX8(uint8 line, uint8 column, const uint8 *str)
   } //-- while(*ptext != 0)
 }
 
+//-- original Chinese function (maybe will be used or not)
 void halOLED128x64ShowPictureChina(uint8 x, uint8 y, uint8 picWidth, uint8 picHeight, const uint8 *pic)
 {
   if(x > 127 || y > 64) return;
@@ -142,7 +143,8 @@ void halOLED128x64ShowPictureChina(uint8 x, uint8 y, uint8 picWidth, uint8 picHe
   }
 }
 
-
+//-- "x" can have any available value
+//-- "y" must be a multiple of 8
 void halOLED128x64ShowPicture(uint8 x, uint8 y, uint8 picWidth, uint8 picHeight, const uint8 *pic)
 {
   if(x > 127 || y > 64) return;
@@ -151,8 +153,8 @@ void halOLED128x64ShowPicture(uint8 x, uint8 y, uint8 picWidth, uint8 picHeight,
   uint8 xs = x, xe = x + picWidth - 1;
   uint8 ys =  y / 8, ye = (y + picHeight - 1) / 8;
 
-  //-- if is not Chinese, add 1 line
-  //-- (used for ImageProcessor, LCDAssistant and similar software)
+  //-- if it's not a Сhinese image, add another line
+  //-- (to work with ImageProcessor, LCDAssistant, my own converters and similar software)
   ye++;
  
   for(uint8 line = ys; line < ye; line++) {
