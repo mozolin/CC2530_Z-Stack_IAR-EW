@@ -19,5 +19,8 @@ URL: https://github.com/mozolin/CC2530_Z-Stack_IAR-EW
 6) HEX file  
 ![](img/IAR_EW_06-hex_file.png)
 
-7) Flash  
-![](img/IAR_EW_07-flash.png)
+7) Make a symlink  
+![](img/IAR_EW_07-symlink.png)
+
+8) Flash  
+![](img/IAR_EW_08-flash.png)
