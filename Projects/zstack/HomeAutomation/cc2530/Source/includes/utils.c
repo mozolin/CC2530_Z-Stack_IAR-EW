@@ -6,6 +6,8 @@
 #include "utils.h"
 #include "OSAL.h"
 
+#include "hal_oled_128x64.h"
+
 /***********************************
  * convert String to Integer #1    *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~    *
@@ -127,4 +129,5 @@ void printNumber(double number, int decimals)
 		}
 	}
 	printf("%s", str);
+	//halOLED128x64ShowX16(0, 0, str);
 }

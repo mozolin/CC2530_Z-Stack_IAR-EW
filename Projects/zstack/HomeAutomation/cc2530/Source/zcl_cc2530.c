@@ -30,6 +30,7 @@
 
 //-- extra libs
 #include "ds18b20.h"
+#include "hal_dht11.h"
 #include "colors.h"
 #include "cc2530_io_ports.h"
 
@@ -107,6 +108,11 @@ void uart0RxCb(uint8 port, uint8 event);
 
 //-- Init & Draw SSD1306 OLED
 void SSD1306Draw(void);
+
+//-- Init & Show DHT11 sensor
+halDHT11Data_t dht11Dat;
+uint8 tempStr[50], humiStr[50];
+void showDHT11(void);
 
 /*********************************************************************
  * Таблица обработчиков основных ZCL команд
@@ -241,6 +247,9 @@ void zclcc2530_Init(byte task_id)
   
   SSD1306Draw();
 
+  //-- init DHT11
+  halDHT11Init();
+  showDHT11();
 }
 
 // Основной цикл обработки событий задачи
@@ -372,7 +381,13 @@ static void zclcc2530_HandleKeys(byte shift, byte keys)
     osal_start_timerEx(zclcc2530_TaskID, cc2530_EVT_LONG, 5000);
     //-- Переключаем реле
     updateRelay(RELAY_STATE == 0);
-    halOLED128x64ShowX16(2, 0, "Key #1 pressed");
+    
+    //halOLED128x64ShowX16(0, 0, "Key1:clear in 4s");
+    if(RELAY_STATE == 0) {
+    	halOLED128x64ClearScreen();
+    } else {
+    	SSD1306Draw();
+    }
   } else {
     //-- Останавливаем таймер ожидания долгого нажатия
     osal_stop_timerEx(zclcc2530_TaskID, cc2530_EVT_LONG);
@@ -381,7 +396,8 @@ static void zclcc2530_HandleKeys(byte shift, byte keys)
   if(keys & HAL_KEY_SW_2) {
   	printf("Key #2 pressed\n");
   	HalLedSet(HAL_LED_3, HAL_LED_MODE_TOGGLE);
-  	halOLED128x64ShowX16(2, 0, "Key #2 pressed");
+  	
+  	//halOLED128x64ShowX16(0, 0, "Key2:show in 4s");
   }
 
   if(keys & HAL_KEY_SW_3) {
@@ -1011,4 +1027,42 @@ void SSD1306Draw(void)
   halOLED128x64ClearScreen();
   halOLED128x64ShowPicture(0, 0, 128, 64, zigbee_logo2);
   */
+}
+
+void showDHT11(void)
+{
+	char t[10], h[10];
+
+	//while(1) {
+		dht11Dat = halDHT11GetData();
+    
+    if(dht11Dat.ok) {
+      /*
+      sprintf((char *)tempStr, "Temp: %d", dht11Dat.temp);
+      sprintf((char *)humiStr, "Humi: %d", dht11Dat.humi);
+      halOLED128x64ShowX16(0, 0, tempStr);
+      halOLED128x64ShowX16(1, 0, humiStr);
+      */
+
+      delayMs(SYSCLK_32MHZ, 10000);
+			halOLED128x64ClearScreen();
+
+      printf("T:");
+      printNumber(dht11Dat.temp, 2);
+      printf(", ");
+
+      printf("H:");
+      printNumber(dht11Dat.humi, 2);
+      printf("\n");
+    
+      sprintf(t, "Temp: %d", (int)dht11Dat.temp);
+      sprintf(h, "Humi: %d", (int)dht11Dat.humi);
+      
+      halOLED128x64ShowX16(0, 0, (uint8 const *)t);
+      halOLED128x64ShowX16(1, 0, (uint8 const *)h);
+    }
+
+    
+    //halOLED128x64ClearScreen();
+  //}
 }

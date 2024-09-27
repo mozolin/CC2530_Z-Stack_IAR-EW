@@ -1628,6 +1628,7 @@
                     <state>$PROJ_DIR$</state>
                     <state>$PROJ_DIR$\..\Source</state>
                     <state>$PROJ_DIR$\..\Source\includes</state>
+                    <state>$PROJ_DIR$\..\Source\includes\dht11</state>
                     <state>$PROJ_DIR$\..\Source\includes\ds18b20</state>
                     <state>$PROJ_DIR$\..\Source\includes\fonts</state>
                     <state>$PROJ_DIR$\..\Source\includes\images</state>
@@ -3469,6 +3470,15 @@
         <name>App</name>
         <group>
             <name>includes</name>
+            <group>
+                <name>dht11</name>
+                <file>
+                    <name>$PROJ_DIR$\..\Source\includes\dht11\hal_dht11.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Source\includes\dht11\hal_dht11.h</name>
+                </file>
+            </group>
             <group>
                 <name>ds18b20</name>
                 <file>
