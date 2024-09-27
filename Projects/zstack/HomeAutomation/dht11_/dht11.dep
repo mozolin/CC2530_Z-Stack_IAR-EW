@@ -1,0 +1,573 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+    <fileVersion>2</fileVersion>
+    <fileChecksum>3193640468</fileChecksum>
+    <configuration>
+        <name>Debug</name>
+        <outputs>
+            <file>$PROJ_DIR$\Debug\Obj\sw_spi.r51</file>
+            <file>$PROJ_DIR$\code\HW_LCD\Font\font_h_8x16.h</file>
+            <file>$TOOLKIT_DIR$\inc\dlib\c\DLib_Defaults.h</file>
+            <file>$TOOLKIT_DIR$\inc\dlib\c\yvals.h</file>
+            <file>$TOOLKIT_DIR$\inc\dlib\c\xencoding_limits.h</file>
+            <file>$PROJ_DIR$\code\HW_LCD\HAL_TFT\hal_tft.h</file>
+            <file>$TOOLKIT_DIR$\inc\dlib\c\DLib_Product.h</file>
+            <file>$TOOLKIT_DIR$\inc\dlib\c\DLib_Threads.h</file>
+            <file>$PROJ_DIR$\Debug\Obj\hal_tft.__cstat.et</file>
+            <file>$PROJ_DIR$\code\HW_LCD\Font\font_v_8x16.h</file>
+            <file>$PROJ_DIR$\Debug\Obj\hal_oled12864.__cstat.et</file>
+            <file>$PROJ_DIR$\code\HW_LCD\HAL_OLED\hal_oled12864.h</file>
+            <file>$PROJ_DIR$\Debug\Obj\main.__cstat.et</file>
+            <file>$PROJ_DIR$\code\HW_LCD\HAL_TFT\hal_tft.c</file>
+            <file>$PROJ_DIR$\Debug\Obj\hw_spi.__cstat.et</file>
+            <file>$PROJ_DIR$\Debug\Obj\hal_dht11.__cstat.et</file>
+            <file>$PROJ_DIR$\Debug\Exe\dht11.hex</file>
+            <file>$TOOLKIT_DIR$\inc\dlib\c\stdint.h</file>
+            <file>$PROJ_DIR$\code\DHT11_MAIN\main.c</file>
+            <file>$PROJ_DIR$\code\HW_LCD\HAL_OLED\hal_oled12864.c</file>
+            <file>$TOOLKIT_DIR$\lib\dlib\dl-pli-blxd-1e16x01n.r51</file>
+            <file>$PROJ_DIR$\Debug\Obj\sw_spi.__cstat.et</file>
+            <file>$TOOLKIT_DIR$\inc\ioCC2530.h</file>
+            <file>$PROJ_DIR$\Debug\List\dht11.map</file>
+            <file>$PROJ_DIR$\Debug\Obj\hal_delay.__cstat.et</file>
+            <file>$TOOLKIT_DIR$\lib\dlib\dl8051Normal.h</file>
+            <file>$PROJ_DIR$\code\HW_LCD\Font\font_chinese_h_16x16.h</file>
+            <file>$TOOLKIT_DIR$\config\devices\Texas Instruments\lnk51ew_cc2530F256_banked.xcl</file>
+            <file>$TOOLKIT_DIR$\inc\dlib\c\ycheck.h</file>
+            <file>$PROJ_DIR$\Debug\Obj\hal_lcd_spi.__cstat.et</file>
+            <file>$PROJ_DIR$\Debug\Obj\hal_tft.pbi</file>
+            <file>$PROJ_DIR$\Debug\Exe\dht11.d51</file>
+            <file>$PROJ_DIR$\Debug\Obj\hal_lcd_spi.r51</file>
+            <file>$PROJ_DIR$\Debug\Obj\hal_tft.r51</file>
+            <file>$PROJ_DIR$\Debug\Obj\hal_dht11.pbi</file>
+            <file>$PROJ_DIR$\Debug\Obj\dht11.pbd</file>
+            <file>$TOOLKIT_DIR$\inc\dlib\c\ysizet.h</file>
+            <file>$PROJ_DIR$\Debug\Obj\hal_oled12864.r51</file>
+            <file>$PROJ_DIR$\Debug\Obj\hal_lcd_spi.pbi</file>
+            <file>$PROJ_DIR$\Debug\Obj\sw_spi.pbi</file>
+            <file>$TOOLKIT_DIR$\inc\dlib\c\ystdio.h</file>
+            <file>$TOOLKIT_DIR$\inc\dlib\c\stdarg.h</file>
+            <file>$PROJ_DIR$\Debug\Obj\hal_dht11.r51</file>
+            <file>$PROJ_DIR$\Debug\Obj\hal_delay.r51</file>
+            <file>$PROJ_DIR$\Debug\Obj\hal_delay.pbi</file>
+            <file>$PROJ_DIR$\Debug\Obj\main.pbi</file>
+            <file>$PROJ_DIR$\Debug\Obj\hal_oled12864.pbi</file>
+            <file>$PROJ_DIR$\Debug\Obj\hw_spi.r51</file>
+            <file>$PROJ_DIR$\Debug\Obj\main.r51</file>
+            <file>$PROJ_DIR$\Debug\Obj\hw_spi.pbi</file>
+            <file>$TOOLKIT_DIR$\inc\dlib\c\stdio.h</file>
+            <file>$PROJ_DIR$\code\HW_LCD\HAL_LCD_SPI\SPI_Driver\hw_spi.c</file>
+            <file>$PROJ_DIR$\code\HW_LCD\HAL_LCD_SPI\SPI_Driver\hw_spi.h</file>
+            <file>$PROJ_DIR$\code\HW_LCD\HAL_LCD_SPI\SPI_Driver\spi_common.h</file>
+            <file>$PROJ_DIR$\code\common\hal_delay.h</file>
+            <file>$PROJ_DIR$\code\HW_DHT11\hal_dht11.c</file>
+            <file>$PROJ_DIR$\code\common\hal_delay.c</file>
+            <file>$PROJ_DIR$\code\common\cc2530_ioctl.h</file>
+            <file>$PROJ_DIR$\code\HW_DHT11\hal_dht11.h</file>
+            <file>$PROJ_DIR$\code\HW_LCD\HAL_LCD_SPI\SPI_Driver\sw_spi.h</file>
+            <file>$PROJ_DIR$\code\HW_LCD\HAL_LCD_SPI\hal_lcd_spi.c</file>
+            <file>$PROJ_DIR$\code\HW_LCD\HAL_LCD_SPI\SPI_Driver\sw_spi.c</file>
+            <file>$PROJ_DIR$\code\HW_LCD\HAL_LCD_SPI\hal_lcd_spi.h</file>
+            <file>$PROJ_DIR$\code\HW_LCD\Font\font_chinese_v_16x16.h</file>
+        </outputs>
+        <file>
+            <name>$PROJ_DIR$\code\HW_LCD\HAL_TFT\hal_tft.c</name>
+            <outputs>
+                <tool>
+                    <name>ICC8051</name>
+                    <file> 33</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 30</file>
+                </tool>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 8</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>ICC8051</name>
+                    <file> 5 62 59 53 57 22 17 28 3 2 25 6 4 7 52 1 26 54</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 26 59 57 3 1 54 53 22 2 7 5 62 52 17 28 4 25 6</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\code\DHT11_MAIN\main.c</name>
+            <outputs>
+                <tool>
+                    <name>ICC8051</name>
+                    <file> 48</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 45</file>
+                </tool>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 12</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>ICC8051</name>
+                    <file> 58 11 5 62 59 53 57 22 17 28 3 2 25 6 4 7 52 54 50 36 40</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 57 52 62 50 2 53 5 22 3 7 11 54 59 17 28 4 25 6 40 58 36</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\code\HW_LCD\HAL_OLED\hal_oled12864.c</name>
+            <outputs>
+                <tool>
+                    <name>ICC8051</name>
+                    <file> 37</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 46</file>
+                </tool>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 10</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>ICC8051</name>
+                    <file> 11 63 9 62 59 53 57 22 17 28 3 2 25 6 4 7 52 54</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 25 54 53 22 28 9 59 57 4 63 62 52 17 6 11 3 2 7</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\Debug\Exe\dht11.d51</name>
+            <outputs>
+                <tool>
+                    <name>XLINK</name>
+                    <file> 23 16</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>XLINK</name>
+                    <file> 27 43 42 32 37 33 47 48 0 20</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\code\HW_LCD\HAL_LCD_SPI\SPI_Driver\hw_spi.c</name>
+            <outputs>
+                <tool>
+                    <name>ICC8051</name>
+                    <file> 47</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 49</file>
+                </tool>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 14</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>ICC8051</name>
+                    <file> 52 53 57 22 17 28 3 2 25 6 4 7</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 57 53 22 2 17 28 7 3 52 4 25 6</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\code\HW_DHT11\hal_dht11.c</name>
+            <outputs>
+                <tool>
+                    <name>ICC8051</name>
+                    <file> 42</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 34</file>
+                </tool>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 15</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>ICC8051</name>
+                    <file> 58 54 17 28 3 2 25 6 4 7 57 22</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 22 2 7 3 57 17 54 28 4 25 6 58</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\code\common\hal_delay.c</name>
+            <outputs>
+                <tool>
+                    <name>ICC8051</name>
+                    <file> 43</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 44</file>
+                </tool>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 24</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>ICC8051</name>
+                    <file> 54 17 28 3 2 25 6 4 7</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 2 28 17 3 4 7 54 25 6</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\code\HW_LCD\HAL_LCD_SPI\hal_lcd_spi.c</name>
+            <outputs>
+                <tool>
+                    <name>ICC8051</name>
+                    <file> 32</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 38</file>
+                </tool>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 29</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>ICC8051</name>
+                    <file> 62 59 53 57 22 17 28 3 2 25 6 4 7 52 41</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 25 28 52 57 53 41 22 4 6 3 62 59 17 2 7</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\code\HW_LCD\HAL_LCD_SPI\SPI_Driver\sw_spi.c</name>
+            <outputs>
+                <tool>
+                    <name>ICC8051</name>
+                    <file> 0</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 39</file>
+                </tool>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 21</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>ICC8051</name>
+                    <file> 59 53 57 22 17 28 3 2 25 6 4 7</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 57 53 22 2 17 28 7 3 59 4 25 6</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>[ROOT_NODE]</name>
+            <outputs>
+                <tool>
+                    <name>XLINK</name>
+                    <file> 23 16 31</file>
+                </tool>
+            </outputs>
+        </file>
+        <forcedrebuild>
+            <name>[REBUILD_ALL]</name>
+        </forcedrebuild>
+    </configuration>
+    <configuration>
+        <name>Release</name>
+        <outputs>
+            <file>$TOOLKIT_DIR$\inc\dlib\c\DLib_Defaults.h</file>
+            <file>$TOOLKIT_DIR$\inc\dlib\c\yvals.h</file>
+            <file>$TOOLKIT_DIR$\inc\dlib\c\xencoding_limits.h</file>
+            <file>$PROJ_DIR$\code\HW_LCD\HAL_TFT\hal_tft.h</file>
+            <file>$TOOLKIT_DIR$\inc\dlib\c\DLib_Product.h</file>
+            <file>$TOOLKIT_DIR$\inc\dlib\c\DLib_Threads.h</file>
+            <file>$PROJ_DIR$\code\HW_LCD\HAL_OLED\hal_oled12864.h</file>
+            <file>$PROJ_DIR$\code\HW_LCD\HAL_TFT\hal_tft.c</file>
+            <file>$TOOLKIT_DIR$\inc\dlib\c\stdint.h</file>
+            <file>$PROJ_DIR$\code\DHT11_MAIN\main.c</file>
+            <file>$PROJ_DIR$\code\HW_LCD\HAL_OLED\hal_oled12864.c</file>
+            <file>$TOOLKIT_DIR$\lib\dlib\dl8051Normal.h</file>
+            <file>$TOOLKIT_DIR$\inc\dlib\c\ycheck.h</file>
+            <file>$PROJ_DIR$\Release\Obj\hal_dht11.__cstat.et</file>
+            <file>$TOOLKIT_DIR$\inc\dlib\c\ysizet.h</file>
+            <file>$PROJ_DIR$\Release\Obj\hal_delay.__cstat.et</file>
+            <file>$PROJ_DIR$\Release\Obj\hal_oled12864.__cstat.et</file>
+            <file>$PROJ_DIR$\Release\Obj\hal_lcd_spi.__cstat.et</file>
+            <file>$PROJ_DIR$\Release\Obj\hw_spi.__cstat.et</file>
+            <file>$TOOLKIT_DIR$\inc\dlib\c\ystdio.h</file>
+            <file>$TOOLKIT_DIR$\inc\dlib\c\stdarg.h</file>
+            <file>$PROJ_DIR$\Release\Obj\main.__cstat.et</file>
+            <file>$PROJ_DIR$\Release\Obj\sw_spi.__cstat.et</file>
+            <file>$PROJ_DIR$\Release\Obj\hw_spi.r51</file>
+            <file>$TOOLKIT_DIR$\inc\dlib\c\stdio.h</file>
+            <file>$PROJ_DIR$\Release\Obj\hal_tft.__cstat.et</file>
+            <file>$PROJ_DIR$\Release\Obj\sw_spi.r51</file>
+            <file>$PROJ_DIR$\Release\Obj\sw_spi.pbi</file>
+            <file>$PROJ_DIR$\Release\Obj\hal_lcd_spi.pbi</file>
+            <file>$PROJ_DIR$\Release\Obj\main.pbi</file>
+            <file>$PROJ_DIR$\Release\Obj\hal_tft.pbi</file>
+            <file>$PROJ_DIR$\Release\Obj\hal_oled12864.pbi</file>
+            <file>$PROJ_DIR$\Release\Obj\hal_delay.pbi</file>
+            <file>$PROJ_DIR$\Release\Obj\hal_delay.r51</file>
+            <file>$PROJ_DIR$\Release\Obj\hal_tft.r51</file>
+            <file>$PROJ_DIR$\Release\Obj\main.r51</file>
+            <file>$PROJ_DIR$\Release\Obj\hal_dht11.pbi</file>
+            <file>$PROJ_DIR$\Release\Exe\dht11.a51</file>
+            <file>$PROJ_DIR$\Release\Obj\hw_spi.pbi</file>
+            <file>$PROJ_DIR$\code\HW_LCD\HAL_LCD_SPI\SPI_Driver\hw_spi.c</file>
+            <file>$PROJ_DIR$\code\HW_LCD\HAL_LCD_SPI\SPI_Driver\hw_spi.h</file>
+            <file>$PROJ_DIR$\code\HW_LCD\HAL_LCD_SPI\SPI_Driver\spi_common.h</file>
+            <file>$PROJ_DIR$\code\common\hal_delay.h</file>
+            <file>$PROJ_DIR$\code\HW_DHT11\hal_dht11.c</file>
+            <file>$PROJ_DIR$\code\common\hal_delay.c</file>
+            <file>$PROJ_DIR$\code\HW_DHT11\hal_dht11.h</file>
+            <file>$PROJ_DIR$\code\HW_LCD\HAL_LCD_SPI\SPI_Driver\sw_spi.h</file>
+            <file>$PROJ_DIR$\code\HW_LCD\HAL_LCD_SPI\hal_lcd_spi.c</file>
+            <file>$PROJ_DIR$\code\HW_LCD\HAL_LCD_SPI\SPI_Driver\sw_spi.c</file>
+            <file>$PROJ_DIR$\code\HW_LCD\HAL_LCD_SPI\hal_lcd_spi.h</file>
+        </outputs>
+        <file>
+            <name>$PROJ_DIR$\code\HW_LCD\HAL_TFT\hal_tft.c</name>
+            <outputs>
+                <tool>
+                    <name>ICC8051</name>
+                    <file> 34</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 30</file>
+                </tool>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 25</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 3</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\code\DHT11_MAIN\main.c</name>
+            <outputs>
+                <tool>
+                    <name>ICC8051</name>
+                    <file> 35</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 29</file>
+                </tool>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 21</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 14 24 11 12 0 1 19 2 4 5</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\code\HW_LCD\HAL_OLED\hal_oled12864.c</name>
+            <outputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 31</file>
+                </tool>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 16</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>ICC8051</name>
+                    <file> 6</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 6</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\code\HW_LCD\HAL_LCD_SPI\SPI_Driver\hw_spi.c</name>
+            <outputs>
+                <tool>
+                    <name>ICC8051</name>
+                    <file> 23</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 38</file>
+                </tool>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 18</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 40 41</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\code\HW_DHT11\hal_dht11.c</name>
+            <outputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 36</file>
+                </tool>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 13</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>ICC8051</name>
+                    <file> 45</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 45</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\code\common\hal_delay.c</name>
+            <outputs>
+                <tool>
+                    <name>ICC8051</name>
+                    <file> 33</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 32</file>
+                </tool>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 15</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>ICC8051</name>
+                    <file> 42 8 12 1 0 11 4 2 5</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 0 12 8 5 1 42 2 11 4</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\code\HW_LCD\HAL_LCD_SPI\hal_lcd_spi.c</name>
+            <outputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 28</file>
+                </tool>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 17</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>ICC8051</name>
+                    <file> 49</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 0 11 12 4 20 1 2 49 5</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\code\HW_LCD\HAL_LCD_SPI\SPI_Driver\sw_spi.c</name>
+            <outputs>
+                <tool>
+                    <name>ICC8051</name>
+                    <file> 26</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 27</file>
+                </tool>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 22</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 46 41</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>[ROOT_NODE]</name>
+            <outputs>
+                <tool>
+                    <name>XLINK</name>
+                    <file> 37</file>
+                </tool>
+            </outputs>
+        </file>
+        <forcedrebuild>
+            <name>[MULTI_TOOL]</name>
+            <tool>XLINK</tool>
+        </forcedrebuild>
+    </configuration>
+</project>
