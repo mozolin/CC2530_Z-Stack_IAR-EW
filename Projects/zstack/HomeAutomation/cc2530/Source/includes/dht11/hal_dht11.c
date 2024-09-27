@@ -36,7 +36,7 @@
 #define HAL_DHT11_IO_GET(port, pin) CC2530_GPIO_GET(port, pin)
 #define HAL_DHT11_IO()              HAL_DHT11_IO_GET(HAL_DHT11_PORT, HAL_DHT11_PIN)
 
-/* HT11 Measurement range detection. */ 
+/* DHT11 Measurement range detection. */ 
 #define HAL_DHT11_TEMP_OK(t)    ((t) <= 50)
 #define HAL_DHT11_HUMI_OK(h)    ((h) >= 20 && (h) <= 95)
 
@@ -64,11 +64,15 @@ halDHT11Data_t  halDHT11GetData(void)
     HAL_DHT11_DELAY_US(32);
     HAL_DHT11_IO_INPUT();
     if (!HAL_DHT11_IO()) {
+        printf("!HAL_DHT11_IO\n");
+        
         uint16_t cnt = 1070; // ~1ms
         
         /* Wait for the end of ACK */
         while (!HAL_DHT11_IO() && cnt--);
         if(!cnt) goto Exit;
+
+        printf("111\n");
         
         /* ~80us, DHT11 GPIO will be set after ACK */
         cnt = 1070;  // ~1ms
@@ -76,12 +80,19 @@ halDHT11Data_t  halDHT11GetData(void)
         while (HAL_DHT11_IO() && cnt--);
         if(!cnt) goto Exit;
 
+        printf("222\n");
+
         /* Read data */
         HumiI = halDHT11ReadByte();
+        printf("333:%d\n", HumiI);
         HumiF = halDHT11ReadByte();
+        printf("444:%d\n", HumiF);
         TempI = halDHT11ReadByte();
+        printf("555\n");
         TempF = halDHT11ReadByte();
+        printf("666\n");
         CheckSum = halDHT11ReadByte();
+        printf("777\n");
 
         printf(">> %d|%d|%d|%d|%d\n", HumiI, HumiF, TempI, TempF, CheckSum);
         
@@ -116,7 +127,7 @@ static uint8_t halDHT11ReadByte(void)
     for (uint8_t i = 0; i < 8; i++) {
         uint16_t cnt = 5350;  // ~5ms
 
-        printf("%d", 2);
+        printf("%d:%d:%d|", 2, HAL_DHT11_IO(), cnt);
         
         /* Busy */
         while (!HAL_DHT11_IO() && cnt--);

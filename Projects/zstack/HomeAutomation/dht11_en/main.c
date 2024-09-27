@@ -60,6 +60,6 @@ void main(void)
       //sendString(hmd, 1);
       sendString("\n", 1);
       
-      Delay_ms(1000);  //Delay, read once every 2S?
+      Delay_ms(5000);  //Delay, read once every 2S?
 	}
 }

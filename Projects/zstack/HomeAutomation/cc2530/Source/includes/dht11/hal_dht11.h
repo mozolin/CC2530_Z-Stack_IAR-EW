@@ -7,7 +7,7 @@ extern "C" {
 
 /** @brief   DHT11 GPIO. */
 #define HAL_DHT11_PORT  0 //!< Port0.
-#define HAL_DHT11_PIN   5 //!< Pin6.
+#define HAL_DHT11_PIN   6 //!< Pin6.
    
 /** @brief   DHT11 Data. */
 typedef struct  {

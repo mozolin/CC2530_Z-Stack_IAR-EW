@@ -17,8 +17,9 @@ extern "C"
 //-- События приложения
 #define cc2530_EVT_BLINK                0x0001
 #define cc2530_EVT_LONG                 0x0002
-#define cc2530_END_DEVICE_REJOIN_EVT    0x0003
-#define cc2530_REPORTING_EVT            0x0004
+#define cc2530_EVT_END_DEVICE_REJOIN    0x0003
+#define cc2530_EVT_REPORTING            0x0004
+#define cc2530_EVT_REFRESH              0x0008
   
   
 // NVM IDs

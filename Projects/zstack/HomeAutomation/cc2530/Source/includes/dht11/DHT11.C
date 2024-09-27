@@ -1,8 +1,8 @@
 #include <ioCC2530.h>
 
 
-#include "INTUART.H" 
-#include <string.h>
+//#include "INTUART.H" 
+//#include <string.h>
 
 typedef unsigned char uchar;
 typedef unsigned int  uint;
@@ -81,8 +81,8 @@ void COM(void)    //Temperature and humidity writing
 
 void DHT11(void)   //Temperature and humidity sensor start
 {
-    char qqq[3];
-    memset(qqq, 0, 3);
+    //char qqq[3];
+    //memset(qqq, 0, 3);
     
     
     DATA_PIN=0;
@@ -94,10 +94,12 @@ void DHT11(void)   //Temperature and humidity sensor start
     Delay_10us();
     Delay_10us();
 
+    /*
     qqq[0] = (int)DATA_PIN + 0x30;
     sendString("QQQ:", 4);
     sendString(qqq, 2);
     sendString("\n", 1);
+    */
     
     if(!DATA_PIN) 
     {
@@ -118,10 +120,12 @@ void DHT11(void)   //Temperature and humidity sensor start
         DATA_PIN=1; 
         uchartemp=(ucharT_data_H_temp+ucharT_data_L_temp+ucharRH_data_H_temp+ucharRH_data_L_temp);
 
+        /*
         qqq[0] = (int)uchartemp + 0x30;
     		sendString("temp:", 5);
     		sendString(qqq, 2);
     		sendString("\n", 1);
+    		*/
         
         if(uchartemp==ucharcheckdata_temp)
         {

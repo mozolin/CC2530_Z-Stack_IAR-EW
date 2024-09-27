@@ -51,6 +51,8 @@
 //#include "motion_16x16.h"
 //#include "zigbee_logo.h"
 
+#include "DHT11.H" 
+
 // Идентификатор задачи нашего приложения
 byte zclcc2530_TaskID;
 
@@ -112,7 +114,7 @@ void SSD1306Draw(void);
 //-- Init & Show DHT11 sensor
 halDHT11Data_t dht11Dat;
 uint8 tempStr[50], humiStr[50];
-void showDHT11(void);
+void zclcc2530_ReportDHT11(void);
 
 /*********************************************************************
  * Таблица обработчиков основных ZCL команд
@@ -228,7 +230,7 @@ void zclcc2530_Init(byte task_id)
   osal_start_reload_timer(zclcc2530_TaskID, HAL_KEY_EVENT, TIMER_INTERVAL_HAL_KEY_EVENT);
   
   //-- запускаем повторяемый таймер для информирования о температуре (мс)
-  osal_start_reload_timer(zclcc2530_TaskID, cc2530_REPORTING_EVT, TIMER_INTERVAL_REPORTING_EVT);
+  osal_start_reload_timer(zclcc2530_TaskID, cc2530_EVT_REPORTING, TIMER_INTERVAL_REPORTING_EVT);
   
   // Старт процесса возвращения в сеть
   bdb_StartCommissioning(BDB_COMMISSIONING_MODE_PARENT_LOST);
@@ -249,7 +251,10 @@ void zclcc2530_Init(byte task_id)
 
   //-- init DHT11
   halDHT11Init();
-  showDHT11();
+  delayMs32MHZ(1000);
+  zclcc2530_ReportDHT11();
+  //-- запускаем повторяемый таймер для информирования о температуре (мс)
+  osal_start_reload_timer(zclcc2530_TaskID, cc2530_EVT_REFRESH, 10000);
 }
 
 // Основной цикл обработки событий задачи
@@ -351,12 +356,21 @@ uint16 zclcc2530_event_loop(uint8 task_id, uint16 events)
     return (events ^ cc2530_EVT_LONG);
   }
   
-  // событие cc2530_REPORTING_EVT
-  if(events & cc2530_REPORTING_EVT) {
+  // событие cc2530_EVT_REPORTING
+  if(events & cc2530_EVT_REPORTING) {
     
     zclcc2530_ReportTemp();
     
-    return (events ^ cc2530_REPORTING_EVT);
+    return (events ^ cc2530_EVT_REPORTING);
+  }
+
+  // событие cc2530_EVT_REFRESH
+  if(events & cc2530_EVT_REFRESH) {
+    
+  	delayMs32MHZ(10000);
+    zclcc2530_ReportDHT11();
+    
+    return (events ^ cc2530_EVT_REFRESH);
   }
   
   // событие опроса кнопок
@@ -365,7 +379,7 @@ uint16 zclcc2530_event_loop(uint8 task_id, uint16 events)
     /* Считывание кнопок */
     cc2530_HalKeyPoll();
 
-    return events ^ HAL_KEY_EVENT;
+    return (events ^ HAL_KEY_EVENT);
   }
   
   // Отбросим необработаные сообщения
@@ -377,7 +391,7 @@ uint16 zclcc2530_event_loop(uint8 task_id, uint16 events)
 static void zclcc2530_HandleKeys(byte shift, byte keys)
 {
   if(keys & HAL_KEY_SW_1) {
-    //-- Запускаем таймер для определения долгого нажания 5сек
+    //-- Запускаем таймер для определения долгого нажатия 5сек
     osal_start_timerEx(zclcc2530_TaskID, cc2530_EVT_LONG, 5000);
     //-- Переключаем реле
     updateRelay(RELAY_STATE == 0);
@@ -397,6 +411,7 @@ static void zclcc2530_HandleKeys(byte shift, byte keys)
   	printf("Key #2 pressed\n");
   	HalLedSet(HAL_LED_3, HAL_LED_MODE_TOGGLE);
   	
+  	//zclcc2530_ReportDHT11();
   	//halOLED128x64ShowX16(0, 0, "Key2:show in 4s");
   }
 
@@ -468,7 +483,7 @@ static void zclcc2530_ProcessCommissioningStatus(bdbCommissioningModeMsg_t *bdbC
       else
       {
         //Parent not found, attempt to rejoin again after a fixed delay
-        osal_start_timerEx(zclcc2530_TaskID, cc2530_END_DEVICE_REJOIN_EVT, cc2530_END_DEVICE_REJOIN_DELAY);
+        osal_start_timerEx(zclcc2530_TaskID, cc2530_EVT_END_DEVICE_REJOIN, cc2530_END_DEVICE_REJOIN_DELAY);
       }
     break;
 #endif 
@@ -1029,22 +1044,21 @@ void SSD1306Draw(void)
   */
 }
 
+/*
+int idx = 0;
 void showDHT11(void)
 {
-	char t[10], h[10];
+	char t[10], h[10], i[10];
 
+	printf("showDHT11\n");
+	
 	//while(1) {
 		dht11Dat = halDHT11GetData();
     
     if(dht11Dat.ok) {
-      /*
-      sprintf((char *)tempStr, "Temp: %d", dht11Dat.temp);
-      sprintf((char *)humiStr, "Humi: %d", dht11Dat.humi);
-      halOLED128x64ShowX16(0, 0, tempStr);
-      halOLED128x64ShowX16(1, 0, humiStr);
-      */
-
-      delayMs(SYSCLK_32MHZ, 10000);
+      printf("dht11Dat.ok!\n");
+      
+      //delayMs(SYSCLK_32MHZ, 10000);
 			halOLED128x64ClearScreen();
 
       printf("T:");
@@ -1055,14 +1069,57 @@ void showDHT11(void)
       printNumber(dht11Dat.humi, 2);
       printf("\n");
     
+      idx++;
+      sprintf(i, "Idx: %d", (int)idx);
       sprintf(t, "Temp: %d", (int)dht11Dat.temp);
       sprintf(h, "Humi: %d", (int)dht11Dat.humi);
       
-      halOLED128x64ShowX16(0, 0, (uint8 const *)t);
-      halOLED128x64ShowX16(1, 0, (uint8 const *)h);
+      halOLED128x64ShowX16(0, 0, (uint8 const *)i);
+      halOLED128x64ShowX16(1, 0, (uint8 const *)t);
+      halOLED128x64ShowX16(2, 0, (uint8 const *)h);
+      printf("Drawn!\n");
     }
 
     
     //halOLED128x64ClearScreen();
   //}
+}
+*/
+
+int idx = 0;
+void zclcc2530_ReportDHT11(void)
+{  
+  char t[10], h[10], i[10];
+  
+  char temp[3];
+  char dec[3];
+  char humi[3];
+
+  memset(temp, 0, 3);
+  memset(dec, 0, 3);
+  memset(humi, 0, 3);
+  
+  DHT11(); //Get temperature and humidity
+
+  //Convert temperature and humidity into a string
+  temp[0] = tempH + '0';
+  temp[1] = tempL + '0';
+
+  dec[0] = tempDec + '0';
+
+  humi[0] = humiH + '0';
+  humi[1] = humiL + '0';
+  
+  halOLED128x64ClearScreen();
+  
+  idx++;
+  sprintf(i, "Idx: %d", idx);
+  sprintf(t, "Temp: %s.%s", temp, dec);
+  sprintf(h, "Humi: %s", humi);
+  
+  halOLED128x64ShowX16(0, 0, (uint8 const *)i);
+  halOLED128x64ShowX16(1, 0, (uint8 const *)t);
+  halOLED128x64ShowX16(2, 0, (uint8 const *)h);
+
+  printf("Temp: %s.%s, Humi: %s\n", temp, dec, humi);
 }
