@@ -7,6 +7,8 @@
 typedef unsigned char uchar;
 typedef unsigned int  uint;
 
+//-- can be: P04,P06,P07
+// -p02,-p03,-p05,-p15,-p16,-p21
 #define DATA_PIN P0_6
 
 //Definition of temperature and humidity

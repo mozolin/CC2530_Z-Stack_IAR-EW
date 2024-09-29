@@ -28,7 +28,7 @@ extern "C" {
 
 /* CS: Chip Select GPIO */
 #define HAL_LCD_SPI_CS_PORT   		0
-#define HAL_LCD_SPI_CS_PIN    		3
+#define HAL_LCD_SPI_CS_PIN    		2
 /* DC: Data/Command GPIO */
 #define HAL_LCD_SPI_DC_PORT   		0
 #define HAL_LCD_SPI_DC_PIN    		0
