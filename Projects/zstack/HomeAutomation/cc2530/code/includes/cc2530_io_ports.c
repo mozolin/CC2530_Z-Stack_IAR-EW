@@ -428,6 +428,43 @@ void delayMs(halDelaySysClk_t sysClk, uint16 nMs)
   }
 }
 
+/*****************************************************************************
+* Function name: DelayUS
+* Function description: Use Time1 timer mode for precise positioning
+*-----------------------------------------------------------------------------
+* Parameter: k: Delay k us
+* Return value: None
+******************************************************************************/
+void delayUS(unsigned int k)
+{ 
+  T1CC0L = 0x10;
+  T1CC0H = 0x00;
+  T1CCTL0 |= (1 << 2);  //The analog mode can only use channel 0
+  T1CTL = 0x02; 
+  //--16M per second = 16000K = 16000000 times
+  while(k)
+  {
+      while( ( T1STAT & (1 << 0) ) != 1);
+      T1STAT &= ~(1 << 0);
+      k--;
+  }
+  T1CTL = 0x00; //Turn off the timer
+}
+//-- 10 us delay
+void delay10US()
+{
+  delayUS(10);
+}
+//-- "Time" ms delay
+void delayMS(uint Time)
+{
+  while(Time--)
+  {
+    delayUS(1000);
+  }
+}
+
+
 int _CC2530_IOCTL_BV(int reg, int bit)
 {
 	reg |= (1 << bit);

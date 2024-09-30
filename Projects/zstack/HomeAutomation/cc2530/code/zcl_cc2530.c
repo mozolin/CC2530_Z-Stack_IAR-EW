@@ -30,9 +30,17 @@
 
 //-- extra libs
 #include "ds18b20.h"
-#include "hal_dht11.h"
 #include "colors.h"
 #include "cc2530_io_ports.h"
+#define HAL_DHT11 0
+//#if HAL_DHT11 == 1
+  //-- HAL_DHT11 = 1 => use HAL library
+  #include "hal_dht11.h"
+//#else
+  //-- HAL_DHT11 = 0 => use old library
+  #include "DHT11.H" 
+//#endif
+
 
 #include <string.h>
 #include "utils.h"
@@ -51,7 +59,6 @@
 //#include "motion_16x16.h"
 //#include "zigbee_logo.h"
 
-#include "DHT11.H" 
 
 // Идентификатор задачи нашего приложения
 byte zclcc2530_TaskID;
@@ -112,9 +119,12 @@ void uart0RxCb(uint8 port, uint8 event);
 void SSD1306Draw(void);
 
 //-- Init & Show DHT11 sensor
-halDHT11Data_t dht11Dat;
-uint8 tempStr[50], humiStr[50];
-void zclcc2530_ReportDHT11(void);
+#if HAL_DHT11 == 1
+  halDHT11Data_t dht11Dat;
+  void zclcc2530_ReportDHT11(void);
+#else
+  void zclcc2530_ShowDHT11(void);
+#endif
 
 /*********************************************************************
  * Таблица обработчиков основных ZCL команд
@@ -250,11 +260,18 @@ void zclcc2530_Init(byte task_id)
   SSD1306Draw();
 
   //-- init DHT11
-  halDHT11Init();
+  #if HAL_DHT11 == 1
+    halDHT11Init();
+  #endif
   delayMs32MHZ(1000);
-  zclcc2530_ReportDHT11();
+  #if HAL_DHT11 == 1
+    zclcc2530_ReportDHT11();
+  #else
+    zclcc2530_ShowDHT11();
+  #endif
+  
   //-- запускаем повторяемый таймер для информирования о температуре (мс)
-  osal_start_reload_timer(zclcc2530_TaskID, cc2530_EVT_REFRESH, 10000);
+  //osal_start_reload_timer(zclcc2530_TaskID, cc2530_EVT_REFRESH, 10000);
 }
 
 // Основной цикл обработки событий задачи
@@ -364,14 +381,16 @@ uint16 zclcc2530_event_loop(uint8 task_id, uint16 events)
     return (events ^ cc2530_EVT_REPORTING);
   }
 
+  /*
   // событие cc2530_EVT_REFRESH
   if(events & cc2530_EVT_REFRESH) {
     
-  	delayMs32MHZ(10000);
+  	//delayMs32MHZ(10000);
     zclcc2530_ReportDHT11();
     
     return (events ^ cc2530_EVT_REFRESH);
   }
+  */
   
   // событие опроса кнопок
   if (events & HAL_KEY_EVENT)
@@ -391,6 +410,7 @@ uint16 zclcc2530_event_loop(uint8 task_id, uint16 events)
 static void zclcc2530_HandleKeys(byte shift, byte keys)
 {
   if(keys & HAL_KEY_SW_1) {
+    printf("Key1\n");
     //-- Запускаем таймер для определения долгого нажатия 5сек
     osal_start_timerEx(zclcc2530_TaskID, cc2530_EVT_LONG, 5000);
     //-- Переключаем реле
@@ -408,17 +428,21 @@ static void zclcc2530_HandleKeys(byte shift, byte keys)
   }
 
   if(keys & HAL_KEY_SW_2) {
-  	printf("Key #2 pressed\n");
+  	printf("Key2:refresh DHT11\n");
   	HalLedSet(HAL_LED_3, HAL_LED_MODE_TOGGLE);
   	
-  	//zclcc2530_ReportDHT11();
+  	#if HAL_DHT11 == 1
+  	  zclcc2530_ReportDHT11();
+  	#else
+  	  zclcc2530_ShowDHT11();
+    #endif
   	//halOLED128x64ShowX16(0, 0, "Key2:show in 4s");
   }
 
   if(keys & HAL_KEY_SW_3) {
   	P0_4 = (P0_4 == 0) ? 1 : 0;
-  	printf("Key #3 pressed: %d\n", P0_4);
-  	halOLED128x64ShowX16(2, 0, "Key #3 pressed");
+  	printf("Key3:%d\n", P0_4);
+  	//halOLED128x64ShowX16(2, 0, "Key #3 pressed");
   }
 
 }
@@ -1044,82 +1068,88 @@ void SSD1306Draw(void)
   */
 }
 
-/*
-int idx = 0;
-void showDHT11(void)
-{
-	char t[10], h[10], i[10];
-
-	printf("showDHT11\n");
-	
-	//while(1) {
-		dht11Dat = halDHT11GetData();
-    
-    if(dht11Dat.ok) {
-      printf("dht11Dat.ok!\n");
+#if HAL_DHT11 == 1
+  //-- HAL_DHT11 = 0 => use HAL library
+  int idx = 0;
+  void zclcc2530_ReportDHT11(void)
+  {
+		char t[10], h[10], i[10];
+  
+		printf("reportDHT11\n");
+		
+		//while(1) {
+			dht11Dat = halDHT11GetData();
       
-      //delayMs(SYSCLK_32MHZ, 10000);
-			halOLED128x64ClearScreen();
-
-      printf("T:");
-      printNumber(dht11Dat.temp, 2);
-      printf(", ");
-
-      printf("H:");
-      printNumber(dht11Dat.humi, 2);
-      printf("\n");
-    
-      idx++;
-      sprintf(i, "Idx: %d", (int)idx);
-      sprintf(t, "Temp: %d", (int)dht11Dat.temp);
-      sprintf(h, "Humi: %d", (int)dht11Dat.humi);
+      if(dht11Dat.ok) {
+        printf("dht11Dat.ok!\n");
+        
+        //delayMs(SYSCLK_32MHZ, 10000);
+				halOLED128x64ClearScreen();
+  
+        printf("T:");
+        printNumber(dht11Dat.temp, 2);
+        printf(", ");
+  
+        printf("H:");
+        printNumber(dht11Dat.humi, 2);
+        printf("\n");
       
-      halOLED128x64ShowX16(0, 0, (uint8 const *)i);
-      halOLED128x64ShowX16(1, 0, (uint8 const *)t);
-      halOLED128x64ShowX16(2, 0, (uint8 const *)h);
-      printf("Drawn!\n");
-    }
-
+        idx++;
+        sprintf(i, "Idx: %d", (int)idx);
+        sprintf(t, "Temp: %d", (int)dht11Dat.temp);
+        sprintf(h, "Humi: %d", (int)dht11Dat.humi);
+        
+        halOLED128x64ShowX16(0, 0, (uint8 const *)i);
+        halOLED128x64ShowX16(1, 0, (uint8 const *)t);
+        halOLED128x64ShowX16(2, 0, (uint8 const *)h);
+        printf("Drawn!\n");
+      }
+  
+      
+      //halOLED128x64ClearScreen();
+    //}
+  }
+#else
+  //-- HAL_DHT11 = 0 => use old library
+  int idx = 0;
+  void zclcc2530_ShowDHT11(void)
+  {  
+    char t[10], h[10], i[10];
     
-    //halOLED128x64ClearScreen();
-  //}
-}
-*/
-
-int idx = 0;
-void zclcc2530_ReportDHT11(void)
-{  
-  char t[10], h[10], i[10];
+    char temp[3];
+    char dec[3];
+    char humi[3];
   
-  char temp[3];
-  char dec[3];
-  char humi[3];
-
-  memset(temp, 0, 3);
-  memset(dec, 0, 3);
-  memset(humi, 0, 3);
+    memset(temp, 0, 3);
+    memset(dec, 0, 3);
+    memset(humi, 0, 3);
   
-  DHT11(); //Get temperature and humidity
-
-  //Convert temperature and humidity into a string
-  temp[0] = tempH + '0';
-  temp[1] = tempL + '0';
-
-  dec[0] = tempDec + '0';
-
-  humi[0] = humiH + '0';
-  humi[1] = humiL + '0';
+    //-- Get temperature and humidity
+    DHT11();
   
-  halOLED128x64ClearScreen();
+    //-- Convert temperature and humidity into a string
+    temp[0] = tempH + '0';
+    temp[1] = tempL + '0';
   
-  idx++;
-  sprintf(i, "Idx: %d", idx);
-  sprintf(t, "Temp: %s.%s", temp, dec);
-  sprintf(h, "Humi: %s", humi);
+    dec[0] = tempDec + '0';
   
-  halOLED128x64ShowX16(0, 0, (uint8 const *)i);
-  halOLED128x64ShowX16(1, 0, (uint8 const *)t);
-  halOLED128x64ShowX16(2, 0, (uint8 const *)h);
-
-  printf("Temp: %s.%s, Humi: %s\n", temp, dec, humi);
-}
+    humi[0] = humiH + '0';
+    humi[1] = humiL + '0';
+    
+    halOLED128x64ClearScreen();
+    
+    idx++;
+    sprintf(i, "Idx: %d", idx);
+    sprintf(t, "Temp: %s.%s", temp, dec);
+    sprintf(h, "Humi: %s", humi);
+    
+    halOLED128x64ShowX16(0, 0, (uint8 const *)i);
+    halOLED128x64ShowX16(1, 0, (uint8 const *)t);
+    halOLED128x64ShowX16(2, 0, (uint8 const *)h);
+  
+    //-- Output
+    printf(FONT_COLOR_YELLOW);
+    printf("Temp: %s.%s, Humi: %s\n", temp, dec, humi);
+    printf(STYLE_COLOR_RESET);
+  }
+#endif

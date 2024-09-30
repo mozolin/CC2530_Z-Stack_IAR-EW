@@ -46,5 +46,7 @@
 #define uint8_t uint8
 #define uint16_t uint16
 
+#define bit(b) (1UL << (b))
+
 #include "hal_lcd_cfg.h"
 #include "hal_board_cfg_cc2530.h"

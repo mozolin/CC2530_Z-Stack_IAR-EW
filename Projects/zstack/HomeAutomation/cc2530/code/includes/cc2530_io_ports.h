@@ -100,6 +100,13 @@ void delayMs16MHZ(uint16 nMs);
 void delayMs32MHZ(uint16 nMs);
 void delayMs(halDelaySysClk_t sysClk, uint16 nMs);
 
+//-- OLD LIBRARY
+typedef unsigned char uchar;
+typedef unsigned int  uint;
+void delayUS(unsigned int k);
+void delay10US(void);
+void delayMS(uint Time);
+
 
 int _CC2530_IOCTL_BV(int reg, int bit);
 void _CC2530_REGCFG_PxSEL(int port, int bit, int val);
