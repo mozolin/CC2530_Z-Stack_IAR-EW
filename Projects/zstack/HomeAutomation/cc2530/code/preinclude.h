@@ -48,5 +48,6 @@
 
 #define bit(b) (1UL << (b))
 
+#include "hal_dht11_cfg.h"
 #include "hal_lcd_cfg.h"
 #include "hal_board_cfg_cc2530.h"

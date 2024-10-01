@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include "ds18b20.h"
 
-#define MSK      (BV(0) | BV(1) | BV(2))
-#define DS18B20_SKIP_ROM 		0xCC
-#define DS18B20_CONVERT_T 		0x44
-#define DS18B20_READ_SCRATCHPAD         0xBE
+#define MSK                       (BV(0) | BV(1) | BV(2))
+#define DS18B20_SKIP_ROM 		      0xCC
+#define DS18B20_CONVERT_T 		    0x44
+#define DS18B20_READ_SCRATCHPAD   0xBE
 
 
 void _delay_us(uint16);

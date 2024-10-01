@@ -3473,12 +3473,6 @@
             <group>
                 <name>dht11</name>
                 <file>
-                    <name>$PROJ_DIR$\code\includes\dht11\DHT11.C</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\code\includes\dht11\DHT11.H</name>
-                </file>
-                <file>
                     <name>$PROJ_DIR$\code\includes\dht11\hal_dht11.c</name>
                 </file>
                 <file>
@@ -3592,7 +3586,7 @@
             <name>$PROJ_DIR$\..\..\..\..\Components\stack\bdb\bdb_touchlink.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\..\Components\stack\bdb\bdb_touchLink.h</name>
+            <name>$PROJ_DIR$\..\..\..\..\Components\stack\bdb\bdb_touchlink.h</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\..\Components\stack\bdb\bdb_touchlink_initiator.c</name>
