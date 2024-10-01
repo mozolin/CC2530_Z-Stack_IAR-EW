@@ -7,4 +7,4 @@ I have used three options for serial port monitoring to debug the application:
 - smEspressif: [**ESP-IDF template app**](smEspressif/)  
 - smPlatformio: [**PlatformIO template app**](smPlatformio/)  
   
-Most of all, I like PlatformIO. It's convenient, clear and reliable application!  
+I like PlatformIO the most. Convenient, clear and reliable application!  
