@@ -8,3 +8,5 @@ double str2float(char* str);
 //char* float2str(float num, char str[]);
 
 void printNumber(double number, int decimals);
+
+uint8 osal_printf(char str[]);

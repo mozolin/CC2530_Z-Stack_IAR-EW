@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <ioCC2530.h>
 #include "cc2530_io_ports.h"
@@ -99,6 +100,7 @@ uint8 halDHT11GetData(void)
 
     
     char resStr[200] = {0};
+
     //-- convert temperature to integer
     sprintf(resStr, "%d%d.%d", tempH, tempL, tempDec);
   	uint8 tempNum = atoi(resStr);
@@ -142,7 +144,7 @@ uint8 errorMsg(uint8 req)
 {
 	uint8 error = 0;
 	if(req > 1) {
-    printf(FONT_COLOR_RED);
+    printf(FONT_COLOR_STRONG_RED);
     switch(req) {
       case HAL_DHT11_SC_HUMI_OUTOFRANGE:
 		   	printf("DHT11: Humidity out of range!\n");

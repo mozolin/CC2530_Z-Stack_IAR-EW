@@ -1,24 +1,24 @@
-#include <stdio.h>
+//-- Standard libs
+#include <stdio.h>  //-- printf, sprintf
+#include <string.h> //-- memset
+
+//-- Z-Stack libs
 #include "ZComDef.h"
 #include "OSAL.h"
 #include "AF.h"
 #include "ZDApp.h"
 #include "ZDObject.h"
 #include "MT_SYS.h"
-
 #include "nwk_util.h"
-
 #include "zcl.h"
 #include "zcl_general.h"
 #include "zcl_ha.h"
 #include "zcl_ms.h"
 #include "zcl_diagnostic.h"
 #include "zcl_cc2530.h"
-
 #include "bdb.h"
 #include "bdb_interface.h"
 #include "gp_interface.h"
-
 #include "onboard.h"
 
 //-- HAL libs
@@ -28,31 +28,21 @@
 #include "hal_drivers.h"
 #include "hal_uart.h"
 
-//-- extra libs
+//-- Extra libs
+#include "cc2530_io_ports.h"
+#include "utils.h"
 #include "ds18b20.h"
 #include "colors.h"
 #include "cc2530_io_ports.h"
 
+//-- OLED libs
+#include "hal_oled_128x64.h"
+#include "font_v_picture.h"
+#include "images.h"
+
+//-- DHT11 driver
 int dht11Idx = 0;
 #include "hal_dht11.h" 
-
-
-#include <string.h>
-#include "utils.h"
-
-//-- OLED
-#include "hal_oled_128x64.h"
-#include "cc2530_io_ports.h"
-
-//#include "font_rgb_picture.h" //- TFT-screen
-#include "font_v_picture.h"
-//#include "icons_8x8.h"
-//#include "icons_7x7.h"
-
-#include "images.h"
-//#include "toxic_32x32.h"
-//#include "motion_16x16.h"
-//#include "zigbee_logo.h"
 
 
 // Идентификатор задачи нашего приложения
@@ -113,7 +103,7 @@ void uart0RxCb(uint8 port, uint8 event);
 //-- Init & Draw SSD1306 OLED
 void SSD1306Draw(void);
 
-//-- Init & Show DHT11 sensor
+//-- report DHT11 sensor
 void zclcc2530_ReportDHT11(void);
 
 /*********************************************************************
@@ -227,10 +217,13 @@ void zclcc2530_Init(byte task_id)
   applyRelay();
 
   // запускаем повторяемый таймер события HAL_KEY_EVENT (мс)
-  osal_start_reload_timer(zclcc2530_TaskID, HAL_KEY_EVENT, TIMER_INTERVAL_HAL_KEY_EVENT);
+  osal_start_reload_timer(zclcc2530_TaskID, HAL_KEY_EVENT, TIMER_INTERVAL_HAL_KEY_EVT);
   
   //-- запускаем повторяемый таймер для информирования о температуре (мс)
   osal_start_reload_timer(zclcc2530_TaskID, cc2530_EVT_REPORTING, TIMER_INTERVAL_REPORTING_EVT);
+  //-- запускаем повторяемый таймер для информирования о температуре (мс)
+  osal_start_reload_timer(zclcc2530_TaskID, cc2530_EVT_REFRESH, TIMER_INTERVAL_REFRESH_EVT);
+
   
   // Старт процесса возвращения в сеть
   bdb_StartCommissioning(BDB_COMMISSIONING_MODE_PARENT_LOST);
@@ -239,7 +232,7 @@ void zclcc2530_Init(byte task_id)
   HalUARTInit();
   uint8 state = initUart0(uart0RxCb);
 
-  printf(FONT_COLOR_GREEN);
+  printf(FONT_COLOR_STRONG_GREEN);
   printf("\nUART initiated\n");
   printf(STYLE_COLOR_RESET);
 
@@ -249,20 +242,9 @@ void zclcc2530_Init(byte task_id)
   
   SSD1306Draw();
 
-  //-- init DHT11
-  #if HAL_DHT11 == 1
-    halDHT11Init();
-  #endif
   delayMs32MHZ(1000);
-  //#if HAL_DHT11 == 1
-  //  zclcc2530_ReportDHT11();
-  //#else
-  //  zclcc2530_ShowDHT11();
-  //#endif
-  zclcc2530_ReportDHT11();
   
-  //-- запускаем повторяемый таймер для информирования о температуре (мс)
-  //osal_start_reload_timer(zclcc2530_TaskID, cc2530_EVT_REFRESH, 10000);
+  zclcc2530_ReportDHT11();
 }
 
 // Основной цикл обработки событий задачи
@@ -296,7 +278,7 @@ uint16 zclcc2530_event_loop(uint8 task_id, uint16 events)
             (zclcc2530_NwkState == DEV_ROUTER)   ||
             (zclcc2530_NwkState == DEV_END_DEVICE)) {
             
-            printf(FONT_COLOR_GREEN);
+            printf(FONT_COLOR_STRONG_GREEN);
   					printf("Joined network!\n");
   					printf(STYLE_COLOR_RESET);
             
@@ -340,7 +322,7 @@ uint16 zclcc2530_event_loop(uint8 task_id, uint16 events)
       //-- покидаем сеть
       zclcc2530_LeaveNetwork();
       
-      printf(FONT_COLOR_RED);
+      printf(FONT_COLOR_STRONG_RED);
       printf("Leave Network\n");
   		printf(STYLE_COLOR_RESET);
     }
@@ -354,9 +336,9 @@ uint16 zclcc2530_event_loop(uint8 task_id, uint16 events)
         BDB_COMMISSIONING_MODE_INITIATOR_TL
      );
       // будем мигать пока не подключимся
-      osal_start_timerEx(zclcc2530_TaskID, cc2530_EVT_BLINK, TIMER_INTERVAL_EVT_BLINK);
+      osal_start_timerEx(zclcc2530_TaskID, cc2530_EVT_BLINK, TIMER_INTERVAL_BLINK_EVT);
       
-      printf(FONT_COLOR_YELLOW);
+      printf(FONT_COLOR_STRONG_YELLOW);
       printf("Start Commissioning...\n");
   		printf(STYLE_COLOR_RESET);
     }
@@ -364,24 +346,29 @@ uint16 zclcc2530_event_loop(uint8 task_id, uint16 events)
     return (events ^ cc2530_EVT_LONG);
   }
   
-  // событие cc2530_EVT_REPORTING
+  //-- cc2530_EVT_REPORTING event
   if(events & cc2530_EVT_REPORTING) {
+    
+    printf(FONT_COLOR_STRONG_MAGENTA);
+    printf("cc2530_EVT_REPORTING\n");
+  	printf(STYLE_COLOR_RESET);
     
     zclcc2530_ReportTemp();
     
     return (events ^ cc2530_EVT_REPORTING);
   }
 
-  /*
-  // событие cc2530_EVT_REFRESH
+  //-- cc2530_EVT_REFRESH event
   if(events & cc2530_EVT_REFRESH) {
     
-  	//delayMs32MHZ(10000);
+  	printf(FONT_COLOR_STRONG_CYAN);
+  	printf("cc2530_EVT_REFRESH\n");
+  	printf(STYLE_COLOR_RESET);
+    
     zclcc2530_ReportDHT11();
     
     return (events ^ cc2530_EVT_REFRESH);
   }
-  */
   
   // событие опроса кнопок
   if (events & HAL_KEY_EVENT)
@@ -422,11 +409,6 @@ static void zclcc2530_HandleKeys(byte shift, byte keys)
   	printf("Key2:refresh DHT11\n");
   	HalLedSet(HAL_LED_3, HAL_LED_MODE_TOGGLE);
   	
-  	//#if HAL_DHT11 == 1
-  	//  zclcc2530_ReportDHT11();
-  	//#else
-  	//  zclcc2530_ShowDHT11();
-    //#endif
     zclcc2530_ReportDHT11();
   	//halOLED128x64ShowX16(0, 0, "Key2:show in 4s");
   }
@@ -854,14 +836,14 @@ void zclcc2530_ReportTemp(void)
   /*
   double number = (zclcc2530_MeasuredValue / 100.0);
 
-  printf(FONT_COLOR_YELLOW);
+  printf(FONT_COLOR_STRONG_YELLOW);
   printf("DS18B20 sensor: ");
   
   printf(STYLE_COLOR_BOLD);
-  printf(FONT_COLOR_CYAN);
+  printf(FONT_COLOR_STRONG_CYAN);
   printNumber(number, 2);
 
-  printf(FONT_COLOR_YELLOW);
+  printf(FONT_COLOR_STRONG_YELLOW);
   printf(" °С\n");
   printf(STYLE_COLOR_RESET);
   */
@@ -1063,9 +1045,8 @@ void SSD1306Draw(void)
 uint8 req;
 void zclcc2530_ReportDHT11(void)
 {
-	char t[10], h[10], i[10];
+	char t[50], h[50], i[50];
 
-	//-- HAL_DHT11 = 0 => use old library
 	req = halDHT11GetData();
 
   if(req) {
@@ -1073,7 +1054,7 @@ void zclcc2530_ReportDHT11(void)
     	return;
     }
     
-    printf(FONT_COLOR_GREEN);
+    printf(FONT_COLOR_STRONG_GREEN);
     printf("DHT11 Initiated\n");
     printf(STYLE_COLOR_RESET);
     
@@ -1087,18 +1068,21 @@ void zclcc2530_ReportDHT11(void)
     } else {
 	  	sprintf(h, "Humi: %d%d%%", humiH, humiL);
   	}
-      
-    halOLED128x64ShowX16(0, 0, (uint8 const *)i);
+
+  	halOLED128x64ShowX16(0, 0, (uint8 const *)i);
     halOLED128x64ShowX16(1, 0, (uint8 const *)t);
     halOLED128x64ShowX16(2, 0, (uint8 const *)h);
 
     //-- Output
-    printf(FONT_COLOR_YELLOW);
+    printf(FONT_COLOR_STRONG_YELLOW);
     printf("%s, %s, %s\n", i, t, h);
     printf(STYLE_COLOR_RESET);
+    
   } else {
-  	printf(FONT_COLOR_RED);
+  	
+  	printf(FONT_COLOR_STRONG_RED);
     printf("DHT11 NOT Initiated!\n");
     printf(STYLE_COLOR_RESET);
+
   }
 }

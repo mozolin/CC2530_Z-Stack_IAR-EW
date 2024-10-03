@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include "ZComDef.h"
 #include "hal_drivers.h"
 #include "OSAL.h"
@@ -98,4 +100,6 @@ void osalInitTasks( void )
   zcl_Init( taskID++ );
   bdb_Init( taskID++ );
   zclcc2530_Init( taskID );
+
+  printf("taskID:%d\n", taskID);
 }

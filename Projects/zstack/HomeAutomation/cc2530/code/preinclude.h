@@ -37,11 +37,13 @@
 #define HAL_UART_DMA 1
 
 //-- интервал повторяемого таймера события HAL_KEY_EVENT (мс)
-#define TIMER_INTERVAL_HAL_KEY_EVENT 100
+#define TIMER_INTERVAL_HAL_KEY_EVT 100
 //-- интервал повторяемого таймера для информирования о температуре (мс)
 #define TIMER_INTERVAL_REPORTING_EVT 10000
+//-- интервал повторяемого таймера для информирования о температуре (мс)
+#define TIMER_INTERVAL_REFRESH_EVT 10000
 //-- интервал таймера для мигания (мс)
-#define TIMER_INTERVAL_EVT_BLINK 1000
+#define TIMER_INTERVAL_BLINK_EVT 1000
 
 #define uint8_t uint8
 #define uint16_t uint16
