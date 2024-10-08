@@ -3197,10 +3197,10 @@
                     <name>$PROJ_DIR$\code\includes\lcd\hal_lcd_spi.h</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\code\includes\lcd\hal_oled_128x64.c</name>
+                    <name>$PROJ_DIR$\code\includes\lcd\hal_oled.c</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\code\includes\lcd\hal_oled_128x64.h</name>
+                    <name>$PROJ_DIR$\code\includes\lcd\hal_oled.h</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\code\includes\lcd\hal_tft.c</name>

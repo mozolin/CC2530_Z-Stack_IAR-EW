@@ -1,3 +1,6 @@
+//-- TFT only!
+#if HAL_LCD_TYPE == HAL_LCD_TYPE_TFT
+
 #include "hal_tft.h"
 #include "hal_lcd_spi.h"
 #include "cc2530_io_ports.h"
@@ -54,7 +57,8 @@ static void halTFTShowChar8x16(uint16 x, uint16 y, uint16 fontColor, uint16 back
 static void halTFTShowCharOther(uint16 x, uint16 y, uint16 fontColor, uint16 backgroundColor, uint8 ch);
 static void halTFTShowCharRus1(uint16 x, uint16 y, uint16 fontColor, uint16 backgroundColor, uint8 ch);
 static void halTFTShowCharRus2(uint16 x, uint16 y, uint16 fontColor, uint16 backgroundColor, uint8 ch);
-//static void halTFTShowChineseChar16x16(uint16 x, uint16 y, uint16 fontColor, uint16 backgroundColor, uint8 chL, uint8 chR);
+static uint8 halTFTShowCharGyver(uint16 x, uint16 y, uint16 fontColor, uint16 backgroundColor, uint8 chL, uint8 chR);
+void halTFTParseFont(uint16 x, uint16 y, uint16 fontColor, uint16 backgroundColor, uint8 fontTableNum, uint16 charIndex);
 
 void halTFTInit(uint16 screenColor)
 {    
@@ -94,17 +98,13 @@ void halTFTShowX16(uint16 x, uint16 y, uint16 fontColor, uint16 backgroundColor,
 
   /* Show text */
   while(*ptext != 0) {
-    /* ASCII Code: 0~127 */
+    //-- ASCII Code: 0~127
     if((*ptext) < 128) {
-      /* End of line */
+      //-- End of line
       if((x + 8) > HAL_TFT_X) return;
       
-      /* Show 8x16 ASCII Char. */
+      //-- Show 8x16 ASCII Char
       halTFTShowChar8x16(x, y, fontColor, backgroundColor, *ptext);
-      /*
-      x += 8;
-      ptext++;
-      */
     } else {
       if((*ptext) == 208 && *(ptext+1) == 129) {
       	//-- Other 8x16 characters #3 (Ё)
@@ -124,15 +124,6 @@ void halTFTShowX16(uint16 x, uint16 y, uint16 fontColor, uint16 backgroundColor,
       } else {
       	//-- skip...
       }  
-        
-      /*  
-      //-- Chinese 16x16 characters
-      //-- End of line
-      if((x + 16) > HAL_TFT_X) return;
-      halTFTShowChineseChar16x16(x, y, fontColor, backgroundColor, *ptext, *(ptext + 1));
-      x += 16;
-      ptext += 2;
-      */
     }
 
     if(*ptext != 208 && *ptext != 209) {
@@ -140,34 +131,101 @@ void halTFTShowX16(uint16 x, uint16 y, uint16 fontColor, uint16 backgroundColor,
     }
     ptext++;
 
-  } /* while(*ptext != 0) */
+  } //-- while(*ptext != 0)
+}
+
+void halTFTShowX8(uint16 x, uint16 y, uint16 fontColor, uint16 backgroundColor, const uint8 *str)
+{
+  if(!str) return;
+  
+  y += HAL_TFT_Y_OFFSET;
+  const uint8 *ptext = str; // text
+
+    //-- state
+  uint8 state = 0;
+
+  /* Show text */
+  while(*ptext != 0) {
+    //-- End of line
+    if((x + 6) > HAL_TFT_X) return;
+    
+    if((*ptext) < 128) {
+      //-- ASCII Code: 0~127
+      state = halTFTShowCharGyver(x, y, fontColor, backgroundColor, *ptext, 0);
+    } else {
+      state = halTFTShowCharGyver(x, y, fontColor, backgroundColor, *ptext, *(ptext + 1));
+    }
+
+    if(state == 1) {
+    	x += 6;
+    }
+    ptext++;
+
+  } //-- while(*ptext != 0)
 }
 
 void halTFTShowPicture(uint8 x, uint8 y, uint8 picWidth, uint8 picHeight, const uint8 *pic)
 {
-    uint8 picL, picH;
-    const uint8 *pPic = pic;
-    uint16 picSize = (uint16)picWidth * picHeight;
+  uint8 picL, picH;
+  const uint8 *pPic = pic;
+  uint16 picSize = (uint16)picWidth * picHeight;
 
-    y += HAL_TFT_Y_OFFSET;
-    
-    if (!pPic || (x + picWidth)  > HAL_TFT_X ||  (y + picHeight) > HAL_TFT_Y) return;
+  y += HAL_TFT_Y_OFFSET;
+  
+  if(!pPic || (x + picWidth)  > HAL_TFT_X ||  (y + picHeight) > HAL_TFT_Y) return;
 
-    /* Set region */
-    HAL_TFT_SET_REGION(x, y, x + picWidth - 1, y + picHeight - 1);
+  //-- Set region
+  HAL_TFT_SET_REGION(x, y, x + picWidth - 1, y + picHeight - 1);
 
-    /* Show Picture */
-    for (uint16 i = 0; i < picSize; i++) {	
+  //-- Show Picture
+  for(uint16 i = 0; i < picSize; i++) {
     #ifdef HAL_TFT_PIC_MSB
-        picH = *(pPic + i*2);     // High 8Bit
-        picL = *(pPic + i*2 + 1); // Low 8Bit
+      picH = *(pPic + i*2);     // High 8Bit
+      picL = *(pPic + i*2 + 1); // Low 8Bit
     #else
-        picL = *(pPic + i*2);     // Low 8Bit
-        picH = *(pPic + i*2 + 1); // High 8Bit
+      picL = *(pPic + i*2);     // Low 8Bit
+      picH = *(pPic + i*2 + 1); // High 8Bit
     #endif
-          
-        HAL_TFT_WRITE_UINT16((uint16)picH<<8 | picL);  						
-    }
+    HAL_TFT_WRITE_UINT16((uint16)picH<<8 | picL);  						
+  }
+}
+
+void halTFTShowIcon(uint8 x, uint8 y, uint16 fontColor, uint16 backgroundColor, uint8 size, uint8 idx)
+{
+  //-- 7x7 or 8x8 only!
+  if(size != 7 && size != 8) {
+  	return;
+  }
+
+  uint8 lastCol = 159 - size;
+  uint8 lastRow = 79 - size;
+
+  //-- do not draw an icon that extends beyond the screen!
+  //-- x: 0~127, y:0~7
+  if(x > lastCol || y > lastRow) {
+  	return;
+  }
+
+  uint16 charIndex = idx * size, ch, xxx, yyy;
+
+  for(int l = 0; l < size; l++) {
+  	for(int c = 0; c < 8; c++) {
+  		xxx = x + l;
+  		//-- rotate font
+  		yyy = y + 7 - c;
+  		if(size == 7) {
+  		  ch = ICON_TABLE_7x7[charIndex + l];
+  		}
+  		if(size == 8) {
+  		  ch = ICON_TABLE_8x8[charIndex + l];
+  		}
+			if(ch & (0x80 >> c)) {
+	    	halTFTDrawPixel(xxx, yyy, fontColor);
+		  } else {
+  			halTFTDrawPixel(xxx, yyy, backgroundColor);
+	  	}
+  	}
+  }
 }
 
 static void halTFTReset(void)
@@ -625,6 +683,75 @@ static void halTFTDrawPixel(uint16 xs, uint16 ys, uint16 color)
     HAL_TFT_WRITE_UINT16(color);
 }
 
+void halTFTParseFont(uint16 x, uint16 y, uint16 fontColor, uint16 backgroundColor, uint8 fontTableNum, uint16 charIndex)
+{
+	uint16 currChar = 0, xxx, yyy;
+
+	//-- the first bytes
+  for(int l = 0; l < 8; l++) {
+  	for(int c = 0; c < 8; c++) {
+  		xxx = x + l;
+  		//-- rotate font
+  		yyy = y + 7 - c;
+  		//-- if not 0 => font Color, otherwise => backgroundColor
+  		switch(fontTableNum) {
+  			case FT_8X16:
+  				currChar = FONT_TABLE_8X16[charIndex + l];
+  				break;
+  			case FT_MIKE_8X16:
+  				currChar = FONT_TABLE_MIKE_8X16[charIndex + l];
+  				break;
+  			case FT_MIKE_OTHER:
+  				currChar = FONT_TABLE_MIKE_OTHER[charIndex + l];
+  				break;
+				case FT_MIKE_RUS1:
+  				currChar = FONT_TABLE_MIKE_RUS1[charIndex + l];
+  				break;
+				case FT_MIKE_RUS2:
+  				currChar = FONT_TABLE_MIKE_RUS2[charIndex + l];
+  				break;
+  		}
+  		if(currChar & (0x80 >> c)) {
+    		halTFTDrawPixel(xxx, yyy, fontColor);
+	    } else {
+  	  	halTFTDrawPixel(xxx, yyy, backgroundColor);
+    	}
+  	}
+  }
+  //-- the second bytes
+  for(int l = 8; l < 16; l++) {
+  	for(int c = 0; c < 8; c++) {
+  		//-- start from the first position of previous bytes
+  		xxx = x + l - 8;
+  		//-- rotate font
+  		yyy = y + 15 - c;
+  		//-- if not 0 => font Color, otherwise => backgroundColor
+  		switch(fontTableNum) {
+  			case FT_8X16:
+  				currChar = FONT_TABLE_8X16[charIndex + l];
+  				break;
+  			case FT_MIKE_8X16:
+  				currChar = FONT_TABLE_MIKE_8X16[charIndex + l];
+  				break;
+  			case FT_MIKE_OTHER:
+  				currChar = FONT_TABLE_MIKE_OTHER[charIndex + l];
+  				break;
+				case FT_MIKE_RUS1:
+  				currChar = FONT_TABLE_MIKE_RUS1[charIndex + l];
+  				break;
+				case FT_MIKE_RUS2:
+  				currChar = FONT_TABLE_MIKE_RUS2[charIndex + l];
+  				break;
+  		}
+  		if(currChar & (0x80 >> c)) {
+    		halTFTDrawPixel(xxx, yyy, fontColor);
+	    } else {
+  	  	halTFTDrawPixel(xxx, yyy, backgroundColor);
+    	}
+  	}
+  }
+}
+
 static void halTFTShowChar8x16(uint16 x, uint16 y, uint16 fontColor, uint16 backgroundColor, uint8 ch)
 {
   uint16 charIndex;
@@ -632,105 +759,92 @@ static void halTFTShowChar8x16(uint16 x, uint16 y, uint16 fontColor, uint16 back
   /* index of font table, height: 16 */
   if(ch > 32) charIndex = (ch - 32) * 16;
   else charIndex = 0;
-  
-  /* Show Line */
-  for(uint8 l = 0; l < 16; l++) {
-      /* Show Column: 8column per line */
-    for(uint8 c = 0; c < 8; c++) {
-      if(FONT_TABLE_8x16_H[charIndex + l] & (0x80 >> c)) {
-      	halTFTDrawPixel(x + c, y + l, fontColor);
-      } else {
-      	halTFTDrawPixel(x + c, y + l, backgroundColor);
-      }
-    }
-  }
+
+  halTFTParseFont(x, y, fontColor, backgroundColor, FT_MIKE_8X16, charIndex);
 }
 
 static void halTFTShowCharOther(uint16 x, uint16 y, uint16 fontColor, uint16 backgroundColor, uint8 ch)
 {
-  uint16 charIndex;
+  uint16 charIndex/*, xxx, yyy*/;
   
   //-- index of font table, height: 16
   charIndex = ch * 16;
-  
-  //-- Show Line
-  for(uint8 l = 0; l < 16; l++) {
-    //-- Show Column: 8column per line
-    for(uint8 c = 0; c < 8; c++) {
-      if(FONT_TABLE_MIKE_OTHER_H[charIndex + l] & (0x80 >> c)) {
-      	halTFTDrawPixel(x + c, y + l, fontColor);
-      } else {
-      	halTFTDrawPixel(x + c, y + l, backgroundColor);
-      }
-    }
-  }
 
+  halTFTParseFont(x, y, fontColor, backgroundColor, FT_MIKE_OTHER, charIndex);
 }
+
 static void halTFTShowCharRus1(uint16 x, uint16 y, uint16 fontColor, uint16 backgroundColor, uint8 ch)
 {
   uint16 charIndex;
   
   //-- index of font table, height: 16
   charIndex = (ch > 144) ? (ch - 144) * 16 : 0;
-  
-  /* Show Line */
-  for(uint8 l = 0; l < 16; l++) {
-      /* Show Column: 8column per line */
-    for(uint8 c = 0; c < 8; c++) {
-      if(FONT_TABLE_MIKE_RUS1_H[charIndex + l] & (0x80 >> c)) {
-      	halTFTDrawPixel(x + c, y + l, fontColor);
-      } else {
-      	halTFTDrawPixel(x + c, y + l, backgroundColor);
-      }
-    }
-  }
+
+  halTFTParseFont(x, y, fontColor, backgroundColor, FT_MIKE_RUS1, charIndex);
 }
+
 static void halTFTShowCharRus2(uint16 x, uint16 y, uint16 fontColor, uint16 backgroundColor, uint8 ch)
 {
   uint16 charIndex;
   
   //-- index of font table, height: 16
   charIndex = (ch > 128) ? (ch - 128) * 16 : 0;
+
+  halTFTParseFont(x, y, fontColor, backgroundColor, FT_MIKE_RUS2, charIndex);
+
+}
+
+static uint8 halTFTShowCharGyver(uint16 x, uint16 y, uint16 fontColor, uint16 backgroundColor, uint8 chL, uint8 chR)
+{
+	uint16 charIndex, tableFontRow, xxx, yyy;
+  uint8 state = 1;
   
-  /* Show Line */
-  for(uint8 l = 0; l < 16; l++) {
-      /* Show Column: 8column per line */
-    for(uint8 c = 0; c < 8; c++) {
-      if(FONT_TABLE_MIKE_RUS2_H[charIndex + l] & (0x80 >> c)) {
-      	halTFTDrawPixel(x + c, y + l, fontColor);
-      } else {
-      	halTFTDrawPixel(x + c, y + l, backgroundColor);
-      }
+  tableFontRow = 0;
+
+  if(chL < 127) {
+  	//-- ASCII Code: 0~127
+  	tableFontRow = chL - 32;
+  } else {
+    if(chL == 209 && chR == 145) {
+    	//-- Other 5x8 characters #3 (ё) => row=159
+    	tableFontRow = 159;
+    } else if(chL == 208 && chR == 129) {
+    	//-- Other 5x8 characters #3 (Ё) => row=160
+    	tableFontRow = 160;
+    } else if(chL == 194 && chR == 176) {
+    	//-- Other 5x8 characters #3 (° - degrees Celsius) => row=161
+    	tableFontRow = 161;
+    } else if(chL == 208) {
+    	//-- Russian 5x8 characters from "А" to "п"
+      tableFontRow = chR - 49;
+    } else if(chL == 209) {
+    	//-- Russian 5x8 characters from "р" to "я"
+      tableFontRow = chR + 15;
+    } else {
+    	//-- skip...
+    	state = 0;
     }
   }
-}
 
-/*
-static void halTFTShowChineseChar16x16(uint16 x, uint16 y, uint16 fontColor, uint16 backgroundColor, uint8 chL, uint8 chR)
-{
-    for (uint16 i = 0; i < FONT_TABLE_CH_SIZE; i++) {
-        if (FONT_TABLE_CH_16x16[i].Char16x16[0] != chL || FONT_TABLE_CH_16x16[i].Char16x16[1] != chR) continue;
-        
-        //-- Show Line
-        for (uint8 l = 0; l < 16; l++) {
-            //-- Show Column: 16column per line
-            // First 8column
-            for (uint8 c1 = 0; c1 < 8; c1++) {
-                if(FONT_TABLE_CH_16x16[i].code[l*2] & (0x80>>c1))
-                    halTFTDrawPixel(x + c1, y + l, fontColor);
-                else
-                    halTFTDrawPixel(x + c1, y + l, backgroundColor);
-            }
-            // Last 8column
-            for (uint8 c2 = 0; c2 < 8; c2++) {
-                if(FONT_TABLE_CH_16x16[i].code[l*2+1] & (0x80>>c2))
-                    halTFTDrawPixel(x + c2 + 8, y + l, fontColor);
-                else
-                    halTFTDrawPixel(x + c2 + 8, y + l, backgroundColor);
-            }
-        }
+  if(state == 1) {
+  	charIndex = (chL > 32) ? tableFontRow * 5 : 0;
 
-        break;
+    for(int l = 0; l < 5; l++) {
+    	for(int c = 0; c < 8; c++) {
+    		xxx = x + l;
+    		//-- rotate font
+    		yyy = y + 7 - c;
+	  		if(FONT_TABLE_GYVER[charIndex + l] & (0x80 >> c)) {
+		    	halTFTDrawPixel(xxx, yyy, fontColor);
+			  } else {
+  				halTFTDrawPixel(xxx, yyy, backgroundColor);
+	    	}
+    	}
     }
+  }
+
+  return state;
 }
-*/
+
+
+#endif //-- HAL_LCD_TYPE == HAL_LCD_TYPE_TFT

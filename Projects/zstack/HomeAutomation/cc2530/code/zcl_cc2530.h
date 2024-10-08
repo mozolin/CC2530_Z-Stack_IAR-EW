@@ -20,8 +20,17 @@ extern "C"
 #define cc2530_EVT_LONG                 0x0002 //-- Event B (2^1, 2)
 #define cc2530_EVT_END_DEVICE_REJOIN    0x0004 //-- Event C (2^2, 4)
 #define cc2530_EVT_REPORTING            0x0008 //-- Event D (2^3, 8)
-#define cc2530_EVT_REFRESH              0x0010 //-- Event E (2^4, 16)
+//#define cc2530_EVT_...                0x0010 //-- Event E (2^4, 16)
+/*********************************************************************
+ If it uses 0x0010, it blocks any other events!
+**********************************************************************/
+#define cc2530_EVT_REFRESH              0x0020 //-- Event F (2^5, 32)
 /*
+#define cc2530_EVT_... 0x0001 //-- Event A (2^0, 1)
+#define cc2530_EVT_... 0x0002 //-- Event B (2^1, 2)
+#define cc2530_EVT_... 0x0004 //-- Event C (2^2, 4)
+#define cc2530_EVT_... 0x0008 //-- Event D (2^3, 8)
+#define cc2530_EVT_... 0x0010 //-- Event E (2^4, 16)
 #define cc2530_EVT_... 0x0020 //-- Event F (2^5, 32)
 #define cc2530_EVT_... 0x0040 //-- Event G (2^6, 64)
 #define cc2530_EVT_... 0x0080 //-- Event H (2^7, 128)

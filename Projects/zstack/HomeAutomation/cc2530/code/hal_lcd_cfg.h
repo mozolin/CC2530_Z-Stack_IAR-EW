@@ -6,8 +6,10 @@ extern "C" {
 #endif
 
 
-//-- set LCD type to TFT
-#define HAL_LCD_TYPE              HAL_LCD_TYPE_TFT
+//-- !!! only one option "HAL_LCD_TYPE" can be defined !!!
+#define HAL_LCD_TYPE              HAL_LCD_TYPE_TFT  //-- set LCD type to TFT
+//#define HAL_LCD_TYPE              HAL_LCD_TYPE_OLED //-- set LCD type to TFT
+
 /*
  *  HAL_LCD_SPI_SW: SW-SPI Bus
  *  HAL_LCD_SPI_HW: HW-SPI Bus

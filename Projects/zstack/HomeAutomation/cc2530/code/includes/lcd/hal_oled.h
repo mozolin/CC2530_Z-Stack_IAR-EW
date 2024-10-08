@@ -1,5 +1,8 @@
-#ifndef HAL_OLED_128X64_H
-#define HAL_OLED_128X64_H
+//-- OLED only!
+#if HAL_LCD_TYPE == HAL_LCD_TYPE_OLED
+
+#ifndef HAL_OLED_H
+#define HAL_OLED_H
 
 #include "hal_fonts.h"
 
@@ -61,4 +64,6 @@ void halOLED128x64ShowIcon(uint8 x, uint8 y, uint8 size, uint8 idx);
 }
 #endif
 
-#endif /* #ifndef HAL_OLED_128X64_H */
+#endif /* #ifndef HAL_OLED_H */
+
+#endif //-- HAL_LCD_TYPE == HAL_LCD_TYPE_OLED

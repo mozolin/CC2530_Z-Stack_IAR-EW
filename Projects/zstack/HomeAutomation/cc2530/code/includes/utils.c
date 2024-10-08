@@ -6,7 +6,7 @@
 #include "utils.h"
 #include "OSAL.h"
 
-#include "hal_oled_128x64.h"
+#include "hal_oled.h"
 
 /***********************************
  * convert String to Integer #1    *

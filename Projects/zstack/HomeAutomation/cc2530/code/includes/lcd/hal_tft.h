@@ -1,3 +1,6 @@
+//-- TFT only!
+#if HAL_LCD_TYPE == HAL_LCD_TYPE_TFT
+
 #ifndef HAL_TFT_H
 #define HAL_TFT_H
 
@@ -18,13 +21,16 @@ extern "C" {
 
 /** @brief   TFT pixel color.
  */
-#define HAL_TFT_PIXEL_RED       0xF800 //!< Red.
-#define HAL_TFT_PIXEL_GREEN     0x07E0 //!< Green.
-#define HAL_TFT_PIXEL_BLUE      0x001F //!< Blue.
-#define HAL_TFT_PIXEL_BLACK     0x0000 //!< Black.
-#define HAL_TFT_PIXEL_WHITE     0xFFFF //!< White.
-#define HAL_TFT_PIXEL_YELLOW    0xFFE0 //!< Yellow.
-#define HAL_TFT_PIXEL_GRAY      0xEF7D //!< Gray.
+#define HAL_TFT_PIXEL_RED       0xF000
+#define HAL_TFT_PIXEL_GREEN     0x07E0
+#define HAL_TFT_PIXEL_BLUE      0x001F
+#define HAL_TFT_PIXEL_BLACK     0x0000
+#define HAL_TFT_PIXEL_WHITE     0xFFFF
+#define HAL_TFT_PIXEL_YELLOW    0xFFE0
+#define HAL_TFT_PIXEL_GRAY      0xEF7D
+#define HAL_TFT_PIXEL_CYAN      0x07FF
+#define HAL_TFT_PIXEL_MAGENTA   0xF81F
+
 
 /** @brief   TFT parameters.
  */
@@ -70,6 +76,7 @@ void halTFTSetScreen(uint16 pixelVal);
  * @warning Chinese 16x16 characters must found in table: FONT_TABLE_CHINESE_16x16
  */
 void halTFTShowX16(uint16 x, uint16 y, uint16 fontColor, uint16 backgroundColor, const uint8 *str);
+void halTFTShowX8(uint16 x, uint16 y, uint16 fontColor, uint16 backgroundColor, const uint8 *str);
 
 /**
  * @fn      halTFTShowPicture
@@ -83,6 +90,7 @@ void halTFTShowX16(uint16 x, uint16 y, uint16 fontColor, uint16 backgroundColor,
  * @param   pic - picture
  */
 void halTFTShowPicture(uint8 x, uint8 y, uint8 picWidth, uint8 picHeight, const uint8 *pic);
+void halTFTShowIcon(uint8 x, uint8 y, uint16 fontColor, uint16 backgroundColor, uint8 size, uint8 idx);
 
 
 #ifdef __cplusplus
@@ -90,3 +98,5 @@ void halTFTShowPicture(uint8 x, uint8 y, uint8 picWidth, uint8 picHeight, const 
 #endif
 
 #endif /* #ifndef HAL_TFT_H */
+
+#endif //-- HAL_LCD_TYPE == HAL_LCD_TYPE_TFT

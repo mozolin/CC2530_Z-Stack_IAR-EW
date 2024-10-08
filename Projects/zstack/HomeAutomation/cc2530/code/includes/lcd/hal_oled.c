@@ -1,4 +1,7 @@
-#include "hal_oled_128x64.h"
+//-- OLED only!
+#if HAL_LCD_TYPE == HAL_LCD_TYPE_OLED
+
+#include "hal_oled.h"
 #include "hal_lcd_spi.h"
 #include "cc2530_io_ports.h"
 
@@ -194,7 +197,6 @@ void halOLED128x64ShowIcon(uint8 x, uint8 y, uint8 size, uint8 idx)
 
 }
 
-
 static void halOLED128x64Reset(void)
 {
   /* Reset OLED128x64 */
@@ -259,16 +261,16 @@ static void halOLEDShowChar8x16(uint16 x, uint16 page, uint8 ch)
   
   //-- Set first page
   halOLED128x64SetPosition(page, x);
-  //for (uint8 j = 0; j < 8; j++)  halLcdSpiTxData( FONT_TABLE_8x16[charIndex + j] );
+  //for (uint8 j = 0; j < 8; j++)  halLcdSpiTxData( FONT_TABLE_8X16[charIndex + j] );
   for (j = 0; j < 8; j++) {
-  	halLcdSpiTxData(FONT_TABLE_MIKE_8x16[charIndex + j]);
+  	halLcdSpiTxData(FONT_TABLE_MIKE_8X16[charIndex + j]);
   }
   
   //-- Set second page
   halOLED128x64SetPosition(page + 1, x);
-  //for (uint8 j = 0; j < 8; j++) halLcdSpiTxData( FONT_TABLE_8x16[charIndex + j + 8] );
+  //for (uint8 j = 0; j < 8; j++) halLcdSpiTxData( FONT_TABLE_8X16[charIndex + j + 8] );
   for (j = 0; j < 8; j++) {
-  	halLcdSpiTxData(FONT_TABLE_MIKE_8x16[charIndex + j + 8]);
+  	halLcdSpiTxData(FONT_TABLE_MIKE_8X16[charIndex + j + 8]);
   }
 }
 
@@ -378,3 +380,5 @@ static uint8 halOLEDShowCharGyver(uint16 x, uint16 page, uint8 chL, uint8 chR)
 
   return state;
 }
+
+#endif //-- HAL_LCD_TYPE == HAL_LCD_TYPE_OLED
