@@ -50,6 +50,11 @@
 
 #define bit(b) (1UL << (b))
 
+//-- OLED LCD
+#define HAL_LCD_TYPE_OLED         1
+//-- TFT LCD
+#define HAL_LCD_TYPE_TFT          2
+
 #include "hal_dht11_cfg.h"
 #include "hal_lcd_cfg.h"
 #include "hal_board_cfg_cc2530.h"

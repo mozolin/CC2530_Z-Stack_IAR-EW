@@ -1,13 +1,13 @@
 #ifndef HAL_LCD_CFG_H
 #define HAL_LCD_CFG_H
 
-//#include "sw_spi.h"
-//#include "hw_spi.h" 
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+
+//-- set LCD type to TFT
+#define HAL_LCD_TYPE              HAL_LCD_TYPE_TFT
 /*
  *  HAL_LCD_SPI_SW: SW-SPI Bus
  *  HAL_LCD_SPI_HW: HW-SPI Bus
@@ -35,6 +35,7 @@ extern "C" {
 /* RST: Reset GPIO */
 #define HAL_LCD_SPI_RST_PORT  		1
 #define HAL_LCD_SPI_RST_PIN   		7
+
 
 #ifdef __cplusplus
 }

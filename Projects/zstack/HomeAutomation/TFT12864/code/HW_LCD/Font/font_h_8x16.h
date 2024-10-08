@@ -13,7 +13,7 @@ extern "C" {
 /*  FONT Table: 8X16.
  *  Format: Transverse.
  */
-static const unsigned char FontTable_8X16_H[]=	  
+static const unsigned char FontTable_H_8X16[]=	  
 {
 #ifdef FONT_8X16_FIXEDSYS12
     /* Font:   Fixedsys12 */

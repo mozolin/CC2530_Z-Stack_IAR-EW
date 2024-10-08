@@ -1632,8 +1632,8 @@
                     <state>$PROJ_DIR$\code\includes\ds18b20</state>
                     <state>$PROJ_DIR$\code\includes\fonts</state>
                     <state>$PROJ_DIR$\code\includes\images</state>
-                    <state>$PROJ_DIR$\code\includes\oled</state>
-                    <state>$PROJ_DIR$\code\includes\oled\spi_driver</state>
+                    <state>$PROJ_DIR$\code\includes\lcd</state>
+                    <state>$PROJ_DIR$\code\includes\lcd\spi_driver</state>
                     <state>$PROJ_DIR$\..\Source</state>
                     <state>$PROJ_DIR$\..\..\ZMain\TI2530DB</state>
                     <state>$PROJ_DIR$\..\..\..\..\Components\hal\include</state>
@@ -3489,36 +3489,45 @@
                 </file>
             </group>
             <group>
-                <name>oled</name>
+                <name>lcd</name>
                 <group>
                     <name>spi_driver</name>
                     <file>
-                        <name>$PROJ_DIR$\code\includes\oled\spi_driver\hw_spi.c</name>
+                        <name>$PROJ_DIR$\code\includes\lcd\spi_driver\hw_spi.c</name>
                     </file>
                     <file>
-                        <name>$PROJ_DIR$\code\includes\oled\spi_driver\hw_spi.h</name>
+                        <name>$PROJ_DIR$\code\includes\lcd\spi_driver\hw_spi.h</name>
                     </file>
                     <file>
-                        <name>$PROJ_DIR$\code\includes\oled\spi_driver\spi_common.h</name>
+                        <name>$PROJ_DIR$\code\includes\lcd\spi_driver\spi_common.h</name>
                     </file>
                     <file>
-                        <name>$PROJ_DIR$\code\includes\oled\spi_driver\sw_spi.c</name>
+                        <name>$PROJ_DIR$\code\includes\lcd\spi_driver\sw_spi.c</name>
                     </file>
                     <file>
-                        <name>$PROJ_DIR$\code\includes\oled\spi_driver\sw_spi.h</name>
+                        <name>$PROJ_DIR$\code\includes\lcd\spi_driver\sw_spi.h</name>
                     </file>
                 </group>
                 <file>
-                    <name>$PROJ_DIR$\code\includes\oled\hal_lcd_spi.c</name>
+                    <name>$PROJ_DIR$\code\includes\lcd\hal_fonts.h</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\code\includes\oled\hal_lcd_spi.h</name>
+                    <name>$PROJ_DIR$\code\includes\lcd\hal_lcd_spi.c</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\code\includes\oled\hal_oled_128x64.c</name>
+                    <name>$PROJ_DIR$\code\includes\lcd\hal_lcd_spi.h</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\code\includes\oled\hal_oled_128x64.h</name>
+                    <name>$PROJ_DIR$\code\includes\lcd\hal_oled_128x64.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\code\includes\lcd\hal_oled_128x64.h</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\code\includes\lcd\hal_tft.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\code\includes\lcd\hal_tft.h</name>
                 </file>
             </group>
             <file>
