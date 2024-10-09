@@ -1,3 +1,4 @@
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -91,12 +92,12 @@ char* itoa(int num, char str[])
 
 void printNumber(double number, int decimals)
 {
-	int powDec = 1;
+  int powDec = 1;
 
-	int i;
-	for(i = 0; i < decimals; i++) {
-		powDec *= 10;
-	}
+  int i;
+  for(i = 0; i < decimals; i++) {
+    powDec *= 10;
+  }
   
   //-- integer part of number
   int n0 = (int)number;
@@ -112,32 +113,32 @@ void printNumber(double number, int decimals)
 
   //-- add integer part
   sprintf(piece, "%d", n0);
-	strcpy(str, piece);
-	//-- if 0, show as an integer
-	if(decimals > 0) {
-		//-- add dot
-		strcat(str, ".");
-		//-- add decimal part
-		if(n3 == 0) {
-			//-- add extra "0"
-			for(i = 0; i < decimals; i++) {
-				strcat(str, "0");
-			}
-		} else {
-			sprintf(piece, "%d", n3);
-			strcat(str, piece);
-		}
-	}
-	printf("%s", str);
-	//halOLED128x64ShowX16(0, 0, str);
+  strcpy(str, piece);
+  //-- if 0, show as an integer
+  if(decimals > 0) {
+    //-- add dot
+    strcat(str, ".");
+    //-- add decimal part
+    if(n3 == 0) {
+      //-- add extra "0"
+      for(i = 0; i < decimals; i++) {
+        strcat(str, "0");
+      }
+    } else {
+      sprintf(piece, "%d", n3);
+      strcat(str, piece);
+    }
+  }
+  printf("%s", str);
+  //halOLED128x64ShowX16(0, 0, str);
 }
 
 uint8 osal_printf(char str[])
 {
-	//int idx = 123;
-	
-	char *memStr = osal_mem_alloc(sizeof(char)*sizeof(str));
-	if(memStr != NULL) {
+  //int idx = 123;
+  
+  char *memStr = osal_mem_alloc(sizeof(char)*sizeof(str));
+  if(memStr != NULL) {
     osal_memset(memStr, 0, sizeof(char)*sizeof(str));
     
     //sprintf(str, "Str: %d", idx);
@@ -150,4 +151,100 @@ uint8 osal_printf(char str[])
     osal_mem_free(memStr);
   }
   return 1;
+}
+
+int8 encodeU8to8(uint8 byte)
+{
+  //-- implicit conversion from unsigned to signed
+  return byte;
+}
+
+/****************************************
+ * implode two UINT8 to UINT16          *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~          *
+ * example:                             *
+ *   uint16 big;                        *
+ *   uint8 bH = 0xEF, bL = 0x7D;        *
+ *   big = implodeU8toU16(bH, bL);      *
+ *   printf("0x%x+0x%x=0x%x\n", bH, bL, big); *
+ *   => 125+239=-4227                   *
+ ****************************************/
+uint16 implodeU8toU16(uint8 byte1, uint8 byte2)
+{
+  return ((uint16)byte1 << 8) + byte2;
+}
+
+/******************************************************
+ * explode UINT16 to array of UINT8                   *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~                   *
+ * example:                                           *
+ *   uint8* arr8x2;                                   *
+ *   uint16 big = 0xEF7D;                             *
+ *   arr8x2 = explodeU16toU8(big);                    *
+ *   printf("0x%x+0x%x=0x%x\n", arr8x2[0], arr8x2[1], big); *
+ *   => 239+125=-4227                                 *
+ *****************************************************/
+uint8* explodeU16toU8(uint16 byte)
+{
+  static uint8 arr8x2[2];
+  
+  //-- low byte
+  arr8x2[0] = byte & 0xFF;
+  //-- high byte
+  arr8x2[1] = (byte >> 8);
+  return arr8x2;
+}
+
+uint16 convert16toU16(int16 in)
+{
+  return (uint16)32768 + (uint16)in;
+}
+
+
+/****************************************
+ * convert Int to Hex                   *
+ * ~~~~~~~~~~~~~~~~~~                   *
+ * example:                             *
+ *   char* r1 = int2hex(0xEF7D,1,1);    *
+ *   printf("%s", r1);                  *
+ *   => 0xEF7D (uppercase, with prefix) *
+ *                                      *
+ *   char* r1 = int2hex(0xEF7D,0,0);    *
+ *   printf("%s", r1);                  *
+ *   => ef7d (lowercase, no prefix)     *
+ ****************************************/
+char* int2hex(int value, uint8 upperCase, uint8 prefix)
+{
+  static char result[18];
+  char str[16];
+  
+  //-- format int to hex
+  sprintf(str, "%x", value);
+  if(upperCase) {
+	  //-- convert to uppercase
+  	sprintf(str, "%s", str2upper(str, 16));
+  }
+  //-- add "0x" prefix, if necessary
+  strcpy(result, prefix ? "0x" : "");
+  strcat(result, str);
+  
+  return result;
+}
+
+/**************************************************
+ * convert string to UpperCase                    *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~                    *
+ * example:                                       *
+ *   char srcStr[5];                              *
+ *   sprintf(srcStr, "%s", "hello");              *
+ *   sprintf(srcStr, "%s", str2upper(srcStr, 5)); *
+ *   printf("%s", srcStr);                        *
+ *   => HELLO                                     *
+ **************************************************/
+char* str2upper(char* str, uint8 length)
+{
+  for(uint8 i=0;i<length;i++) {
+    str[i] = toupper(str[i]);
+  }
+  return str;
 }

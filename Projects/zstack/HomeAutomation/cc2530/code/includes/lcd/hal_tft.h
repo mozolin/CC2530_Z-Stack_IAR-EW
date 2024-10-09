@@ -21,15 +21,15 @@ extern "C" {
 
 /** @brief   TFT pixel color.
  */
-#define HAL_TFT_PIXEL_RED       0xF000
-#define HAL_TFT_PIXEL_GREEN     0x07E0
-#define HAL_TFT_PIXEL_BLUE      0x001F
-#define HAL_TFT_PIXEL_BLACK     0x0000
-#define HAL_TFT_PIXEL_WHITE     0xFFFF
-#define HAL_TFT_PIXEL_YELLOW    0xFFE0
-#define HAL_TFT_PIXEL_GRAY      0xEF7D
-#define HAL_TFT_PIXEL_CYAN      0x07FF
-#define HAL_TFT_PIXEL_MAGENTA   0xF81F
+#define HAL_TFT_PIXEL_RED       0xF000 //-- 61440:240|0
+#define HAL_TFT_PIXEL_GREEN     0x07E0 //--  2016:  7|224
+#define HAL_TFT_PIXEL_BLUE      0x001F //--    31:  0|31
+#define HAL_TFT_PIXEL_BLACK     0x0000 //--     0:  0|0
+#define HAL_TFT_PIXEL_WHITE     0xFFFF //-- 65535:255|255
+#define HAL_TFT_PIXEL_YELLOW    0xFFE0 //-- 65504:255|224
+#define HAL_TFT_PIXEL_GRAY      0xEF7D //-- 61309:239|125
+#define HAL_TFT_PIXEL_CYAN      0x07FF //--  2047:  7|255
+#define HAL_TFT_PIXEL_MAGENTA   0xF81F //-- 63519:248|31
 
 
 /** @brief   TFT parameters.

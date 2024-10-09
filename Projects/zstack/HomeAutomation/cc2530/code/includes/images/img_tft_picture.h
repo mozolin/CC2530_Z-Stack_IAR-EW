@@ -1,5 +1,5 @@
-#ifndef IMG_RGB_PICTURE_H
-#define IMG_RGB_PICTURE_H
+#ifndef IMG_TFT_PICTURE_H
+#define IMG_TFT_PICTURE_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -1233,4 +1233,4 @@ static const uint8 Picture_40x40_ITunesIco[]=
 }
 #endif
 
-#endif /* #ifndef IMG_RGB_PICTURE_H */
+#endif /* #ifndef IMG_TFT_PICTURE_H */

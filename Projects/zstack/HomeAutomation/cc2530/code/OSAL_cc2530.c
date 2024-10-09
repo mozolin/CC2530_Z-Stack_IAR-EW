@@ -101,5 +101,5 @@ void osalInitTasks( void )
   bdb_Init( taskID++ );
   zclcc2530_Init( taskID );
 
-  printf("taskID:%d\n", taskID);
+  //printf("taskID:%d\n", taskID);
 }

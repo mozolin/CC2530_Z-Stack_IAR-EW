@@ -1,5 +1,5 @@
-#ifndef IMG_V_PICTURE_H
-#define IMG_V_PICTURE_H
+#ifndef IMG_OLED_PICTURE_H
+#define IMG_OLED_PICTURE_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -97,4 +97,4 @@ static const unsigned char Picture_128x128_SuccessPic[]=
 }
 #endif
 
-#endif /* #ifndef ING_V_PICTURE_H */
+#endif /* #ifndef ING_OLED_PICTURE_H */

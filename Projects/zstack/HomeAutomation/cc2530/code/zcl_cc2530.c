@@ -1,4 +1,5 @@
 //-- Standard libs
+#include <ctype.h>
 #include <stdio.h>  //-- printf, sprintf
 #include <string.h> //-- memset
 
@@ -38,12 +39,13 @@
 #if HAL_LCD_TYPE == HAL_LCD_TYPE_OLED
   //-- OLED libs
   #include "hal_oled.h"
-  #include "img_v_picture.h"
-  #include "images.h"
+  //#include "img_oled_picture.h"
+  #include "images_oled.h"
 #else
   //-- TFT libs
   #include "hal_tft.h"
-  #include "img_rgb_picture.h"
+  //#include "img_tft_picture.h"
+  #include "images_tft.h"
   #define PX_RED     HAL_TFT_PIXEL_RED
   #define PX_GREEN   HAL_TFT_PIXEL_GREEN
   #define PX_BLUE    HAL_TFT_PIXEL_BLUE
@@ -52,9 +54,19 @@
   #define PX_YELLOW  HAL_TFT_PIXEL_YELLOW
   #define PX_GRAY    HAL_TFT_PIXEL_GRAY
   #define PX_CYAN    HAL_TFT_PIXEL_CYAN
-	#define PX_MAGENTA HAL_TFT_PIXEL_MAGENTA
+  #define PX_MAGENTA HAL_TFT_PIXEL_MAGENTA
+  uint16 px_colors[] = {
+    PX_RED,
+    PX_GREEN,
+    PX_BLUE,
+    PX_BLACK,
+    PX_WHITE,
+    PX_YELLOW,
+    PX_GRAY,
+    PX_CYAN,
+    PX_MAGENTA,
+  };
 #endif
-#include "images.h"
 
 //-- DHT11 driver
 int dht11Idx = 0;
@@ -948,7 +960,7 @@ void uart0RxCb(uint8 port, uint8 event)
   {
     //-- !! halOLED128x64ShowX8:  21 chars in row (+2 px) !!
     //-- !! halOLED128x64ShowX16: 16 chars in row (exact) !!
-  	
+    
     //-- ASCII table #1 (8x16)
     halOLED128x64ClearScreen();
     halOLED128x64ShowX16(0, 0, "ABCDEFGHIJKLMNOP");
@@ -1060,6 +1072,7 @@ void uart0RxCb(uint8 port, uint8 event)
     //-- !! halTFTShowX8:  26x10 chars in row !!
     //-- !! halTFTShowX16: 20x5 chars in row !!
     
+    /*
     //-- ASCII table (8x16)
     halTFTSetScreen(PX_BLACK);
     halTFTShowX16(0,  0, PX_RED,    PX_BLACK, "ABCDEFGHIJKLMNOPQRST");
@@ -1103,11 +1116,59 @@ void uart0RxCb(uint8 port, uint8 event)
     halTFTShowIcon(0, 48, PX_CYAN,    PX_BLACK, 7, 3);
     halTFTShowIcon(0, 56, PX_MAGENTA, PX_BLACK, 8, 3);
     halTFTShowIcon(0, 64, PX_BLACK,   PX_WHITE, 7, 4);
-    
+
     //-- Pictures
     delayMs32MHZ(4000);
     halTFTSetScreen(PX_BLACK);
-    halTFTShowPicture(0, 0, 128, 64, zigbee_logo2);
+    halTFTShowPicture(0, 20, 160, 38, tft_zigbee_logo_160x38);
+    */
+
+    uint8* arr8x2;
+    uint16 big = 0xEF7D;
+    arr8x2 = explodeU16toU8(big);
+    
+    char str1[10],str2[10],str3[10];
+  	sprintf(str1, "%x", arr8x2[1]);
+  	sprintf(str2, "%x", arr8x2[0]);
+  	sprintf(str3, "%x", big);
+  	printf("1)0x%s+0x%s=0x%s\n", str2upper(str1,2), str2upper(str2,2), str2upper(str3,4));
+    
+    //printf("1)0x%x+0x%x=0x%x\n", arr8x2[1], arr8x2[0], big);
+    big = implodeU8toU16(0xAB, 0xCD);
+    arr8x2 = explodeU16toU8(big);
+    sprintf(str1, "%x", arr8x2[1]);
+  	sprintf(str2, "%x", arr8x2[0]);
+  	sprintf(str3, "%x", big);
+  	printf("2)0x%s+0x%s=0x%s\n", str2upper(str1,2), str2upper(str2,2), str2upper(str3,4));
+
+  	char* r1 = int2hex(0xEF7D,1,1);
+  	printf("3)%s\n", r1);
+  	char* r2 = int2hex(0xABCD,0,0);
+  	printf("4)%s\n", r2);
+
+		char srcStr[20];
+		sprintf(srcStr, "%s", "hello майк");
+		sprintf(srcStr, "%s", str2upper(srcStr, 20));
+    printf("5)%s\n", srcStr);
+
+    printf("6)hello майк\n");
+
+
+    /*
+    uint16 big;
+    int num = sizeof(px_colors) / sizeof(px_colors[0]);
+    char s1[] = "Img2Lcd:16bTrueColor";
+    char s2[] = "Colors wrong if not!";
+    for(uint8 i=0; i<num; i++) {
+      big = px_colors[i];
+      if(big == PX_BLACK) {
+      	//-- skip Black on Black
+      	continue;
+      }
+      halTFTShowX16(0,  0, big, PX_BLACK, (uint8 const *)s1);
+    	halTFTShowX16(0, 64, big, PX_BLACK, (uint8 const *)s2);
+    	delayMs32MHZ(2000);
+    }
     
     //-- Composition of symbols & pictures
     delayMs32MHZ(4000);
@@ -1118,16 +1179,16 @@ void uart0RxCb(uint8 port, uint8 event)
     halTFTShowIcon(20, 20, PX_BLUE, PX_BLACK, 8, 0);
     halTFTShowIcon(20, 40, PX_YELLOW, PX_BLACK, 7, 0);
   
-    halTFTShowPicture(0, 8, 16, 16, danger_16x16);
-    halTFTShowPicture(0, 24, 16, 16, empty_16x16);
-    halTFTShowPicture(0, 48, 16, 16, motion_16x16);
+    halTFTShowPicture(0, 8, 16, 16, tft_danger_16x16);
+    halTFTShowPicture(0, 28, 16, 16, tft_empty_16x16);
+    halTFTShowPicture(0, 48, 16, 16, tft_motion_16x16);
     
-    halTFTShowPicture(36, 0, 32, 32, apple_32x32);
-    halTFTShowPicture(36, 32, 32, 32, toxic_32x32);
+    halTFTShowPicture(36, 8, 16, 16, tft_danger_red_16x16);
+    halTFTShowPicture(36, 32, 16, 16, tft_toxic_16x16);
   
-    halTFTShowPicture(76, 0, 16, 16, zigbee_connected);
-    halTFTShowPicture(76, 24, 16, 16, zigbee_disconnected);
-    halTFTShowPicture(76, 48, 16, 16, zigbee_image);
+    halTFTShowPicture(76, 0, 16, 16, tft_wifi_green_16x16);
+    halTFTShowPicture(76, 24, 16, 16, tft_wifi_red_16x16);
+    halTFTShowPicture(76, 48, 16, 16, tft_zigbee_16x16);
   
     halTFTShowIcon(96, 16, PX_RED, PX_BLACK, 8, 0);
     halTFTShowIcon(96, 48, PX_GREEN, PX_BLACK, 7, 0);
@@ -1139,9 +1200,10 @@ void uart0RxCb(uint8 port, uint8 event)
     //halTFTShowPicture(32, 40, 40, 40, Picture_40x40_ITunesIco);
 
     //-- final picture
-    delayMs32MHZ(4000);
-    halTFTSetScreen(PX_BLACK);
-    halTFTShowPicture(0, 0, 80, 80, Picture_160x80_Sea);
+    //delayMs32MHZ(4000);
+    //halTFTSetScreen(PX_BLACK);
+    //halTFTShowPicture(0, 0, 80, 80, Picture_160x80_Sea);
+    */
   }
 #endif
 
