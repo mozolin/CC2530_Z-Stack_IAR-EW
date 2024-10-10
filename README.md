@@ -2,8 +2,8 @@ URL: https://github.com/mozolin/CC2530_Z-Stack_IAR-EW
 # Example: Zigbee sensors and modules with CC2530 (Z-Stack + IAR EW 8051)  
 Based mainly on the [ZigBee 3.0 Development Guide](https://github.com/mozolin/ZigBee_3.0_Dev_Guide) (Translated by Mike Mozolin using Google Translate)  
 
-- [**Serial Monitor**](SerialMonitor/)  
-
+It is possible to use [**Serial Port Monitor**](SerialMonitor/) to debug the application  
+  
 ![](img/MIKE.CC2530.IAR_Project.png)
 
 1) Open Workspace  
