@@ -1,3 +1,8 @@
+/*  Picture Size: 16X16.
+ *  Contents: Danger Icon.
+ *  512 bytes
+ *  Format: Horizontal scanning, 16bit true color, From Left to Right scanning, From Top to Bottom scanning, LSB First.
+ */
 static const uint8 tft_danger_16x16[] =
 {
 0XC3,0X18,0X61,0X08,0X61,0X08,0X61,0X08,0X61,0X08,0XAA,0X52,0X38,0XC6,0XDF,0XFF,
@@ -35,6 +40,11 @@ static const uint8 tft_danger_16x16[] =
 };
 
 
+/*  Picture Size: 16X16.
+ *  Contents: Danger Red Icon.
+ *  512 bytes
+ *  Format: Horizontal scanning, 16bit true color, From Left to Right scanning, From Top to Bottom scanning, LSB First.
+ */
 static const uint8 tft_danger_red_16x16[] =
 {
 0XC3,0X18,0X61,0X08,0X61,0X08,0X61,0X08,0X61,0X08,0XC7,0X81,0X25,0XD1,0XC4,0XE0,
@@ -72,6 +82,11 @@ static const uint8 tft_danger_red_16x16[] =
 };
 
 
+/*  Picture Size: 16X16.
+ *  Contents: Empty Icon.
+ *  512 bytes
+ *  Format: Horizontal scanning, 16bit true color, From Left to Right scanning, From Top to Bottom scanning, LSB First.
+ */
 static const uint8 tft_empty_16x16[] =
 {
 0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,
@@ -109,6 +124,11 @@ static const uint8 tft_empty_16x16[] =
 };
 
 
+/*  Picture Size: 16X16.
+ *  Contents: Motion Icon.
+ *  512 bytes
+ *  Format: Horizontal scanning, 16bit true color, From Left to Right scanning, From Top to Bottom scanning, LSB First.
+ */
 static const uint8 tft_motion_16x16[] =
 {
 0XC3,0X18,0X61,0X08,0X61,0X08,0X61,0X08,0X61,0X08,0X61,0X08,0X61,0X08,0X61,0X08,
@@ -146,6 +166,11 @@ static const uint8 tft_motion_16x16[] =
 };
 
 
+/*  Picture Size: 16X16.
+ *  Contents: Toxic Icon.
+ *  512 bytes
+ *  Format: Horizontal scanning, 16bit true color, From Left to Right scanning, From Top to Bottom scanning, LSB First.
+ */
 static const uint8 tft_toxic_16x16[] =
 {
 0XC3,0X18,0X61,0X08,0X61,0X08,0X61,0X08,0X08,0X42,0X55,0XAD,0XFF,0XFF,0XFF,0XFF,
@@ -183,6 +208,11 @@ static const uint8 tft_toxic_16x16[] =
 };
 
 
+/*  Picture Size: 16X16.
+ *  Contents: WiFi Green Icon.
+ *  512 bytes
+ *  Format: Horizontal scanning, 16bit true color, From Left to Right scanning, From Top to Bottom scanning, LSB First.
+ */
 static const uint8 tft_wifi_green_16x16[] =
 {
 0XC3,0X18,0X41,0X10,0X61,0X08,0X61,0X08,0X61,0X08,0X61,0X08,0X61,0X08,0X61,0X08,
@@ -220,6 +250,11 @@ static const uint8 tft_wifi_green_16x16[] =
 };
 
 
+/*  Picture Size: 16X16.
+ *  Contents: WiFi Red Icon.
+ *  512 bytes
+ *  Format: Horizontal scanning, 16bit true color, From Left to Right scanning, From Top to Bottom scanning, LSB First.
+ */
 static const uint8 tft_wifi_red_16x16[] =
 {
 0XC3,0X18,0X61,0X08,0X62,0X08,0X41,0X08,0X62,0X08,0X61,0X08,0X61,0X08,0X61,0X08,
@@ -256,6 +291,11 @@ static const uint8 tft_wifi_red_16x16[] =
 0X61,0X08,0X61,0X08,0X61,0X08,0X61,0X08,0X61,0X08,0X61,0X08,0X61,0X08,0XC3,0X18,
 };
 
+/*  Picture Size: 16X16.
+ *  Contents: Zigbee Icon.
+ *  512 bytes
+ *  Format: Horizontal scanning, 16bit true color, From Left to Right scanning, From Top to Bottom scanning, LSB First.
+ */
 static const uint8 tft_zigbee_16x16[] =
 {
 0XC3,0X18,0X61,0X08,0X61,0X08,0X61,0X08,0X28,0X42,0X34,0XA5,0X3C,0XE7,0XFF,0XFF,
@@ -293,6 +333,11 @@ static const uint8 tft_zigbee_16x16[] =
 };
 
 
+/*  Picture Size: 160X38.
+ *  Contents: Zigbee Logo Icon.
+ *  12160 bytes
+ *  Format: Horizontal scanning, 16bit true color, From Left to Right scanning, From Top to Bottom scanning, LSB First.
+ */
 static const uint8 tft_zigbee_logo_160x38[] =
 {
 0XC3,0X18,0X00,0X00,0X61,0X08,0X61,0X08,0X61,0X08,0X61,0X08,0X61,0X08,0X61,0X08,
@@ -1055,4 +1100,31 @@ static const uint8 tft_zigbee_logo_160x38[] =
 0X61,0X08,0X61,0X08,0X61,0X08,0X61,0X08,0X61,0X08,0X61,0X08,0X61,0X08,0X61,0X08,
 0X61,0X08,0X61,0X08,0X61,0X08,0X61,0X08,0X61,0X08,0X61,0X08,0X61,0X08,0X61,0X08,
 0X61,0X08,0X61,0X08,0X61,0X08,0X61,0X08,0X61,0X08,0X61,0X08,0X00,0X00,0XC3,0X18,
+};
+
+
+static const uint8 tft_test[] =
+{
+0XC3,0X18,0X61,0X08,0X61,0X08,0X61,0X08,0X61,0X08,0XAA,0X52,0X38,0XC6,0XDF,0XFF,
+0XDF,0XFF,0X38,0XC6,0XAA,0X52,0X61,0X08,0X61,0X08,0X61,0X08,0X61,0X08,0XC3,0X18,
+0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X28,0X42,0XFF,0XFF,0XFF,0XFF,0XFF,0XFF,
+0XFF,0XFF,0XFF,0XFF,0XFF,0XFF,0X49,0X4A,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,
+0X61,0X08,0X00,0X00,0X00,0X00,0X00,0X00,0X59,0XCE,0XFF,0XFF,0XFF,0XFF,0XFF,0XFF,
+0XFF,0XFF,0XFF,0XFF,0XFF,0XFF,0X79,0XCE,0X00,0X00,0X00,0X00,0X00,0X00,0X61,0X08,
+0X61,0X08,0X00,0X00,0X00,0X00,0X00,0X00,0XFB,0XDE,0XFF,0XFF,0XFF,0XFF,0XFF,0XFF,
+0XFF,0XFF,0XFF,0XFF,0XFF,0XFF,0XFB,0XDE,0X00,0X00,0X00,0X00,0X00,0X00,0X61,0X08,
+0X61,0X08,0X00,0X00,0X00,0X00,0X00,0X00,0X5D,0XEF,0X38,0XC6,0X04,0X21,0X1C,0XE7,
+0XBE,0XF7,0X04,0X21,0X96,0XB5,0XFB,0XDE,0X00,0X00,0X00,0X00,0X00,0X00,0X61,0X08,
+0X61,0X08,0X00,0X00,0X00,0X00,0X00,0X00,0X51,0X8C,0XF3,0X9C,0X00,0X00,0X7D,0XEF,
+0XFF,0XFF,0X00,0X00,0X30,0X84,0X10,0X84,0X00,0X00,0X00,0X00,0X00,0X00,0X61,0X08,
+0X61,0X08,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0XFF,0XFF,0X5D,0XEF,0XAE,0X73,
+0X8E,0X73,0X5D,0XEF,0XFF,0XFF,0X20,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X61,0X08,
+0X61,0X08,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0XCB,0X5A,0X5D,0XEF,0XD7,0XBD,
+0X96,0XB5,0X5D,0XEF,0X0C,0X63,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X61,0X08,
+0X61,0X08,0X00,0X00,0X61,0X08,0X04,0X21,0X00,0X00,0X00,0X00,0XB2,0X94,0XD3,0X9C,
+0X14,0XA5,0XB2,0X94,0X00,0X00,0X00,0X00,0XA2,0X10,0X61,0X08,0X00,0X00,0X61,0X08,
+0X61,0X08,0X00,0X00,0XE3,0X18,0XFF,0XFF,0X30,0X84,0X00,0X00,0XCB,0X5A,0XF7,0XBD,
+0X18,0XC6,0XAA,0X52,0X00,0X00,0X8E,0X73,0XDF,0XFF,0XE3,0X18,0X00,0X00,0X61,0X08,
+0X61,0X08,0X00,0X00,0X2C,0X63,0XFF,0XFF,0XFF,0XFF,0X59,0XCE,0X69,0X4A,0XCF,0X7B,
+
 };

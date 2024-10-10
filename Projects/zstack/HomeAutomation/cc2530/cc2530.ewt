@@ -3191,6 +3191,12 @@
                     <name>$PROJ_DIR$\code\includes\lcd\hal_fonts.h</name>
                 </file>
                 <file>
+                    <name>$PROJ_DIR$\code\includes\lcd\hal_lcd_common.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\code\includes\lcd\hal_lcd_common.h</name>
+                </file>
+                <file>
                     <name>$PROJ_DIR$\code\includes\lcd\hal_lcd_spi.c</name>
                 </file>
                 <file>

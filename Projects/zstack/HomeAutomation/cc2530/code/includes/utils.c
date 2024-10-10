@@ -1,4 +1,4 @@
-#include <ctype.h>
+#include <ctype.h> //-- toupper, tolower...
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

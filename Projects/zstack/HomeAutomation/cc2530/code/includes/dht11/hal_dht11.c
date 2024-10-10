@@ -144,6 +144,7 @@ uint8 errorMsg(uint8 req)
 {
 	uint8 error = 0;
 	if(req > 1) {
+    //-- Output to terminal via UART
     printf(FONT_COLOR_STRONG_RED);
     switch(req) {
       case HAL_DHT11_SC_HUMI_OUTOFRANGE:

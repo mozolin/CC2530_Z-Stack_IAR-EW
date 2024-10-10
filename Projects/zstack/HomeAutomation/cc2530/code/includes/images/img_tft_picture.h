@@ -5,8 +5,13 @@
 extern "C" {
 #endif
 
-static const unsigned char Picture_160x80_Sea[]=
-{ /* 0X00,0X10,0X50,0X00,0X50,0X00,0X01,0X1B, */
+/*  Picture Size: 80X80.
+ *  Contents: Sea Icon.
+ *  12800 bytes
+ *  Format: Horizontal scanning, 16bit true color, From Left to Right scanning, From Top to Bottom scanning, LSB First.
+ */
+static const unsigned char Picture_80x80_Sea[]=
+{
 0X16,0X43,0X15,0X3B,0X16,0X43,0X16,0X43,0X35,0X43,0X36,0X43,0X16,0X43,0X16,0X43,
 0X15,0X3B,0X16,0X3B,0X15,0X3B,0XF5,0X3A,0XF5,0X3A,0XF5,0X32,0XF5,0X32,0XD5,0X3A,
 0XD5,0X3A,0XF5,0X3A,0X16,0X3B,0X77,0X43,0X57,0X4B,0XF6,0X42,0XF5,0X3A,0XF5,0X3A,
@@ -812,6 +817,7 @@ static const unsigned char Picture_160x80_Sea[]=
 
 /*  Picture Size: 40X40.
  *  Contents: WeiXin Icon.
+ *  3200 bytes
  *  Format: Horizontal scanning, 16bit true color, From Left to Right scanning, From Top to Bottom scanning, LSB First.
  */
 static const unsigned char Picture_40x40_WeiXinIco[]=
@@ -1021,9 +1027,9 @@ static const unsigned char Picture_40x40_WeiXinIco[]=
 
 /*  Picture Size: 40X40.
  *  Contents: iTunes Icon.
+ *  3200 bytes
  *  Format: Horizontal scanning, 16bit true color, From Left to Right scanning, From Top to Bottom scanning, LSB First.
  */
-
 static const uint8 Picture_40x40_ITunesIco[]=
 {
     0XFF,0XFF,0XFF,0XFF,0XFF,0XFF,0XFF,0XFF,0XFF,0XFF,0XFF,0XFF,0XFF,0XFF,0XFF,0XFF,

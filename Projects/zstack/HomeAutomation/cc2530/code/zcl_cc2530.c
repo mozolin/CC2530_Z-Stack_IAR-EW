@@ -1,5 +1,4 @@
 //-- Standard libs
-#include <ctype.h>
 #include <stdio.h>  //-- printf, sprintf
 #include <string.h> //-- memset
 
@@ -34,39 +33,8 @@
 #include "utils.h"
 #include "ds18b20.h"
 #include "colors.h"
-#include "cc2530_io_ports.h"
 
-#if HAL_LCD_TYPE == HAL_LCD_TYPE_OLED
-  //-- OLED libs
-  #include "hal_oled.h"
-  //#include "img_oled_picture.h"
-  #include "images_oled.h"
-#else
-  //-- TFT libs
-  #include "hal_tft.h"
-  //#include "img_tft_picture.h"
-  #include "images_tft.h"
-  #define PX_RED     HAL_TFT_PIXEL_RED
-  #define PX_GREEN   HAL_TFT_PIXEL_GREEN
-  #define PX_BLUE    HAL_TFT_PIXEL_BLUE
-  #define PX_BLACK   HAL_TFT_PIXEL_BLACK
-  #define PX_WHITE   HAL_TFT_PIXEL_WHITE
-  #define PX_YELLOW  HAL_TFT_PIXEL_YELLOW
-  #define PX_GRAY    HAL_TFT_PIXEL_GRAY
-  #define PX_CYAN    HAL_TFT_PIXEL_CYAN
-  #define PX_MAGENTA HAL_TFT_PIXEL_MAGENTA
-  uint16 px_colors[] = {
-    PX_RED,
-    PX_GREEN,
-    PX_BLUE,
-    PX_BLACK,
-    PX_WHITE,
-    PX_YELLOW,
-    PX_GRAY,
-    PX_CYAN,
-    PX_MAGENTA,
-  };
-#endif
+#include "hal_lcd_common.h"
 
 //-- DHT11 driver
 int dht11Idx = 0;
@@ -102,16 +70,16 @@ static void zclcc2530_ProcessCommissioningStatus(bdbCommissioningModeMsg_t *bdbC
 // Функции обработки входящих сообщений ZCL Foundation команд/ответов
 static void zclcc2530_ProcessIncomingMsg(zclIncomingMsg_t *msg);
 #ifdef ZCL_READ
-static uint8 zclcc2530_ProcessInReadRspCmd(zclIncomingMsg_t *pInMsg);
+  static uint8 zclcc2530_ProcessInReadRspCmd(zclIncomingMsg_t *pInMsg);
 #endif
 #ifdef ZCL_WRITE
-static uint8 zclcc2530_ProcessInWriteRspCmd(zclIncomingMsg_t *pInMsg);
+  static uint8 zclcc2530_ProcessInWriteRspCmd(zclIncomingMsg_t *pInMsg);
 #endif
 static uint8 zclcc2530_ProcessInDefaultRspCmd(zclIncomingMsg_t *pInMsg);
 #ifdef ZCL_DISCOVER
-static uint8 zclcc2530_ProcessInDiscCmdsRspCmd(zclIncomingMsg_t *pInMsg);
-static uint8 zclcc2530_ProcessInDiscAttrsRspCmd(zclIncomingMsg_t *pInMsg);
-static uint8 zclcc2530_ProcessInDiscAttrsExtRspCmd(zclIncomingMsg_t *pInMsg);
+  static uint8 zclcc2530_ProcessInDiscCmdsRspCmd(zclIncomingMsg_t *pInMsg);
+  static uint8 zclcc2530_ProcessInDiscAttrsRspCmd(zclIncomingMsg_t *pInMsg);
+  static uint8 zclcc2530_ProcessInDiscAttrsExtRspCmd(zclIncomingMsg_t *pInMsg);
 #endif
 
 // Изменение состояние реле
@@ -127,14 +95,6 @@ void zclcc2530_ReportTemp(void);
 
 uint8 initUart0(halUARTCBack_t pf);
 void uart0RxCb(uint8 port, uint8 event);
-
-#if HAL_LCD_TYPE == HAL_LCD_TYPE_OLED
-  //-- Init & Draw SSD1306 OLED
-  void SSD1306Draw(void);
-#else
-  //-- Init & Draw TFT
-  void TFTDraw(void);
-#endif
 
 //-- report DHT11 sensor
 void zclcc2530_ReportDHT11(void);
@@ -214,10 +174,10 @@ void zclcc2530_Init(byte task_id)
   // Подписка задачи на получение сообщений о командах/ответах
   zcl_registerForMsg(zclcc2530_TaskID);
 
-#ifdef ZCL_DISCOVER
-  // Регистрация списка команд, реализуемых приложением
-  zcl_registerCmdList(cc2530_ENDPOINT, zclCmdsArraySize, zclcc2530_Cmds);
-#endif
+  #ifdef ZCL_DISCOVER
+    // Регистрация списка команд, реализуемых приложением
+    zcl_registerCmdList(cc2530_ENDPOINT, zclCmdsArraySize, zclcc2530_Cmds);
+  #endif
 
   // Подписка задачи на получение всех событий для кнопок
   RegisterForKeys(zclcc2530_TaskID);
@@ -225,16 +185,15 @@ void zclcc2530_Init(byte task_id)
   bdb_RegisterCommissioningStatusCB(zclcc2530_ProcessCommissioningStatus);
   bdb_RegisterIdentifyTimeChangeCB(zclcc2530_ProcessIdentifyTimeChange);
 
-#ifdef ZCL_DIAGNOSTIC
-  // Register the application's callback function to read/write attribute data.
-  // This is only required when the attribute data format is unknown to ZCL.
-  zcl_registerReadWriteCB(cc2530_ENDPOINT, zclDiagnostic_ReadWriteAttrCB, NULL);
+  #ifdef ZCL_DIAGNOSTIC
+    // Register the application's callback function to read/write attribute data.
+    // This is only required when the attribute data format is unknown to ZCL.
+    zcl_registerReadWriteCB(cc2530_ENDPOINT, zclDiagnostic_ReadWriteAttrCB, NULL);
 
-  if (zclDiagnostic_InitStats() == ZSuccess)
-  {
-    // Here the user could start the timer to save Diagnostics to NV
-  }
-#endif
+    if(zclDiagnostic_InitStats() == ZSuccess) {
+      // Here the user could start the timer to save Diagnostics to NV
+    }
+  #endif
   
   // Установка адреса и эндпоинта для отправки отчета
   zclcc2530_DstAddr.addrMode = (afAddrMode_t)AddrNotPresent;
@@ -264,24 +223,17 @@ void zclcc2530_Init(byte task_id)
   HalUARTInit();
   uint8 state = initUart0(uart0RxCb);
 
+  //-- Output to terminal via UART
   printf(FONT_COLOR_STRONG_GREEN);
   printf("\nUART initiated\n");
   printf(STYLE_COLOR_RESET);
 
   
   setSystemClk32MHZ();
-  #if HAL_LCD_TYPE == HAL_LCD_TYPE_OLED
-    //-- init & draw OLED
-    halOLED128x64Init();
-    SSD1306Draw();
-  #else
-    //-- init & draw TFT
-    halTFTInit(HAL_TFT_PIXEL_BLACK);
-    TFTDraw();
-  #endif
+  halLCDInit();
 
   delayMs32MHZ(4000);
-  //zclcc2530_ReportDHT11();
+  zclcc2530_ReportDHT11();
 }
 
 // Основной цикл обработки событий задачи
@@ -315,6 +267,7 @@ uint16 zclcc2530_event_loop(uint8 task_id, uint16 events)
             (zclcc2530_NwkState == DEV_ROUTER)   ||
             (zclcc2530_NwkState == DEV_END_DEVICE)) {
             
+            //-- Output to terminal via UART
             printf(FONT_COLOR_STRONG_GREEN);
             printf("Joined network!\n");
             printf(STYLE_COLOR_RESET);
@@ -359,6 +312,7 @@ uint16 zclcc2530_event_loop(uint8 task_id, uint16 events)
       //-- покидаем сеть
       zclcc2530_LeaveNetwork();
       
+      //-- Output to terminal via UART
       printf(FONT_COLOR_STRONG_RED);
       printf("Leave Network\n");
       printf(STYLE_COLOR_RESET);
@@ -375,6 +329,7 @@ uint16 zclcc2530_event_loop(uint8 task_id, uint16 events)
       // будем мигать пока не подключимся
       osal_start_timerEx(zclcc2530_TaskID, cc2530_EVT_BLINK, TIMER_INTERVAL_BLINK_EVT);
       
+      //-- Output to terminal via UART
       printf(FONT_COLOR_STRONG_YELLOW);
       printf("Start Commissioning...\n");
       printf(STYLE_COLOR_RESET);
@@ -402,7 +357,7 @@ uint16 zclcc2530_event_loop(uint8 task_id, uint16 events)
     //printf("cc2530_EVT_REFRESH\n");
     //printf(STYLE_COLOR_RESET);
     
-    //zclcc2530_ReportDHT11();
+    zclcc2530_ReportDHT11();
     
     return (events ^ cc2530_EVT_REFRESH);
   }
@@ -425,7 +380,7 @@ uint16 zclcc2530_event_loop(uint8 task_id, uint16 events)
 static void zclcc2530_HandleKeys(byte shift, byte keys)
 {
   if(keys & HAL_KEY_SW_1) {
-    printf("Key1\n");
+    printf("Key1 pressed\n");
     //-- Запускаем таймер для определения долгого нажатия 5сек
     osal_start_timerEx(zclcc2530_TaskID, cc2530_EVT_LONG, 5000);
     //-- Переключаем реле
@@ -433,21 +388,18 @@ static void zclcc2530_HandleKeys(byte shift, byte keys)
     
     //halOLED128x64ShowX16(0, 0, "Key1:clear in 4s");
     if(RELAY_STATE == 0) {
-      #if HAL_LCD_TYPE == HAL_LCD_TYPE_OLED
-        halOLED128x64ClearScreen();
-      #else
-        halTFTSetScreen(PX_BLACK);
+      #ifdef HAL_LCD_TEST
+        halLCDClearScreen();
       #endif
     } else {
-      #if HAL_LCD_TYPE == HAL_LCD_TYPE_OLED
-        SSD1306Draw();
-      #else
-        TFTDraw();
+      #ifdef HAL_LCD_TEST
+        halLCDStartTest();
       #endif
     }
   } else {
     //-- Останавливаем таймер ожидания долгого нажатия
     osal_stop_timerEx(zclcc2530_TaskID, cc2530_EVT_LONG);
+    printf("Key1 stopped timer\n");
   }
 
   if(keys & HAL_KEY_SW_2) {
@@ -465,7 +417,6 @@ static void zclcc2530_HandleKeys(byte shift, byte keys)
   }
 
 }
-
 
 // Обработчик изменения статусов соединения с сетью
 static void zclcc2530_ProcessCommissioningStatus(bdbCommissioningModeMsg_t *bdbCommissioningModeMsg)
@@ -517,7 +468,7 @@ static void zclcc2530_ProcessCommissioningStatus(bdbCommissioningModeMsg_t *bdbC
       //We are on a network, what now?
 
     break;
-#if ZG_BUILD_ENDDEVICE_TYPE    
+  #if ZG_BUILD_ENDDEVICE_TYPE    
     case BDB_COMMISSIONING_PARENT_LOST:
       if(bdbCommissioningModeMsg->bdbCommissioningStatus == BDB_COMMISSIONING_NETWORK_RESTORED)
       {
@@ -529,26 +480,21 @@ static void zclcc2530_ProcessCommissioningStatus(bdbCommissioningModeMsg_t *bdbC
         osal_start_timerEx(zclcc2530_TaskID, cc2530_EVT_END_DEVICE_REJOIN, cc2530_END_DEVICE_REJOIN_DELAY);
       }
     break;
-#endif 
+  #endif 
   }
 }
-
 
 // Обработчик изменения времени идентификации
 static void zclcc2530_ProcessIdentifyTimeChange(uint8 endpoint)
 {
   (void) endpoint;
 
-  if (zclcc2530_IdentifyTime > 0)
-  {
+  if (zclcc2530_IdentifyTime > 0) {
     //HalLedBlink (HAL_LED_2, 0xFF, HAL_LED_DEFAULT_DUTY_CYCLE, HAL_LED_DEFAULT_FLASH_TIME);
-  }
-  else
-  {
+  } else {
     //HalLedSet (HAL_LED_2, HAL_LED_MODE_OFF);
   }
 }
-
 
 //-- Обработчик команды сброса в Basic кластере
 static void zclcc2530_BasicResetCB(void)
@@ -569,16 +515,16 @@ static void zclcc2530_ProcessIncomingMsg(zclIncomingMsg_t *pInMsg)
 {
   switch (pInMsg->zclHdr.commandID)
   {
-#ifdef ZCL_READ
+  #ifdef ZCL_READ
     case ZCL_CMD_READ_RSP:
       zclcc2530_ProcessInReadRspCmd(pInMsg);
       break;
-#endif
-#ifdef ZCL_WRITE
+  #endif
+  #ifdef ZCL_WRITE
     case ZCL_CMD_WRITE_RSP:
       zclcc2530_ProcessInWriteRspCmd(pInMsg);
       break;
-#endif
+  #endif
     case ZCL_CMD_CONFIG_REPORT:
     case ZCL_CMD_CONFIG_REPORT_RSP:
     case ZCL_CMD_READ_REPORT_CFG:
@@ -590,7 +536,7 @@ static void zclcc2530_ProcessIncomingMsg(zclIncomingMsg_t *pInMsg)
     case ZCL_CMD_DEFAULT_RSP:
       zclcc2530_ProcessInDefaultRspCmd(pInMsg);
       break;
-#ifdef ZCL_DISCOVER
+  #ifdef ZCL_DISCOVER
     case ZCL_CMD_DISCOVER_CMDS_RECEIVED_RSP:
       zclcc2530_ProcessInDiscCmdsRspCmd(pInMsg);
       break;
@@ -606,7 +552,7 @@ static void zclcc2530_ProcessIncomingMsg(zclIncomingMsg_t *pInMsg)
     case ZCL_CMD_DISCOVER_ATTRS_EXT_RSP:
       zclcc2530_ProcessInDiscAttrsExtRspCmd(pInMsg);
       break;
-#endif
+  #endif
     default:
       break;
   }
@@ -707,8 +653,7 @@ static uint8 zclcc2530_ProcessInDiscAttrsExtRspCmd(zclIncomingMsg_t *pInMsg)
 
   return (true);
 }
-#endif // ZCL_DISCOVER
-
+#endif //-- ZCL_DISCOVER
 
 // Инициализация работы кнопок (входов)
 void cc2530_HalKeyInit(void)
@@ -798,7 +743,6 @@ void applyRelay (void)
     HalLedSet(HAL_LED_1, HAL_LED_MODE_ON);
   }
 }
-
 
 //-- Инициализация выхода из сети
 void zclcc2530_LeaveNetwork(void)
@@ -925,6 +869,7 @@ void zclcc2530_ReportTemp(void)
   osal_mem_free(pReportCmd);
 }
 
+
 __near_func int putchar(int c)
 {
   HalUARTWrite(HAL_UART_PORT_0, (uint8 *)&c, 1);
@@ -950,262 +895,10 @@ void uart0RxCb(uint8 port, uint8 event)
 {
   uint8 ch;
   while(Hal_UART_RxBufLen(port)) {
-    // Read one byte from UART to ch
+    //-- Read one byte from UART to ch
     HalUARTRead (port, &ch, 1);
   }
 }
-
-#if HAL_LCD_TYPE == HAL_LCD_TYPE_OLED
-  void SSD1306Draw(void)
-  {
-    //-- !! halOLED128x64ShowX8:  21 chars in row (+2 px) !!
-    //-- !! halOLED128x64ShowX16: 16 chars in row (exact) !!
-    
-    //-- ASCII table #1 (8x16)
-    halOLED128x64ClearScreen();
-    halOLED128x64ShowX16(0, 0, "ABCDEFGHIJKLMNOP");
-    halOLED128x64ShowX16(1, 0, "QRSTUVWXYZabcdef");
-    halOLED128x64ShowX16(2, 0, "ghijklmnopqrstuv");
-    halOLED128x64ShowX16(3, 0, "wxyz0123456789.,");
-  
-    //-- ASCII table #2 (8x16)
-    delayMs32MHZ(4000);
-    halOLED128x64ClearScreen();
-    halOLED128x64ShowX16(0, 0, "\"'?!@_*#$%&()+-/");
-    halOLED128x64ShowX16(1, 0, ":;<=>[\\]^`{|}~");
-    halOLED128x64ShowX16(2, 0, "................");
-    halOLED128x64ShowX16(3, 0, "................");
-  
-    //-- Russian table #1 (8x16)
-    delayMs32MHZ(4000);
-    halOLED128x64ClearScreen();
-    halOLED128x64ShowX16(0, 0, "АБВГДЕЖЗИЙКЛМНОП");
-    halOLED128x64ShowX16(1, 0, "РСТУФХЦЧШЩЪЫЬЭЮЯ");
-    halOLED128x64ShowX16(2, 0, "абвгдежзийклмноп");
-    halOLED128x64ShowX16(3, 0, "рстуфхцчшщъыьэюя");
-  
-    //-- Russian table #2 (8x16)
-    delayMs32MHZ(4000);
-    halOLED128x64ClearScreen();
-    halOLED128x64ShowX16(0, 0, "Ёё °C");
-    halOLED128x64ShowX16(1, 0, "................");
-    halOLED128x64ShowX16(2, 0, "................");
-    halOLED128x64ShowX16(3, 0, "................");
-  
-    //-- ASCII table #1 (8x8)
-    delayMs32MHZ(4000);
-    halOLED128x64ClearScreen();
-    halOLED128x64ShowX8(0, 0, "ABCDEFGHIJKLMNOPQRSTU");
-    halOLED128x64ShowX8(1, 0, "VWXYZabcdefghijklmnop");
-    halOLED128x64ShowX8(2, 0, "qrstuvwxyz0123456789.");
-    halOLED128x64ShowX8(3, 0, ",\"'?!@_*#$%&()+-/:;<=");
-    halOLED128x64ShowX8(4, 0, ">[\\]^`{|}~");
-    halOLED128x64ShowX8(5, 0, ".....................");
-    halOLED128x64ShowX8(6, 0, ".....................");
-    halOLED128x64ShowX8(7, 0, ".....................");
-  
-    //-- Russian table #1 (8x8)
-    delayMs32MHZ(4000);
-    halOLED128x64ClearScreen();
-    halOLED128x64ShowX8(0, 2, "ЁАБВГДЕЖЗИЙКЛМНОПРСТУ");
-    halOLED128x64ShowX8(1, 2, "ФХЦЧШЩЪЫЬЭЮЯабвгдежзи");
-    halOLED128x64ShowX8(2, 2, "йклмнопрстуфхцчшщъыьэ");
-    halOLED128x64ShowX8(3, 2, "юяё °C");
-    halOLED128x64ShowX8(4, 2, ".....................");
-    halOLED128x64ShowX8(5, 2, ".....................");
-    halOLED128x64ShowX8(6, 2, ".....................");
-    halOLED128x64ShowX8(7, 2, ".....................");
-  
-    //-- Icons table
-    delayMs32MHZ(4000);
-    halOLED128x64ClearScreen();
-    halOLED128x64ShowIcon(10, 0, 7, 0);
-    halOLED128x64ShowIcon(20, 1, 8, 0);
-    halOLED128x64ShowIcon(30, 2, 7, 1);
-    halOLED128x64ShowIcon(40, 3, 8, 1);
-    halOLED128x64ShowIcon(50, 4, 7, 2);
-    halOLED128x64ShowIcon(60, 5, 8, 2);
-    halOLED128x64ShowIcon(70, 6, 7, 3);
-    halOLED128x64ShowIcon(80, 7, 8, 3);
-    halOLED128x64ShowIcon(90, 8, 7, 4);
-  
-    //-- Pictures
-    delayMs32MHZ(4000);
-    halOLED128x64ClearScreen();
-    halOLED128x64ShowPicture(0, 0, 128, 64, zigbee_logo2);
-  
-  
-    delayMs32MHZ(4000);
-    
-    halOLED128x64ClearScreen();
-  
-    halOLED128x64ShowX16(0, 112, "А");
-    halOLED128x64ShowX8(3, 112, "А");
-  
-    
-    halOLED128x64ShowIcon(20, 0, 8, 0);
-    halOLED128x64ShowIcon(20, 2, 7, 0);
-  
-    halOLED128x64ShowPicture(0, 8, 16, 16, danger_16x16);
-    halOLED128x64ShowPicture(0, 24, 16, 16, empty_16x16);
-    halOLED128x64ShowPicture(0, 48, 16, 16, motion_16x16);
-    
-    halOLED128x64ShowPicture(36, 0, 32, 32, apple_32x32);
-    halOLED128x64ShowPicture(36, 32, 32, 32, toxic_32x32);
-  
-    halOLED128x64ShowPicture(76, 0, 16, 16, zigbee_connected);
-    halOLED128x64ShowPicture(76, 24, 16, 16, zigbee_disconnected);
-    halOLED128x64ShowPicture(76, 48, 16, 16, zigbee_image);
-  
-    halOLED128x64ShowIcon(96, 1, 8, 0);
-    halOLED128x64ShowIcon(96, 3, 7, 0);
-    
-    
-    halOLED128x64ShowX8(4, 112, "Ё");
-    halOLED128x64ShowX16(3, 112, "Ё");
-  }
-#endif
-
-#if HAL_LCD_TYPE == HAL_LCD_TYPE_TFT
-  void TFTDraw(void)
-  {
-    //-- !! halTFTShowX8:  26x10 chars in row !!
-    //-- !! halTFTShowX16: 20x5 chars in row !!
-    
-    /*
-    //-- ASCII table (8x16)
-    halTFTSetScreen(PX_BLACK);
-    halTFTShowX16(0,  0, PX_RED,    PX_BLACK, "ABCDEFGHIJKLMNOPQRST");
-    halTFTShowX16(0, 16, PX_GREEN,  PX_BLACK, "UVWXYZabcdefghijklmn");
-    halTFTShowX16(0, 32, PX_BLUE,   PX_BLACK, "opqrstuvwxyz01234567");
-    halTFTShowX16(0, 48, PX_WHITE,  PX_BLACK, "89.,\"'?!@_*#$%&()+-/");
-    halTFTShowX16(0, 64, PX_YELLOW, PX_BLACK, ":;<=>[\\]^`{|}~");
-  
-    //-- Russian table (8x16)
-    delayMs32MHZ(4000);
-    halTFTSetScreen(PX_BLACK);
-    halTFTShowX16(0,   0, PX_RED,    PX_BLACK, "АБВГДЕЖЗИЙКЛМНОПРСТУ");
-    halTFTShowX16(0,  16, PX_GREEN,  PX_BLACK, "ФХЦЧШЩЪЫЬЭЮЯабвгдежз");
-    halTFTShowX16(0,  32, PX_BLUE,   PX_BLACK, "ийклмнопрстуфхцчшщъы");
-    halTFTShowX16(0,  48, PX_WHITE,  PX_BLACK, "ьэюяЁё °C");
-    
-    //-- ASCII table (8x8)
-    delayMs32MHZ(4000);
-    halTFTSetScreen(PX_BLACK);
-    halTFTShowX8(0,  0, PX_RED,    PX_BLACK, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-    halTFTShowX8(0, 16, PX_GREEN,  PX_BLACK, "abcdefghijklmnopqrstuvwxyz");
-    halTFTShowX8(0, 32, PX_BLUE,   PX_BLACK, "0123456789.,\"'?!@_*#$%&()+");
-    halTFTShowX8(0, 48, PX_WHITE,  PX_BLACK, "-/:;<=>[\\]^`{|}~");
-    
-    //-- Russian table (8x8)
-    delayMs32MHZ(4000);
-    halTFTSetScreen(PX_BLACK);
-    halTFTShowX8(0,  0, PX_RED,    PX_BLACK, "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩ");
-    halTFTShowX8(0, 16, PX_GREEN,  PX_BLACK, "ЪЫЬЭЮЯабвгдежзийклмнопрст");
-    halTFTShowX8(0, 32, PX_BLUE,   PX_BLACK, "уфхцчшщъыьэюяЁё °C");
-    
-    //-- Icons table
-    delayMs32MHZ(4000);
-    halTFTSetScreen(PX_BLACK);
-    halTFTShowIcon(0,  0, PX_RED,     PX_BLACK, 7, 0);
-    halTFTShowIcon(0,  8, PX_GREEN,   PX_BLACK, 8, 0);
-    halTFTShowIcon(0, 16, PX_BLUE,    PX_BLACK, 7, 1);
-    halTFTShowIcon(0, 24, PX_WHITE,   PX_BLACK, 8, 1);
-    halTFTShowIcon(0, 32, PX_YELLOW,  PX_BLACK, 7, 2);
-    halTFTShowIcon(0, 40, PX_GRAY,    PX_BLACK, 8, 2);
-    halTFTShowIcon(0, 48, PX_CYAN,    PX_BLACK, 7, 3);
-    halTFTShowIcon(0, 56, PX_MAGENTA, PX_BLACK, 8, 3);
-    halTFTShowIcon(0, 64, PX_BLACK,   PX_WHITE, 7, 4);
-
-    //-- Pictures
-    delayMs32MHZ(4000);
-    halTFTSetScreen(PX_BLACK);
-    halTFTShowPicture(0, 20, 160, 38, tft_zigbee_logo_160x38);
-    */
-
-    uint8* arr8x2;
-    uint16 big = 0xEF7D;
-    arr8x2 = explodeU16toU8(big);
-    
-    char str1[10],str2[10],str3[10];
-  	sprintf(str1, "%x", arr8x2[1]);
-  	sprintf(str2, "%x", arr8x2[0]);
-  	sprintf(str3, "%x", big);
-  	printf("1)0x%s+0x%s=0x%s\n", str2upper(str1,2), str2upper(str2,2), str2upper(str3,4));
-    
-    //printf("1)0x%x+0x%x=0x%x\n", arr8x2[1], arr8x2[0], big);
-    big = implodeU8toU16(0xAB, 0xCD);
-    arr8x2 = explodeU16toU8(big);
-    sprintf(str1, "%x", arr8x2[1]);
-  	sprintf(str2, "%x", arr8x2[0]);
-  	sprintf(str3, "%x", big);
-  	printf("2)0x%s+0x%s=0x%s\n", str2upper(str1,2), str2upper(str2,2), str2upper(str3,4));
-
-  	char* r1 = int2hex(0xEF7D,1,1);
-  	printf("3)%s\n", r1);
-  	char* r2 = int2hex(0xABCD,0,0);
-  	printf("4)%s\n", r2);
-
-		char srcStr[20];
-		sprintf(srcStr, "%s", "hello майк");
-		sprintf(srcStr, "%s", str2upper(srcStr, 20));
-    printf("5)%s\n", srcStr);
-
-    printf("6)hello майк\n");
-
-
-    /*
-    uint16 big;
-    int num = sizeof(px_colors) / sizeof(px_colors[0]);
-    char s1[] = "Img2Lcd:16bTrueColor";
-    char s2[] = "Colors wrong if not!";
-    for(uint8 i=0; i<num; i++) {
-      big = px_colors[i];
-      if(big == PX_BLACK) {
-      	//-- skip Black on Black
-      	continue;
-      }
-      halTFTShowX16(0,  0, big, PX_BLACK, (uint8 const *)s1);
-    	halTFTShowX16(0, 64, big, PX_BLACK, (uint8 const *)s2);
-    	delayMs32MHZ(2000);
-    }
-    
-    //-- Composition of symbols & pictures
-    delayMs32MHZ(4000);
-    halTFTSetScreen(PX_BLACK);
-    halTFTShowX16(112, 0, PX_RED, PX_BLACK, "А");
-    halTFTShowX8(112, 64, PX_GREEN, PX_BLACK, "А");
-    
-    halTFTShowIcon(20, 20, PX_BLUE, PX_BLACK, 8, 0);
-    halTFTShowIcon(20, 40, PX_YELLOW, PX_BLACK, 7, 0);
-  
-    halTFTShowPicture(0, 8, 16, 16, tft_danger_16x16);
-    halTFTShowPicture(0, 28, 16, 16, tft_empty_16x16);
-    halTFTShowPicture(0, 48, 16, 16, tft_motion_16x16);
-    
-    halTFTShowPicture(36, 8, 16, 16, tft_danger_red_16x16);
-    halTFTShowPicture(36, 32, 16, 16, tft_toxic_16x16);
-  
-    halTFTShowPicture(76, 0, 16, 16, tft_wifi_green_16x16);
-    halTFTShowPicture(76, 24, 16, 16, tft_wifi_red_16x16);
-    halTFTShowPicture(76, 48, 16, 16, tft_zigbee_16x16);
-  
-    halTFTShowIcon(96, 16, PX_RED, PX_BLACK, 8, 0);
-    halTFTShowIcon(96, 48, PX_GREEN, PX_BLACK, 7, 0);
-    
-    halTFTShowX8(112,  24, PX_BLUE, PX_BLACK, "Ё");
-    halTFTShowX16(112, 40, PX_YELLOW, PX_BLACK, "Ё");
-    
-    //halTFTShowPicture(32, 0, 40, 40, Picture_40x40_WeiXinIco);
-    //halTFTShowPicture(32, 40, 40, 40, Picture_40x40_ITunesIco);
-
-    //-- final picture
-    //delayMs32MHZ(4000);
-    //halTFTSetScreen(PX_BLACK);
-    //halTFTShowPicture(0, 0, 80, 80, Picture_160x80_Sea);
-    */
-  }
-#endif
 
 uint8 req;
 void zclcc2530_ReportDHT11(void)
@@ -1219,16 +912,12 @@ void zclcc2530_ReportDHT11(void)
       return;
     }
     
+    //-- Output to terminal via UART
     printf(FONT_COLOR_STRONG_GREEN);
     printf("DHT11 Initiated\n");
     printf(STYLE_COLOR_RESET);
-    
-    #if HAL_LCD_TYPE == HAL_LCD_TYPE_OLED
-      halOLED128x64ClearScreen();
-    #else
-      halTFTSetScreen(PX_BLACK);
-    #endif
 
+    //-- make output to LCD
     dht11Idx++;
     sprintf(i, "Idx: %d", dht11Idx);
     sprintf(t, "Temp: %d%d.%d°C", tempH, tempL, tempDec);
@@ -1238,6 +927,7 @@ void zclcc2530_ReportDHT11(void)
       sprintf(h, "Humi: %d%d%%", humiH, humiL);
     }
 
+    halLCDClearScreen();
     #if HAL_LCD_TYPE == HAL_LCD_TYPE_OLED
       halOLED128x64ShowX16(0, 0, (uint8 const *)i);
       halOLED128x64ShowX16(1, 0, (uint8 const *)t);
@@ -1248,13 +938,14 @@ void zclcc2530_ReportDHT11(void)
       halTFTShowX16(0, 32, PX_GREEN, PX_BLACK, (uint8 const *)h);
     #endif
 
-    //-- Output
+    //-- Output to terminal via UART
     printf(FONT_COLOR_STRONG_YELLOW);
     printf("%s, %s, %s\n", i, t, h);
     printf(STYLE_COLOR_RESET);
     
   } else {
     
+    //-- Output to terminal via UART
     printf(FONT_COLOR_STRONG_RED);
     printf("DHT11 NOT Initiated!\n");
     printf(STYLE_COLOR_RESET);
