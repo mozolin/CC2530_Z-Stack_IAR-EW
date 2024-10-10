@@ -4,6 +4,8 @@ Based mainly on the [ZigBee 3.0 Development Guide](https://github.com/mozolin/Zi
 
 - [**Serial Monitor**](SerialMonitor/)  
 
+![](img/MIKE.CC2530.IAR_Project.png)
+
 1) Open Workspace  
 ![](img/IAR_EW_01-open_workspace.png)
 
