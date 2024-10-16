@@ -38,10 +38,14 @@
 
 //-- интервал повторяемого таймера события HAL_KEY_EVENT (мс)
 #define TIMER_INTERVAL_HAL_KEY_EVT 100
-//-- интервал повторяемого таймера для информирования о температуре (мс)
+//-- интервал повторяемого таймера для информирования о температуре DS18B20 (мс)
 #define TIMER_INTERVAL_REPORTING_EVT 10000
-//-- интервал повторяемого таймера для информирования о температуре (мс)
+//-- интервал повторяемого таймера для информирования о температуре DHT11 (мс)
 #define TIMER_INTERVAL_REFRESH_EVT 10000
+//-- интервал таймера для долгого нажатия (мс)
+#define TIMER_INTERVAL_LONG_PRESS_EVT 5000
+//-- интервал таймера для двойного нажатия (мс)
+#define TIMER_INTERVAL_DOUBLE_PRESS_EVT 600
 //-- интервал таймера для мигания (мс)
 #define TIMER_INTERVAL_BLINK_EVT 1000
 
@@ -51,6 +55,6 @@
 #define bit(b) (1UL << (b))
 
 
-#include "hal_dht11_cfg.h"
-#include "hal_lcd_cfg.h"
-#include "hal_board_cfg_cc2530.h"
+#include "conf/hal_dht11_cfg.h"
+#include "conf/hal_lcd_cfg.h"
+#include "conf/hal_board_cfg_cc2530.h"

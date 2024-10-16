@@ -25,7 +25,7 @@
 #define BACK_COLOR_WHITE            "\033[47m"
 
 //-- STRONG FOREGROUND COLORS
-#define FONT_COLOR_STRONG_GREY      "\033[90m"
+#define FONT_COLOR_STRONG_GRAY      "\033[90m"
 #define FONT_COLOR_STRONG_RED       "\033[91m"
 #define FONT_COLOR_STRONG_GREEN     "\033[92m"
 #define FONT_COLOR_STRONG_YELLOW    "\033[93m"

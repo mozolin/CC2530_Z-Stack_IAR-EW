@@ -12,8 +12,11 @@ extern "C"
 //-- IEEE address: 0x00124b0009674658
 //-- Network address: 0x4021
 
-//-- Device endpoint number
-#define cc2530_ENDPOINT                 1
+//-- Device endpoint numbers
+#define cc2530_ENDPOINT_1               1
+#define cc2530_ENDPOINT_2               2
+#define cc2530_ENDPOINT_3               3
+#define cc2530_ENDPOINT_4               4
 
 //-- Application events
 #define cc2530_EVT_BLINK                0x0001 //-- Event A (2^0, 1)
@@ -25,6 +28,7 @@ extern "C"
  If it uses 0x0010, it blocks any other events!
 **********************************************************************/
 #define cc2530_EVT_REFRESH              0x0020 //-- Event F (2^5, 32)
+#define cc2530_EVT_DOUBLE               0x0040 //-- Event G (2^6, 64)
 /*
 #define cc2530_EVT_... 0x0001 //-- Event A (2^0, 1)
 #define cc2530_EVT_... 0x0002 //-- Event B (2^1, 2)
@@ -47,39 +51,52 @@ extern "C"
 #define NV_cc2530_RELAY_STATE_ID        0x0402
 
 
-extern SimpleDescriptionFormat_t zclcc2530_SimpleDesc;
+extern SimpleDescriptionFormat_t
+	zclcc2530_SimpleDesc_1,
+	zclcc2530_SimpleDesc_2,
+	zclcc2530_SimpleDesc_3,
+	zclcc2530_SimpleDesc_4;
 
 extern CONST zclCommandRec_t zclcc2530_Cmds[];
 
 extern CONST uint8 zclCmdsArraySize;
 
 // Список атрибутов
-extern CONST zclAttrRec_t zclcc2530_Attrs[];
-extern CONST uint8 zclcc2530_NumAttributes;
+extern CONST zclAttrRec_t zclcc2530_Attrs1[];
+extern CONST zclAttrRec_t zclcc2530_Attrs2[];
+extern CONST zclAttrRec_t zclcc2530_Attrs3[];
+extern CONST zclAttrRec_t zclcc2530_Attrs4[];
+extern CONST uint8 zclcc2530_NumAttributes1;
+extern CONST uint8 zclcc2530_NumAttributes2;
+extern CONST uint8 zclcc2530_NumAttributes3;
+extern CONST uint8 zclcc2530_NumAttributes4;
 
 //-- Identification attributes
 extern uint16 zclcc2530_IdentifyTime;
 extern uint8  zclcc2530_IdentifyCommissionState;
 
 //-- Initialization for the task
-extern void zclcc2530_Init( byte task_id );
+extern void zclcc2530_Init(byte task_id);
 
 //-- Event Process for the task
-extern uint16 zclcc2530_event_loop( byte task_id, uint16 events );
-
-//-- Reset all writable attributes to their default values
-extern void zclcc2530_ResetAttributesToDefaultValues(void);
+extern uint16 zclcc2530_event_loop(byte task_id, uint16 events);
 
 //-- Keys control functions
-extern void cc2530_HalKeyInit( void );
-extern void cc2530_HalKeyPoll ( void );
+extern void cc2530_HalKeyInit(void);
+extern void cc2530_HalKeyPoll(void);
+
+//extern void zclcc2530_BasicResetCB(void);
 
 //-- Functions of control commands
-static void zclcc2530_OnOffCB(uint8);
+//static void zclcc2530_OnOffCB(uint8);
+static void zclcc2530_OnOffCB1(uint8);
+static void zclcc2530_OnOffCB2(uint8);
+static void zclcc2530_OnOffCB3(uint8);
+static void zclcc2530_OnOffCB4(uint8);
 
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* ZCL_cc2530_H */
+#endif //-- ZCL_cc2530_H

@@ -133,24 +133,18 @@ void printNumber(double number, int decimals)
   //halOLED128x64ShowX16(0, 0, str);
 }
 
-uint8 osal_printf(char str[])
+void osal_printf(char str[])
 {
-  //int idx = 123;
-  
   char *memStr = osal_mem_alloc(sizeof(char)*sizeof(str));
   if(memStr != NULL) {
     osal_memset(memStr, 0, sizeof(char)*sizeof(str));
-    
-    //sprintf(str, "Str: %d", idx);
     osal_memcpy(memStr, str, osal_strlen(str));
     
-    //halOLED128x64ShowX16(3, 0, (uint8 const *)str);
-    //printf("%s\n", str);
-    printf("%s", str);
+    //printf("%s", str);
+    printf("%s", memStr);
     
     osal_mem_free(memStr);
   }
-  return 1;
 }
 
 int8 encodeU8to8(uint8 byte)

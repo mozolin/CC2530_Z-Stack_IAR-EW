@@ -20,6 +20,7 @@
 #include "bdb_interface.h"
 #include "gp_interface.h"
 #include "onboard.h"
+#include "zcl_cc2530_data.h"
 
 //-- HAL libs
 #include "hal_lcd.h"
@@ -41,56 +42,46 @@ int dht11Idx = 0;
 #include "hal_dht11.h" 
 
 
-// Идентификатор задачи нашего приложения
+//-- The task ID of application
 byte zclcc2530_TaskID;
 
-// Состояние сети
+//-- Network status
 devStates_t zclcc2530_NwkState = DEV_INIT;
 
-// Состояние кнопок
+//-- Button status
 static uint8 halKeySavedKeys;
 
-// Состояние реле
-uint8 RELAY_STATE = 0;
+//-- relay number
+int8 RELAY_NUM = -1;
 
-// Данные о температуре
+//-- click counters
+uint8 KEY_CLICK_NUM_1 = 0;
+//-- screen number
+uint8 SCREEN_NUM = 0;
+#ifdef HAL_LCD_TEST
+  uint8 TOTAL_SCREENS = 3;
+#else
+  uint8 TOTAL_SCREENS = 2;
+#endif
+
+//-- temperature data
 int16 zclcc2530_MeasuredValue;
 
-// Структура для отправки отчета
+//-- Structure for sending a report
 afAddrType_t zclcc2530_DstAddr;
-// Номер сообщения
+//-- Sequence number
 uint8 SeqNum = 0;
 
 static void zclcc2530_HandleKeys(byte shift, byte keys);
-static void zclcc2530_BasicResetCB(void);
-static void zclcc2530_ProcessIdentifyTimeChange(uint8 endpoint);
 
-static void zclcc2530_ProcessCommissioningStatus(bdbCommissioningModeMsg_t *bdbCommissioningModeMsg);
 
-// Функции обработки входящих сообщений ZCL Foundation команд/ответов
-static void zclcc2530_ProcessIncomingMsg(zclIncomingMsg_t *msg);
-#ifdef ZCL_READ
-  static uint8 zclcc2530_ProcessInReadRspCmd(zclIncomingMsg_t *pInMsg);
-#endif
-#ifdef ZCL_WRITE
-  static uint8 zclcc2530_ProcessInWriteRspCmd(zclIncomingMsg_t *pInMsg);
-#endif
-static uint8 zclcc2530_ProcessInDefaultRspCmd(zclIncomingMsg_t *pInMsg);
-#ifdef ZCL_DISCOVER
-  static uint8 zclcc2530_ProcessInDiscCmdsRspCmd(zclIncomingMsg_t *pInMsg);
-  static uint8 zclcc2530_ProcessInDiscAttrsRspCmd(zclIncomingMsg_t *pInMsg);
-  static uint8 zclcc2530_ProcessInDiscAttrsExtRspCmd(zclIncomingMsg_t *pInMsg);
-#endif
-
-// Изменение состояние реле
-static void updateRelay(bool);
-// Отображение состояния реле на пинах
+//-- Change relay state
+static void updateRelay(bool, uint8 num);
+//-- Displaying the relay status on the pins
 static void applyRelay(void);
-// Выход из сети
-void zclcc2530_LeaveNetwork(void);
-// Отправка отчета о состоянии реле
-void zclcc2530_ReportOnOff(void);
-// Отправка отчета о температуре
+//-- Sending a relay status report
+void zclcc2530_ReportOnOff(uint8 cc2530_ENDPOINT, uint8 cc2530_STATE);
+//-- Sending temperature report
 void zclcc2530_ReportTemp(void);
 
 uint8 initUart0(halUARTCBack_t pf);
@@ -99,41 +90,9 @@ void uart0RxCb(uint8 port, uint8 event);
 //-- report DHT11 sensor
 void zclcc2530_ReportDHT11(void);
 
-/*********************************************************************
- * Таблица обработчиков основных ZCL команд
- */
-static zclGeneral_AppCallbacks_t zclcc2530_CmdCallbacks =
-{
-  zclcc2530_BasicResetCB,               // Basic Cluster Reset command
-  NULL,                                   // Identify Trigger Effect command
-  zclcc2530_OnOffCB,                    // On/Off cluster commands
-  NULL,                                   // On/Off cluster enhanced command Off with Effect
-  NULL,                                   // On/Off cluster enhanced command On with Recall Global Scene
-  NULL,                                   // On/Off cluster enhanced command On with Timed Off
-#ifdef ZCL_LEVEL_CTRL
-  NULL,                                   // Level Control Move to Level command
-  NULL,                                   // Level Control Move command
-  NULL,                                   // Level Control Step command
-  NULL,                                   // Level Control Stop command
-#endif
-#ifdef ZCL_GROUPS
-  NULL,                                   // Group Response commands
-#endif
-#ifdef ZCL_SCENES
-  NULL,                                  // Scene Store Request command
-  NULL,                                  // Scene Recall Request command
-  NULL,                                  // Scene Response command
-#endif
-#ifdef ZCL_ALARMS
-  NULL,                                  // Alarm (Response) commands
-#endif
-#ifdef SE_UK_EXT
-  NULL,                                  // Get Event Log command
-  NULL,                                  // Publish Event Log command
-#endif
-  NULL,                                  // RSSI Location command
-  NULL                                   // RSSI Location Response command
-};
+void drawScreen1(void);
+void switchScreen(void);
+
 
 /*********************************************************************
  * TODO: Add other callback structures for any additional application specific 
@@ -155,31 +114,45 @@ static zclGeneral_AppCallbacks_t zclcc2530_CmdCallbacks =
  *
  */
 
-// Функция инициализации задачи приложения
+//-- Application task initialization function
 void zclcc2530_Init(byte task_id)
 {
   zclcc2530_TaskID = task_id;
   
-  // Регистрация описания профиля Home Automation Profile
-  bdb_RegisterSimpleDescriptor(&zclcc2530_SimpleDesc);
+  //-- Registering Home Automation Profile
+  bdb_RegisterSimpleDescriptor(&zclcc2530_SimpleDesc_1);
+  bdb_RegisterSimpleDescriptor(&zclcc2530_SimpleDesc_2);
+  //bdb_RegisterSimpleDescriptor(&zclcc2530_SimpleDesc_3);
+  //bdb_RegisterSimpleDescriptor(&zclcc2530_SimpleDesc_4);
 
-  // Регистрация обработчиков ZCL команд
-  zclGeneral_RegisterCmdCallbacks(cc2530_ENDPOINT, &zclcc2530_CmdCallbacks);
+  //-- Registering ZCL Command Handlers
+  zclGeneral_RegisterCmdCallbacks(cc2530_ENDPOINT_1, &zclcc2530_CmdCallbacks1);
+  zclGeneral_RegisterCmdCallbacks(cc2530_ENDPOINT_2, &zclcc2530_CmdCallbacks2);
+  //zclGeneral_RegisterCmdCallbacks(cc2530_ENDPOINT_3, &zclcc2530_CmdCallbacks3);
+  //zclGeneral_RegisterCmdCallbacks(cc2530_ENDPOINT_4, &zclcc2530_CmdCallbacks4);
   
   // TODO: Register other cluster command callbacks here
 
-  // Регистрация атрибутов кластеров приложения
-  zcl_registerAttrList(cc2530_ENDPOINT, zclcc2530_NumAttributes, zclcc2530_Attrs);
+  //-- Registering Application Cluster Attributes
+  zcl_registerAttrList(cc2530_ENDPOINT_1, zclcc2530_NumAttributes1, zclcc2530_Attrs1);
+  zcl_registerAttrList(cc2530_ENDPOINT_2, zclcc2530_NumAttributes2, zclcc2530_Attrs2);
+  //zcl_registerAttrList(cc2530_ENDPOINT_3, zclcc2530_NumAttributes3, zclcc2530_Attrs3);
+  //zcl_registerAttrList(cc2530_ENDPOINT_4, zclcc2530_NumAttributes4, zclcc2530_Attrs4);
 
-  // Подписка задачи на получение сообщений о командах/ответах
+  //-- Subscribing a task to receive command/response messages
   zcl_registerForMsg(zclcc2530_TaskID);
 
+  /*
   #ifdef ZCL_DISCOVER
-    // Регистрация списка команд, реализуемых приложением
-    zcl_registerCmdList(cc2530_ENDPOINT, zclCmdsArraySize, zclcc2530_Cmds);
+    //-- Registering a list of commands implemented by the application
+    zcl_registerCmdList(cc2530_ENDPOINT_1, zclCmdsArraySize, zclcc2530_Cmds);
+    zcl_registerCmdList(cc2530_ENDPOINT_2, zclCmdsArraySize, zclcc2530_Cmds);
+    zcl_registerCmdList(cc2530_ENDPOINT_3, zclCmdsArraySize, zclcc2530_Cmds);
+    zcl_registerCmdList(cc2530_ENDPOINT_4, zclCmdsArraySize, zclcc2530_Cmds);
   #endif
+  */
 
-  // Подписка задачи на получение всех событий для кнопок
+  //-- Subscribe task to receive all events for buttons
   RegisterForKeys(zclcc2530_TaskID);
 
   bdb_RegisterCommissioningStatusCB(zclcc2530_ProcessCommissioningStatus);
@@ -188,35 +161,38 @@ void zclcc2530_Init(byte task_id)
   #ifdef ZCL_DIAGNOSTIC
     // Register the application's callback function to read/write attribute data.
     // This is only required when the attribute data format is unknown to ZCL.
-    zcl_registerReadWriteCB(cc2530_ENDPOINT, zclDiagnostic_ReadWriteAttrCB, NULL);
+    zcl_registerReadWriteCB(cc2530_ENDPOINT_1, zclDiagnostic_ReadWriteAttrCB, NULL);
+    zcl_registerReadWriteCB(cc2530_ENDPOINT_2, zclDiagnostic_ReadWriteAttrCB, NULL);
+    zcl_registerReadWriteCB(cc2530_ENDPOINT_3, zclDiagnostic_ReadWriteAttrCB, NULL);
+    zcl_registerReadWriteCB(cc2530_ENDPOINT_4, zclDiagnostic_ReadWriteAttrCB, NULL);
 
     if(zclDiagnostic_InitStats() == ZSuccess) {
       // Here the user could start the timer to save Diagnostics to NV
     }
   #endif
   
-  // Установка адреса и эндпоинта для отправки отчета
+  //-- Setting the address and endpoint for sending the report
   zclcc2530_DstAddr.addrMode = (afAddrMode_t)AddrNotPresent;
   zclcc2530_DstAddr.endPoint = 0;
   zclcc2530_DstAddr.addr.shortAddr = 0;
   
-  // инициализируем NVM для хранения RELAY STATE
-  if(SUCCESS == osal_nv_item_init(NV_cc2530_RELAY_STATE_ID, 1, &RELAY_STATE)) {
-    // читаем значение RELAY STATE из памяти
-    osal_nv_read(NV_cc2530_RELAY_STATE_ID, 0, 1, &RELAY_STATE);
+  //-- initialize NVM to store RELAY STATE
+  if(SUCCESS == osal_nv_item_init(NV_cc2530_RELAY_STATE_ID, 1, &RELAY_STATES[0])) {
+    //-- read the RELAY STATE value from memory
+    osal_nv_read(NV_cc2530_RELAY_STATE_ID, 0, 1, &RELAY_STATES[0]);
   }
-  // применяем состояние реле
+  //-- apply relay state
   applyRelay();
 
-  // запускаем повторяемый таймер события HAL_KEY_EVENT (мс)
+  //-- start a repeating timer for the HAL_KEY_EVENT event
   osal_start_reload_timer(zclcc2530_TaskID, HAL_KEY_EVENT, TIMER_INTERVAL_HAL_KEY_EVT);
   
-  //-- запускаем повторяемый таймер для информирования о температуре (мс)
+  //-- start a repeating timer to inform about the temperature DS18B20
   osal_start_reload_timer(zclcc2530_TaskID, cc2530_EVT_REPORTING, TIMER_INTERVAL_REPORTING_EVT);
-  //-- запускаем повторяемый таймер для информирования о температуре (мс)
+  //-- start a repeating timer to inform about the temperature DHT11
   osal_start_reload_timer(zclcc2530_TaskID, cc2530_EVT_REFRESH, TIMER_INTERVAL_REFRESH_EVT);
   
-  // Старт процесса возвращения в сеть
+  //-- Start of the process of returning to the network
   bdb_StartCommissioning(BDB_COMMISSIONING_MODE_PARENT_LOST);
   
   //-- init UART to use "printf" for serial monitor
@@ -231,12 +207,10 @@ void zclcc2530_Init(byte task_id)
   
   setSystemClk32MHZ();
   halLCDInit();
-
-  delayMs32MHZ(4000);
-  zclcc2530_ReportDHT11();
+  switchScreen();
 }
 
-// Основной цикл обработки событий задачи
+//-- Main task event processing loop
 uint16 zclcc2530_event_loop(uint8 task_id, uint16 events)
 {
   afIncomingMSGPacket_t *MSGpkt;
@@ -251,7 +225,7 @@ uint16 zclcc2530_event_loop(uint8 task_id, uint16 events)
       switch (MSGpkt->hdr.event)
       {
         case ZCL_INCOMING_MSG:
-          //-- Обработка входящего сообщения ZCL Foundation команды/ответа
+          //-- Processing an incoming ZCL Foundation command/response message
           zclcc2530_ProcessIncomingMsg((zclIncomingMsg_t *)MSGpkt);
           break;
 
@@ -262,7 +236,7 @@ uint16 zclcc2530_event_loop(uint8 task_id, uint16 events)
         case ZDO_STATE_CHANGE:
           zclcc2530_NwkState = (devStates_t)(MSGpkt->hdr.status);
 
-          //-- Теперь мы в сети
+          //-- Now we are in the zigbee network
           if((zclcc2530_NwkState == DEV_ZB_COORD) ||
             (zclcc2530_NwkState == DEV_ROUTER)   ||
             (zclcc2530_NwkState == DEV_END_DEVICE)) {
@@ -272,12 +246,12 @@ uint16 zclcc2530_event_loop(uint8 task_id, uint16 events)
             printf("Joined network!\n");
             printf(STYLE_COLOR_RESET);
             
-            //-- отключаем мигание
+            //-- disable blinking
             osal_stop_timerEx(zclcc2530_TaskID, HAL_LED_BLINK_EVENT);
             HalLedSet(HAL_LED_2, HAL_LED_MODE_OFF);
             
-            //-- отправляем отчет
-            zclcc2530_ReportOnOff();
+            //-- send report
+            zclcc2530_ReportOnOff(cc2530_ENDPOINT_1, RELAY_STATES[0]);
           }
           break;
 
@@ -288,13 +262,13 @@ uint16 zclcc2530_event_loop(uint8 task_id, uint16 events)
       osal_msg_deallocate((uint8 *)MSGpkt);
     }
 
-    // возврат необработаных сообщений
+    //-- return unprocessed messages
     return (events ^ SYS_EVENT_MSG);
   }
 
-  /* Обработка событий приложения */
+  //-- Handling application events
   
-  //-- событие cc2530_EVT_BLINK
+  //-- event cc2530_EVT_BLINK
   if(events & cc2530_EVT_BLINK)
   {
     printf("Blinking...\n");
@@ -302,37 +276,74 @@ uint16 zclcc2530_event_loop(uint8 task_id, uint16 events)
     HalLedSet(HAL_LED_2, HAL_LED_MODE_TOGGLE);
     return (events ^ cc2530_EVT_BLINK);
   }
-  // событие cc2530_EVT_LONG
+  
+  //-- cc2530_EVT_DOUBLE event
+  if(events & cc2530_EVT_DOUBLE)
+  {
+  	if(KEY_CLICK_NUM_1 > 1) {
+  		//-- double, triple, etc click
+  		printf(FONT_COLOR_STRONG_MAGENTA);
+    	printf("Double press #1\n");
+    	printf(STYLE_COLOR_RESET);
+    } else {
+    	//-- single click
+    	printf(FONT_COLOR_STRONG_GRAY);
+	    printf("Single press #1\n");
+    	printf(STYLE_COLOR_RESET);
+
+    	SCREEN_NUM++;
+    	//-- last screen => go to #1
+    	if(SCREEN_NUM == TOTAL_SCREENS) {
+    		SCREEN_NUM = 0;
+    	}
+    	switchScreen();
+    	
+    	/*
+    	updateRelay(RELAY_STATES[0] == 0);
+    	if(RELAY_STATES[0] == 0) {
+        
+    	} else {
+        
+    	}
+    	*/
+    }
+  	
+  	//-- clear click counter
+  	KEY_CLICK_NUM_1 = 0;
+
+  	return (events ^ cc2530_EVT_DOUBLE);
+  }
+
+  //-- cc2530_EVT_LONG event
   if(events & cc2530_EVT_LONG)
   {
-    printf("Long pressed!\n");
-    // Проверяем текущее состояние устройства
-    // В сети или не в сети?
+    printf("Long press\n");
+    //-- Check the current status of the device: in the zigbee network or not in the network?
     if(bdbAttributes.bdbNodeIsOnANetwork) {
-      //-- покидаем сеть
+      //-- Leave Network
       zclcc2530_LeaveNetwork();
       
       //-- Output to terminal via UART
       printf(FONT_COLOR_STRONG_RED);
       printf("Leave Network\n");
       printf(STYLE_COLOR_RESET);
-    }
-    else 
-    {
-      // инициируем вход в сеть
+
+    } else {
+      //-- initiate login to zigbee network
       bdb_StartCommissioning(
         BDB_COMMISSIONING_MODE_NWK_FORMATION | 
         BDB_COMMISSIONING_MODE_NWK_STEERING | 
         BDB_COMMISSIONING_MODE_FINDING_BINDING | 
         BDB_COMMISSIONING_MODE_INITIATOR_TL
-     );
-      // будем мигать пока не подключимся
+      );
+      //-- blinking until connect
       osal_start_timerEx(zclcc2530_TaskID, cc2530_EVT_BLINK, TIMER_INTERVAL_BLINK_EVT);
       
       //-- Output to terminal via UART
       printf(FONT_COLOR_STRONG_YELLOW);
       printf("Start Commissioning...\n");
       printf(STYLE_COLOR_RESET);
+
     }
     
     return (events ^ cc2530_EVT_LONG);
@@ -357,57 +368,60 @@ uint16 zclcc2530_event_loop(uint8 task_id, uint16 events)
     //printf("cc2530_EVT_REFRESH\n");
     //printf(STYLE_COLOR_RESET);
     
-    zclcc2530_ReportDHT11();
+    switchScreen();
     
     return (events ^ cc2530_EVT_REFRESH);
   }
   
-  // событие опроса кнопок
+  //-- button poll event
   if (events & HAL_KEY_EVENT)
   {
-    /* Считывание кнопок */
+    //-- Reading buttons
     cc2530_HalKeyPoll();
 
     return (events ^ HAL_KEY_EVENT);
   }
   
-  // Отбросим необработаные сообщения
+  //-- discard unprocessed messages
   return 0;
 }
 
 
-// Обработчик нажатий клавиш
+//-- Keystroke handler
 static void zclcc2530_HandleKeys(byte shift, byte keys)
 {
   if(keys & HAL_KEY_SW_1) {
-    printf("Key1 pressed\n");
-    //-- Запускаем таймер для определения долгого нажатия 5сек
-    osal_start_timerEx(zclcc2530_TaskID, cc2530_EVT_LONG, 5000);
-    //-- Переключаем реле
-    updateRelay(RELAY_STATE == 0);
     
-    //halOLED128x64ShowX16(0, 0, "Key1:clear in 4s");
-    if(RELAY_STATE == 0) {
-      #ifdef HAL_LCD_TEST
-        halLCDClearScreen();
-      #endif
-    } else {
-      #ifdef HAL_LCD_TEST
-        halLCDStartTest();
-      #endif
-    }
+    //-- increase click counter
+    KEY_CLICK_NUM_1++;
+    printf("Key1 pressed: %d\n", RELAY_STATES[0]);
+    //-- Start the timer to detect a long press
+    osal_start_timerEx(zclcc2530_TaskID, cc2530_EVT_LONG, TIMER_INTERVAL_LONG_PRESS_EVT);
+    //-- Start the timer to detect double clicks
+    osal_start_timerEx(zclcc2530_TaskID, cc2530_EVT_DOUBLE, TIMER_INTERVAL_DOUBLE_PRESS_EVT);
+    
   } else {
-    //-- Останавливаем таймер ожидания долгого нажатия
+    //-- Stopping the long press timer
     osal_stop_timerEx(zclcc2530_TaskID, cc2530_EVT_LONG);
-    printf("Key1 stopped timer\n");
+    //printf("Key1 stopped timer\n");
   }
 
   if(keys & HAL_KEY_SW_2) {
-    printf("Key2:refresh DHT11\n");
     HalLedSet(HAL_LED_3, HAL_LED_MODE_TOGGLE);
     
-    zclcc2530_ReportDHT11();
-    //halOLED128x64ShowX16(0, 0, "Key2:show in 4s");
+    //-- single click
+    printf(FONT_COLOR_STRONG_GRAY);
+	  printf("Single press #2\n");
+    printf(STYLE_COLOR_RESET);
+
+    RELAY_NUM++;
+		if(RELAY_NUM == TOTAL_RELAYS_NUM) {
+			RELAY_NUM = 0;
+		}
+		printf("Relay #%d\n", RELAY_NUM);
+		updateRelay(RELAY_STATES[RELAY_NUM] == 0, RELAY_NUM);
+		switchScreen();
+
   }
 
   if(keys & HAL_KEY_SW_3) {
@@ -418,260 +432,31 @@ static void zclcc2530_HandleKeys(byte shift, byte keys)
 
 }
 
-// Обработчик изменения статусов соединения с сетью
-static void zclcc2530_ProcessCommissioningStatus(bdbCommissioningModeMsg_t *bdbCommissioningModeMsg)
-{
-  switch(bdbCommissioningModeMsg->bdbCommissioningMode)
-  {
-    case BDB_COMMISSIONING_FORMATION:
-      if(bdbCommissioningModeMsg->bdbCommissioningStatus == BDB_COMMISSIONING_SUCCESS)
-      {
-        //After formation, perform nwk steering again plus the remaining commissioning modes that has not been process yet
-        bdb_StartCommissioning(BDB_COMMISSIONING_MODE_NWK_STEERING | bdbCommissioningModeMsg->bdbRemainingCommissioningModes);
-      }
-      else
-      {
-        //Want to try other channels?
-        //try with bdb_setChannelAttribute
-      }
-    break;
-    case BDB_COMMISSIONING_NWK_STEERING:
-      if(bdbCommissioningModeMsg->bdbCommissioningStatus == BDB_COMMISSIONING_SUCCESS)
-      {
-        //YOUR JOB:
-        //We are on the nwk, what now?
-      }
-      else
-      {
-        //See the possible errors for nwk steering procedure
-        //No suitable networks found
-        //Want to try other channels?
-        //try with bdb_setChannelAttribute
-      }
-    break;
-    case BDB_COMMISSIONING_FINDING_BINDING:
-      if(bdbCommissioningModeMsg->bdbCommissioningStatus == BDB_COMMISSIONING_SUCCESS)
-      {
-        //YOUR JOB:
-      }
-      else
-      {
-        //YOUR JOB:
-        //retry?, wait for user interaction?
-      }
-    break;
-    case BDB_COMMISSIONING_INITIALIZATION:
-      //Initialization notification can only be successful. Failure on initialization
-      //only happens for ZED and is notified as BDB_COMMISSIONING_PARENT_LOST notification
 
-      //YOUR JOB:
-      //We are on a network, what now?
 
-    break;
-  #if ZG_BUILD_ENDDEVICE_TYPE    
-    case BDB_COMMISSIONING_PARENT_LOST:
-      if(bdbCommissioningModeMsg->bdbCommissioningStatus == BDB_COMMISSIONING_NETWORK_RESTORED)
-      {
-        //We did recover from losing parent
-      }
-      else
-      {
-        //Parent not found, attempt to rejoin again after a fixed delay
-        osal_start_timerEx(zclcc2530_TaskID, cc2530_EVT_END_DEVICE_REJOIN, cc2530_END_DEVICE_REJOIN_DELAY);
-      }
-    break;
-  #endif 
-  }
-}
 
-// Обработчик изменения времени идентификации
-static void zclcc2530_ProcessIdentifyTimeChange(uint8 endpoint)
-{
-  (void) endpoint;
-
-  if (zclcc2530_IdentifyTime > 0) {
-    //HalLedBlink (HAL_LED_2, 0xFF, HAL_LED_DEFAULT_DUTY_CYCLE, HAL_LED_DEFAULT_FLASH_TIME);
-  } else {
-    //HalLedSet (HAL_LED_2, HAL_LED_MODE_OFF);
-  }
-}
-
-//-- Обработчик команды сброса в Basic кластере
-static void zclcc2530_BasicResetCB(void)
-{
-  /* TODO: remember to update this function with any application-specific cluster attribute variables */
-  
-  zclcc2530_ResetAttributesToDefaultValues();
-}
-
-/******************************************************************************
- *
- *  Functions for processing ZCL Foundation incoming Command/Response messages
- *
- *****************************************************************************/
-
-// Функция обработки входящих ZCL Foundation команд/ответов
-static void zclcc2530_ProcessIncomingMsg(zclIncomingMsg_t *pInMsg)
-{
-  switch (pInMsg->zclHdr.commandID)
-  {
-  #ifdef ZCL_READ
-    case ZCL_CMD_READ_RSP:
-      zclcc2530_ProcessInReadRspCmd(pInMsg);
-      break;
-  #endif
-  #ifdef ZCL_WRITE
-    case ZCL_CMD_WRITE_RSP:
-      zclcc2530_ProcessInWriteRspCmd(pInMsg);
-      break;
-  #endif
-    case ZCL_CMD_CONFIG_REPORT:
-    case ZCL_CMD_CONFIG_REPORT_RSP:
-    case ZCL_CMD_READ_REPORT_CFG:
-    case ZCL_CMD_READ_REPORT_CFG_RSP:
-    case ZCL_CMD_REPORT:
-      //bdb_ProcessIncomingReportingMsg(pInMsg);
-      break;
-      
-    case ZCL_CMD_DEFAULT_RSP:
-      zclcc2530_ProcessInDefaultRspCmd(pInMsg);
-      break;
-  #ifdef ZCL_DISCOVER
-    case ZCL_CMD_DISCOVER_CMDS_RECEIVED_RSP:
-      zclcc2530_ProcessInDiscCmdsRspCmd(pInMsg);
-      break;
-
-    case ZCL_CMD_DISCOVER_CMDS_GEN_RSP:
-      zclcc2530_ProcessInDiscCmdsRspCmd(pInMsg);
-      break;
-
-    case ZCL_CMD_DISCOVER_ATTRS_RSP:
-      zclcc2530_ProcessInDiscAttrsRspCmd(pInMsg);
-      break;
-
-    case ZCL_CMD_DISCOVER_ATTRS_EXT_RSP:
-      zclcc2530_ProcessInDiscAttrsExtRspCmd(pInMsg);
-      break;
-  #endif
-    default:
-      break;
-  }
-
-  if (pInMsg->attrCmd)
-    osal_mem_free(pInMsg->attrCmd);
-}
-
-#ifdef ZCL_READ
-// Обработка ответа команды Read
-static uint8 zclcc2530_ProcessInReadRspCmd(zclIncomingMsg_t *pInMsg)
-{
-  zclReadRspCmd_t *readRspCmd;
-  uint8 i;
-
-  readRspCmd = (zclReadRspCmd_t *)pInMsg->attrCmd;
-  for(i = 0; i < readRspCmd->numAttr; i++) {
-    // Notify the originator of the results of the original read attributes
-    // attempt and, for each successfull request, the value of the requested
-    // attribute
-  }
-
-  return (true);
-}
-#endif // ZCL_READ
-
-#ifdef ZCL_WRITE
-// Обработка ответа команды Write
-static uint8 zclcc2530_ProcessInWriteRspCmd(zclIncomingMsg_t *pInMsg)
-{
-  zclWriteRspCmd_t *writeRspCmd;
-  uint8 i;
-
-  writeRspCmd = (zclWriteRspCmd_t *)pInMsg->attrCmd;
-  for (i = 0; i < writeRspCmd->numAttr; i++)
-  {
-    // Notify the device of the results of the its original write attributes
-    // command.
-  }
-
-  return (true);
-}
-#endif // ZCL_WRITE
-
-// Обработка ответа команды по-умолчанию
-static uint8 zclcc2530_ProcessInDefaultRspCmd(zclIncomingMsg_t *pInMsg)
-{
-  // zclDefaultRspCmd_t *defaultRspCmd = (zclDefaultRspCmd_t *)pInMsg->attrCmd;
-
-  // Device is notified of the Default Response command.
-  (void)pInMsg;
-
-  return (true);
-}
-
-#ifdef ZCL_DISCOVER
-// Обработка ответа команды Discover
-static uint8 zclcc2530_ProcessInDiscCmdsRspCmd(zclIncomingMsg_t *pInMsg)
-{
-  zclDiscoverCmdsCmdRsp_t *discoverRspCmd;
-  uint8 i;
-
-  discoverRspCmd = (zclDiscoverCmdsCmdRsp_t *)pInMsg->attrCmd;
-  for (i = 0; i < discoverRspCmd->numCmd; i++)
-  {
-    // Device is notified of the result of its attribute discovery command.
-  }
-
-  return (true);
-}
-
-// Обработка ответа команды Discover Attributes
-static uint8 zclcc2530_ProcessInDiscAttrsRspCmd(zclIncomingMsg_t *pInMsg)
-{
-  zclDiscoverAttrsRspCmd_t *discoverRspCmd;
-  uint8 i;
-
-  discoverRspCmd = (zclDiscoverAttrsRspCmd_t *)pInMsg->attrCmd;
-  for (i = 0; i < discoverRspCmd->numAttr; i++)
-  {
-    // Device is notified of the result of its attribute discovery command.
-  }
-
-  return (true);
-}
-
-// Обработка ответа команды Discover Attributes Ext
-static uint8 zclcc2530_ProcessInDiscAttrsExtRspCmd(zclIncomingMsg_t *pInMsg)
-{
-  zclDiscoverAttrsExtRsp_t *discoverRspCmd;
-  uint8 i;
-
-  discoverRspCmd = (zclDiscoverAttrsExtRsp_t *)pInMsg->attrCmd;
-  for (i = 0; i < discoverRspCmd->numAttr; i++)
-  {
-    // Device is notified of the result of its attribute discovery command.
-  }
-
-  return (true);
-}
-#endif //-- ZCL_DISCOVER
-
-// Инициализация работы кнопок (входов)
+//-- Initialization of buttons (inputs)
 void cc2530_HalKeyInit(void)
 {
-  /* Сбрасываем сохраняемое состояние кнопок в 0 */
+  //-- Reset the saved state of the buttons to 0
   halKeySavedKeys = 0;
 
-  PUSH1_SEL &= ~(PUSH1_BV); /* Выставляем функцию пина - GPIO */
-  PUSH1_DIR &= ~(PUSH1_BV); /* Выставляем режим пина - Вход */
-  
-  PUSH1_ICTL &= ~(PUSH1_ICTLBIT); /* Не генерируем прерывания на пине */
-  PUSH1_IEN &= ~(PUSH1_IENBIT);   /* Очищаем признак включения прерываний */
-  
-  PUSH2_SEL &= ~(PUSH2_BV); /* Set pin function to GPIO */
-  PUSH2_DIR &= ~(PUSH2_BV); /* Set pin direction to Input */
-  
-  PUSH2_ICTL &= ~(PUSH2_ICTLBIT); /* don't generate interrupt */
-  PUSH2_IEN &= ~(PUSH2_IENBIT);   /* Clear interrupt enable bit */
+  //-- Выставляем функцию пина - GPIO
+  PUSH1_SEL &= ~(PUSH1_BV);
+  //-- Выставляем режим пина - Вход
+  PUSH1_DIR &= ~(PUSH1_BV);
+  //-- Не генерируем прерывания на пине
+  PUSH1_ICTL &= ~(PUSH1_ICTLBIT);
+  //-- Очищаем признак включения прерываний
+  PUSH1_IEN &= ~(PUSH1_IENBIT);
+  //-- Set pin function to GPIO
+  PUSH2_SEL &= ~(PUSH2_BV);
+  //-- Set pin direction to Input
+  PUSH2_DIR &= ~(PUSH2_BV);
+  //-- don't generate interrupt
+  PUSH2_ICTL &= ~(PUSH2_ICTLBIT);
+  //-- Clear interrupt enable bit
+  PUSH2_IEN &= ~(PUSH2_IENBIT);
 
   //-- LED initiated as output...
   initOutputGPIO(GPIO_PORT_0, GPIO_PIN_4);
@@ -681,116 +466,157 @@ void cc2530_HalKeyInit(void)
   initInputGPIO(GPIO_PORT_1, GPIO_PIN_5, GPIO_PULL_UP);
 }
 
-// Считывание кнопок
+//-- Key poll
 void cc2530_HalKeyPoll (void)
 {
   uint8 keys = 0;
 
-  // нажата кнопка 1 ?
+  //-- Button #1 pressed?
   if(HAL_PUSH_BUTTON1()) {
     keys |= HAL_KEY_SW_1;
   }
   
-  // нажата кнопка 2 ?
+  //-- Button #2 pressed?
   if(HAL_PUSH_BUTTON2()) {
     keys |= HAL_KEY_SW_2;
   }
 
-  // нажата кнопка 3 ?
+  //-- Button #3 pressed?
   if(HAL_PUSH_BUTTON3()) {
     keys |= HAL_KEY_SW_3;
   }
   
   if(keys == halKeySavedKeys) {
-    // Выход - нет изменений
+    //-- no changes => exit
     return;
   }
-  // Сохраним текущее состояние кнопок для сравнения в след раз
+  //-- save the current state of the buttons for comparison next time
   halKeySavedKeys = keys;
 
-  // Вызовем генерацию события изменения кнопок
+  //-- call the generation of the button change event
   OnBoard_SendKeys(keys, HAL_KEY_STATE_NORMAL);
 }
 
-//-- Изменение состояния реле
-void updateRelay(bool value)
+//-- Change relay state
+void updateRelay(bool value, uint8 num)
 {
   if(value) {
-    RELAY_STATE = 1;
+    RELAY_STATES[num] = 1;
   } else {
-    RELAY_STATE = 0;
+    RELAY_STATES[num] = 0;
   }
 
-  printf("Relay (updateRelay): %d\n", RELAY_STATE);
+  printf("Relay (updateRelay): %d\n", RELAY_STATES[num]);
 
-  //-- сохраняем состояние реле
-  osal_nv_write(NV_cc2530_RELAY_STATE_ID, 0, 1, &RELAY_STATE);
-  //-- Отображаем новое состояние
+  //-- save relay state
+  osal_nv_write(NV_cc2530_RELAY_STATE_ID, 0, 1, &RELAY_STATES[num]);
+  //-- Displaying the new state
   applyRelay();
-  //-- отправляем отчет
-  zclcc2530_ReportOnOff();
+  //-- send report
+  switch(num)
+  {
+  	case 0:
+  		zclcc2530_ReportOnOff(cc2530_ENDPOINT_1, RELAY_STATES[num]);
+  		break;
+  	case 1:
+  		zclcc2530_ReportOnOff(cc2530_ENDPOINT_2, RELAY_STATES[num]);
+  		break;
+  	case 2:
+  		zclcc2530_ReportOnOff(cc2530_ENDPOINT_3, RELAY_STATES[num]);
+  		break;
+  	case 3:
+  		zclcc2530_ReportOnOff(cc2530_ENDPOINT_4, RELAY_STATES[num]);
+  		break;
+  }
 }
   
-// Применение состояние реле
+//-- Displaying the new state
 void applyRelay (void)
 {
-  // если выключено
-  if(RELAY_STATE == 0) {
-    // то гасим светодиод 1
+  //-- if OFF
+  if(RELAY_STATES[0] == 0) {
+    //-- set LED1 to OFF
     HalLedSet(HAL_LED_1, HAL_LED_MODE_OFF);
   } else {
-    // иначе включаем светодиод 1
+    //-- set LED1 to ON
     HalLedSet(HAL_LED_1, HAL_LED_MODE_ON);
   }
 }
 
-//-- Инициализация выхода из сети
-void zclcc2530_LeaveNetwork(void)
+//-- Cluster OnOff Command Handler
+static void zclcc2530_OnOffCB1(uint8 cmd)
 {
-  zclcc2530_ResetAttributesToDefaultValues();
-  
-  NLME_LeaveReq_t leaveReq;
-  //-- Set every field to 0
-  osal_memset(&leaveReq, 0, sizeof(NLME_LeaveReq_t));
-
-  //-- This will enable the device to rejoin the network after reset.
-  leaveReq.rejoin = false;
-
-  //-- Set the NV startup option to force a "new" join.
-  zgWriteStartupOptions(ZG_STARTUP_SET, ZCD_STARTOPT_DEFAULT_NETWORK_STATE);
-
-  //-- Leave the network, and reset afterwards
-  if (NLME_LeaveReq(&leaveReq) != ZSuccess) {
-    //-- Couldn't send out leave; prepare to reset anyway
-    ZDApp_LeaveReset(false);
-  }
-}
-
-// Обработчик команд кластера OnOff
-static void zclcc2530_OnOffCB(uint8 cmd)
-{
-  printf("OnOff? -> %d (on=%d, off=%d, toggle=%d)\n", cmd, COMMAND_ON, COMMAND_OFF, COMMAND_TOGGLE);
-  // запомним адрес откуда пришла команда
-  // чтобы отправить обратно отчет
+  printf("OnOff?#1-> %d (on=%d, off=%d, toggle=%d)\n", cmd, COMMAND_ON, COMMAND_OFF, COMMAND_TOGGLE);
+  //-- save the address from where the command came to send the report back
   afIncomingMSGPacket_t *pPtr = zcl_getRawAFMsg();
   zclcc2530_DstAddr.addr.shortAddr = pPtr->srcAddr.addr.shortAddr;
-  
-  // Включить
   if(cmd == COMMAND_ON) {
-    updateRelay(true);
-  }
-  // Выключить
-  else if(cmd == COMMAND_OFF) {
-    updateRelay(false);
-  }
-  // Переключить
-  else if(cmd == COMMAND_TOGGLE) {
-    updateRelay(RELAY_STATE == 0);
+    //-- set to ON
+    updateRelay(true, 0);
+  } else if(cmd == COMMAND_OFF) {
+    //-- set ot OFF
+    updateRelay(false, 0);
+  } else if(cmd == COMMAND_TOGGLE) {
+    //-- toggle
+    updateRelay(RELAY_STATES[0] == 0, 0);
   }
 }
 
-//-- Информирование о состоянии реле
-void zclcc2530_ReportOnOff(void) {
+static void zclcc2530_OnOffCB2(uint8 cmd)
+{
+  printf("OnOff?#2-> %d (on=%d, off=%d, toggle=%d)\n", cmd, COMMAND_ON, COMMAND_OFF, COMMAND_TOGGLE);
+  //-- save the address from where the command came to send the report back
+  afIncomingMSGPacket_t *pPtr = zcl_getRawAFMsg();
+  zclcc2530_DstAddr.addr.shortAddr = pPtr->srcAddr.addr.shortAddr;
+  if(cmd == COMMAND_ON) {
+    //-- set to ON
+    updateRelay(true, 1);
+  } else if(cmd == COMMAND_OFF) {
+    //-- set ot OFF
+    updateRelay(false, 1);
+  } else if(cmd == COMMAND_TOGGLE) {
+    //-- toggle
+    updateRelay(RELAY_STATES[1] == 0, 1);
+  }
+}
+static void zclcc2530_OnOffCB3(uint8 cmd)
+{
+  printf("OnOff?#3-> %d (on=%d, off=%d, toggle=%d)\n", cmd, COMMAND_ON, COMMAND_OFF, COMMAND_TOGGLE);
+  //-- save the address from where the command came to send the report back
+  afIncomingMSGPacket_t *pPtr = zcl_getRawAFMsg();
+  zclcc2530_DstAddr.addr.shortAddr = pPtr->srcAddr.addr.shortAddr;
+  if(cmd == COMMAND_ON) {
+    //-- set to ON
+    updateRelay(true, 2);
+  } else if(cmd == COMMAND_OFF) {
+    //-- set ot OFF
+    updateRelay(false, 2);
+  } else if(cmd == COMMAND_TOGGLE) {
+    //-- toggle
+    updateRelay(RELAY_STATES[2] == 0, 2);
+  }
+}
+static void zclcc2530_OnOffCB4(uint8 cmd)
+{
+  printf("OnOff?#4-> %d (on=%d, off=%d, toggle=%d)\n", cmd, COMMAND_ON, COMMAND_OFF, COMMAND_TOGGLE);
+  //-- save the address from where the command came to send the report back
+  afIncomingMSGPacket_t *pPtr = zcl_getRawAFMsg();
+  zclcc2530_DstAddr.addr.shortAddr = pPtr->srcAddr.addr.shortAddr;
+  if(cmd == COMMAND_ON) {
+    //-- set to ON
+    updateRelay(true, 3);
+  } else if(cmd == COMMAND_OFF) {
+    //-- set ot OFF
+    updateRelay(false, 3);
+  } else if(cmd == COMMAND_TOGGLE) {
+    //-- toggle
+    updateRelay(RELAY_STATES[3] == 0, 3);
+  }
+}
+
+//-- reporting about the relay status
+void zclcc2530_ReportOnOff(uint8 cc2530_ENDPOINT, uint8 cc2530_STATE)
+{
   const uint8 NUM_ATTRIBUTES = 1;
 
   zclReportCmd_t *pReportCmd;
@@ -802,7 +628,7 @@ void zclcc2530_ReportOnOff(void) {
 
     pReportCmd->attrList[0].attrID = ATTRID_ON_OFF;
     pReportCmd->attrList[0].dataType = ZCL_DATATYPE_BOOLEAN;
-    pReportCmd->attrList[0].attrData = (void *)(&RELAY_STATE);
+    pReportCmd->attrList[0].attrData = (void *)(&cc2530_STATE);
 
     zclcc2530_DstAddr.addrMode = (afAddrMode_t)Addr16Bit;
     zclcc2530_DstAddr.addr.shortAddr = 0;
@@ -861,7 +687,7 @@ void zclcc2530_ReportTemp(void)
     zclcc2530_DstAddr.addr.shortAddr = 0;
     zclcc2530_DstAddr.endPoint = 1;
 
-    zcl_SendReportCmd(cc2530_ENDPOINT, &zclcc2530_DstAddr,
+    zcl_SendReportCmd(cc2530_ENDPOINT_1, &zclcc2530_DstAddr,
                       ZCL_CLUSTER_ID_MS_TEMPERATURE_MEASUREMENT, pReportCmd,
                       ZCL_FRAME_SERVER_CLIENT_DIR, false, SeqNum++);
   }
@@ -903,7 +729,7 @@ void uart0RxCb(uint8 port, uint8 event)
 uint8 req;
 void zclcc2530_ReportDHT11(void)
 {
-  char t[50], h[50], i[50];
+  char t[32], h[32], i[32], s[32];
 
   req = halDHT11GetData();
 
@@ -913,12 +739,13 @@ void zclcc2530_ReportDHT11(void)
     }
     
     //-- Output to terminal via UART
-    printf(FONT_COLOR_STRONG_GREEN);
-    printf("DHT11 Initiated\n");
+    printf(FONT_COLOR_STRONG_CYAN);
+   	printf("DHT11 Initiated\n");
     printf(STYLE_COLOR_RESET);
 
     //-- make output to LCD
     dht11Idx++;
+    sprintf(s, "Screen 0");
     sprintf(i, "Idx: %d", dht11Idx);
     sprintf(t, "Temp: %d%d.%d°C", tempH, tempL, tempDec);
     if(humiDec > 0) {
@@ -929,13 +756,15 @@ void zclcc2530_ReportDHT11(void)
 
     halLCDClearScreen();
     #if HAL_LCD_TYPE == HAL_LCD_TYPE_OLED
-      halOLED128x64ShowX16(0, 0, (uint8 const *)i);
-      halOLED128x64ShowX16(1, 0, (uint8 const *)t);
-      halOLED128x64ShowX16(2, 0, (uint8 const *)h);
+      halOLED128x64ShowX16(0, 0, (uint8 const *)s);
+      halOLED128x64ShowX16(1, 0, (uint8 const *)i);
+      halOLED128x64ShowX16(2, 0, (uint8 const *)t);
+      halOLED128x64ShowX16(3, 0, (uint8 const *)h);
     #else
-      halTFTShowX16(0, 0,  PX_WHITE, PX_BLACK, (uint8 const *)i);
-      halTFTShowX16(0, 16, PX_RED,   PX_BLACK, (uint8 const *)t);
-      halTFTShowX16(0, 32, PX_GREEN, PX_BLACK, (uint8 const *)h);
+      halTFTShowX16(0, 0,  PX_WHITE, PX_BLACK, (uint8 const *)s);
+      halTFTShowX16(0, 16, PX_CYAN,  PX_BLACK, (uint8 const *)i);
+      halTFTShowX16(0, 32, PX_RED,   PX_BLACK, (uint8 const *)t);
+      halTFTShowX16(0, 48, PX_GREEN, PX_BLACK, (uint8 const *)h);
     #endif
 
     //-- Output to terminal via UART
@@ -951,4 +780,49 @@ void zclcc2530_ReportDHT11(void)
     printf(STYLE_COLOR_RESET);
 
   }
+}
+
+void drawScreen1(void)
+{
+	char s1[32],s2[32],s3[32],s4[32];
+	sprintf(s1, "Relay #1: %d", RELAY_STATES[0]);
+	sprintf(s2, "Relay #2: %d", RELAY_STATES[1]);
+	sprintf(s3, "Relay #3: %d", RELAY_STATES[2]);
+	sprintf(s4, "Relay #4: %d", RELAY_STATES[3]);
+
+	halLCDClearScreen();
+  #if HAL_LCD_TYPE == HAL_LCD_TYPE_OLED
+    halOLED128x64ShowX8(0, 0, "Screen 1");
+    halOLED128x64ShowX8(1, 0, (uint8 const *)s1);
+    halOLED128x64ShowX8(2, 0, (uint8 const *)s2);
+    halOLED128x64ShowX8(3, 0, (uint8 const *)s3);
+    halOLED128x64ShowX8(4, 0, (uint8 const *)s4);
+  #else
+    halTFTShowX8(0, 0,  PX_WHITE, PX_BLACK, "Screen 1");
+    halTFTShowX8(0, 12, PX_WHITE, PX_BLACK, (uint8 const *)s1);
+    halTFTShowX8(0, 24, PX_WHITE, PX_BLACK, (uint8 const *)s2);
+    halTFTShowX8(0, 32, PX_WHITE, PX_BLACK, (uint8 const *)s3);
+    halTFTShowX8(0, 48, PX_WHITE, PX_BLACK, (uint8 const *)s4);
+  #endif
+}
+
+void switchScreen(void)
+{
+	//printf("SN:%d\n", SCREEN_NUM);
+	switch(SCREEN_NUM)
+	{
+		case 0:
+			zclcc2530_ReportDHT11();
+			break;
+		case 1:
+			drawScreen1();
+			break;
+		case 2:
+			#ifdef HAL_LCD_TEST
+        halLCDStartTest();
+    	#endif
+			break;
+		default:
+			break;
+	}
 }

@@ -9,7 +9,7 @@ double str2float(char* str);
 
 void printNumber(double number, int decimals);
 
-uint8 osal_printf(char str[]);
+void osal_printf(char str[]);
 
 int8 encodeU8to8(uint8 byte);
 uint16 implodeU8toU16(uint8 byte1, uint8 byte2);
