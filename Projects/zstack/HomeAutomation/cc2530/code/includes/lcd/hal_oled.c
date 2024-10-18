@@ -174,7 +174,9 @@ void halOLED128x64ShowIcon(uint8 x, uint8 y, uint8 size, uint8 idx)
   uint8 lastCol = 127 - size;
   uint8 lastRow = 7;
   
-  //printf("%d > %d\n", y, totalRows);
+  #if DEBUG_PRINT_UART
+  	//printf("%d > %d\n", y, totalRows);
+  #endif
   
   //-- do not draw an icon that extends beyond the screen!
   //-- x: 0~127, y:0~7

@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "ZComDef.h"
+//#include "ZComDef.h"
 #include "hal_drivers.h"
 #include "OSAL.h"
 #include "OSAL_Tasks.h"
@@ -100,6 +100,8 @@ void osalInitTasks( void )
   zcl_Init( taskID++ );
   bdb_Init( taskID++ );
   zclcc2530_Init( taskID );
-
-  //printf("taskID:%d\n", taskID);
+  
+  #if DEBUG_PRINT_UART
+  	//printf("taskID:%d\n", taskID);
+  #endif
 }

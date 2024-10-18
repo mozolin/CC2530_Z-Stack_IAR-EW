@@ -1,3 +1,5 @@
+#if USE_DS18B20
+
 #include <stdio.h>
 #include "ds18b20.h"
 
@@ -134,3 +136,5 @@ int16 readTemperature(void) {
     return 1;
   }  
 }
+
+#endif //-- #if USE_DS18B20

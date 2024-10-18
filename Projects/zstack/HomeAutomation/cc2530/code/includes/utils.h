@@ -7,9 +7,10 @@ char* itoa(int num, char str[]);
 double str2float(char* str);
 //char* float2str(float num, char str[]);
 
-void printNumber(double number, int decimals);
-
-void osal_printf(char str[]);
+#if DEBUG_PRINT_UART
+	void printNumber(long double number, int decimals);
+	void osal_printf(char str[]);
+#endif
 
 int8 encodeU8to8(uint8 byte);
 uint16 implodeU8toU16(uint8 byte1, uint8 byte2);

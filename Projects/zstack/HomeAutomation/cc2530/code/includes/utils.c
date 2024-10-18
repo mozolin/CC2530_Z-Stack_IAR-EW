@@ -90,62 +90,64 @@ char* itoa(int num, char str[])
   return str;
 }
 
-void printNumber(double number, int decimals)
-{
-  int powDec = 1;
-
-  int i;
-  for(i = 0; i < decimals; i++) {
-    powDec *= 10;
-  }
-  
-  //-- integer part of number
-  int n0 = (int)number;
-  //-- integer part * powDec
-  int n1 = n0 * powDec;
-  //-- the whole number * powDec
-  int n2 = (long)(number * powDec);
-  //-- decimal part of the number
-  int n3 = abs(n2 - n1);
-
-  char piece[10];
-  char str[100];
-
-  //-- add integer part
-  sprintf(piece, "%d", n0);
-  strcpy(str, piece);
-  //-- if 0, show as an integer
-  if(decimals > 0) {
-    //-- add dot
-    strcat(str, ".");
-    //-- add decimal part
-    if(n3 == 0) {
-      //-- add extra "0"
-      for(i = 0; i < decimals; i++) {
-        strcat(str, "0");
-      }
-    } else {
-      sprintf(piece, "%d", n3);
-      strcat(str, piece);
+#if DEBUG_PRINT_UART
+	void printNumber(long double number, int decimals)
+	{
+    int powDec = 1;
+    
+    int i;
+    for(i = 0; i < decimals; i++) {
+      powDec *= 10;
     }
-  }
-  printf("%s", str);
-  //halOLED128x64ShowX16(0, 0, str);
-}
-
-void osal_printf(char str[])
-{
-  char *memStr = osal_mem_alloc(sizeof(char)*sizeof(str));
-  if(memStr != NULL) {
-    osal_memset(memStr, 0, sizeof(char)*sizeof(str));
-    osal_memcpy(memStr, str, osal_strlen(str));
     
-    //printf("%s", str);
-    printf("%s", memStr);
+    //-- integer part of number
+    int n0 = (int)number;
+    //-- integer part * powDec
+    int n1 = n0 * powDec;
+    //-- the whole number * powDec
+    int n2 = (long)(number * powDec);
+    //-- decimal part of the number
+    int n3 = abs(n2 - n1);
     
-    osal_mem_free(memStr);
-  }
-}
+    char piece[10];
+    char str[100];
+    
+    //-- add integer part
+    sprintf(piece, "%d", n0);
+    strcpy(str, piece);
+    //-- if 0, show as an integer
+    if(decimals > 0) {
+      //-- add dot
+      strcat(str, ".");
+      //-- add decimal part
+      if(n3 == 0) {
+        //-- add extra "0"
+        for(i = 0; i < decimals; i++) {
+          strcat(str, "0");
+        }
+      } else {
+        sprintf(piece, "%d", n3);
+        strcat(str, piece);
+      }
+    }
+    printf("%s", str);
+    //halOLED128x64ShowX16(0, 0, str);
+	}
+	
+	void osal_printf(char str[])
+	{
+    char *memStr = osal_mem_alloc(sizeof(char)*sizeof(str));
+    if(memStr != NULL) {
+      osal_memset(memStr, 0, sizeof(char)*sizeof(str));
+      osal_memcpy(memStr, str, osal_strlen(str));
+      
+      //printf("%s", str);
+      printf("%s", memStr);
+      
+      osal_mem_free(memStr);
+    }
+	}
+#endif
 
 int8 encodeU8to8(uint8 byte)
 {

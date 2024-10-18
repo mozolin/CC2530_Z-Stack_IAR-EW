@@ -12,12 +12,6 @@ extern "C"
 //-- IEEE address: 0x00124b0009674658
 //-- Network address: 0x4021
 
-//-- Device endpoint numbers
-#define cc2530_ENDPOINT_1               1
-#define cc2530_ENDPOINT_2               2
-#define cc2530_ENDPOINT_3               3
-#define cc2530_ENDPOINT_4               4
-
 //-- Application events
 #define cc2530_EVT_BLINK                0x0001 //-- Event A (2^0, 1)
 #define cc2530_EVT_LONG                 0x0002 //-- Event B (2^1, 2)
@@ -48,28 +42,32 @@ extern "C"
 */  
   
 //-- NVM IDs
-#define NV_cc2530_RELAY_STATE_ID        0x0402
-
+//#define NV_cc2530_RELAY_STATE_ID        0x0402
 
 extern SimpleDescriptionFormat_t
-	zclcc2530_SimpleDesc_1,
-	zclcc2530_SimpleDesc_2,
-	zclcc2530_SimpleDesc_3,
-	zclcc2530_SimpleDesc_4;
-
+	zclcc2530_SimpleDesc1,
+	zclcc2530_SimpleDesc2,
+	zclcc2530_SimpleDesc3,
+	zclcc2530_SimpleDesc4;
 extern CONST zclCommandRec_t zclcc2530_Cmds[];
-
 extern CONST uint8 zclCmdsArraySize;
-
 // Список атрибутов
-extern CONST zclAttrRec_t zclcc2530_Attrs1[];
-extern CONST zclAttrRec_t zclcc2530_Attrs2[];
-extern CONST zclAttrRec_t zclcc2530_Attrs3[];
-extern CONST zclAttrRec_t zclcc2530_Attrs4[];
-extern CONST uint8 zclcc2530_NumAttributes1;
-extern CONST uint8 zclcc2530_NumAttributes2;
-extern CONST uint8 zclcc2530_NumAttributes3;
-extern CONST uint8 zclcc2530_NumAttributes4;
+extern CONST zclAttrRec_t
+	zclcc2530_Attrs1[],
+	zclcc2530_Attrs2[],
+	zclcc2530_Attrs3[],
+	zclcc2530_Attrs4[];
+extern CONST uint8
+	zclcc2530_NumAttributes1,
+	zclcc2530_NumAttributes2,
+	zclcc2530_NumAttributes3,
+	zclcc2530_NumAttributes4;
+
+static zclGeneral_AppCallbacks_t
+	zclcc2530_CmdCallbacks1,
+	zclcc2530_CmdCallbacks2,
+	zclcc2530_CmdCallbacks3,
+	zclcc2530_CmdCallbacks4;
 
 //-- Identification attributes
 extern uint16 zclcc2530_IdentifyTime;
@@ -85,10 +83,7 @@ extern uint16 zclcc2530_event_loop(byte task_id, uint16 events);
 extern void cc2530_HalKeyInit(void);
 extern void cc2530_HalKeyPoll(void);
 
-//extern void zclcc2530_BasicResetCB(void);
-
 //-- Functions of control commands
-//static void zclcc2530_OnOffCB(uint8);
 static void zclcc2530_OnOffCB1(uint8);
 static void zclcc2530_OnOffCB2(uint8);
 static void zclcc2530_OnOffCB3(uint8);

@@ -1,3 +1,5 @@
+#if USE_DHT11
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -144,24 +146,28 @@ uint8 errorMsg(uint8 req)
 {
 	uint8 error = 0;
 	if(req > 1) {
-    //-- Output to terminal via UART
-    printf(FONT_COLOR_STRONG_RED);
-    switch(req) {
-      case HAL_DHT11_SC_HUMI_OUTOFRANGE:
-		   	printf("DHT11: Humidity out of range!\n");
-		   	break;
-    	case HAL_DHT11_SC_TEMP_OUTOFRANGE:
-	    	printf("DHT11: Temperature out of range!\n");
-	    	break;
-    	case HAL_DHT11_SC_HT_OUTOFRANGE:
-	    	printf("DHT11: Temperature & Humidity out of range!\n");
-  	  	break;
-  	  default:
-  	  	printf("DHT11: Unknown error!\n");
-  	  	break;
-    };
-    printf(STYLE_COLOR_RESET);
+    #if DEBUG_PRINT_UART
+      //-- Output to terminal via UART
+      printf(FONT_COLOR_STRONG_RED);
+      switch(req) {
+        case HAL_DHT11_SC_HUMI_OUTOFRANGE:
+			   	printf("DHT11: Humidity out of range!\n");
+			   	break;
+      	case HAL_DHT11_SC_TEMP_OUTOFRANGE:
+	      	printf("DHT11: Temperature out of range!\n");
+	      	break;
+      	case HAL_DHT11_SC_HT_OUTOFRANGE:
+	      	printf("DHT11: Temperature & Humidity out of range!\n");
+  		  	break;
+  		  default:
+  		  	printf("DHT11: Unknown error!\n");
+  		  	break;
+      };
+      printf(STYLE_COLOR_RESET);
+    #endif
     error = 1;
   }
 	return error;
 }
+
+#endif //-- #if USE_DHT11

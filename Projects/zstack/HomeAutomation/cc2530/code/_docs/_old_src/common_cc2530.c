@@ -14,7 +14,9 @@ __interrupt void buttonISR(void);
 
 void cc2530_init()
 {
-  //printf("LED|BUTTON -> %d|%d\n", LED, BUTTON);
+  #if DEBUG_PRINT_UART
+  	//printf("LED|BUTTON -> %d|%d\n", LED, BUTTON);
+  #endif
   
   //initLed();
   //initButton();

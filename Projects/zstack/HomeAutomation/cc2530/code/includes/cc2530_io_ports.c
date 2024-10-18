@@ -106,9 +106,11 @@ void initGPIO(
 				}
 				
 				delayMs16MHZ(10);
-				printf(FONT_COLOR_STRONG_GREEN);
-  			printf("P%d.%d: initiated\n", gpioPort, gpioBit);
-  			printf(STYLE_COLOR_RESET);
+				#if DEBUG_PRINT_UART
+					printf(FONT_COLOR_STRONG_GREEN);
+  				printf("P%d.%d: initiated\n", gpioPort, gpioBit);
+  				printf(STYLE_COLOR_RESET);
+  			#endif
 			}
       break;
     //-- Port #1
@@ -128,9 +130,11 @@ void initGPIO(
 				} else {
 					//-- P1_0 & P1_1 - Output only!
 					if(gpioBit == 0 || gpioBit == 1) {
-						printf(FONT_COLOR_STRONG_RED);
-  					printf("P%d.%d cannot be set to Input (P1.0 & P1.1 are Output only)\n", gpioPort, gpioBit);
-  					printf(STYLE_COLOR_RESET);
+						#if DEBUG_PRINT_UART
+							printf(FONT_COLOR_STRONG_RED);
+  						printf("P%d.%d cannot be set to Input (P1.0 & P1.1 are Output only)\n", gpioPort, gpioBit);
+  						printf(STYLE_COLOR_RESET);
+  					#endif
 						break;
 					}
 					//-- set "gpioBit" to 0 => Input
@@ -206,9 +210,11 @@ void initGPIO(
 				}
 				
 				delayMs16MHZ(10);
-				printf(FONT_COLOR_STRONG_GREEN);
-  			printf("P%d.%d: initiated\n", gpioPort, gpioBit);
-  			printf(STYLE_COLOR_RESET);
+				#if DEBUG_PRINT_UART
+					printf(FONT_COLOR_STRONG_GREEN);
+	  			printf("P%d.%d: initiated\n", gpioPort, gpioBit);
+  				printf(STYLE_COLOR_RESET);
+  			#endif
 			}
       break;
     
@@ -283,9 +289,11 @@ void initGPIO(
 				}
 
 				delayMs16MHZ(10);
-				printf(FONT_COLOR_STRONG_GREEN);
-  			printf("P%d.%d: initiated\n", gpioPort, gpioBit);
-  			printf(STYLE_COLOR_RESET);
+				#if DEBUG_PRINT_UART
+					printf(FONT_COLOR_STRONG_GREEN);
+  				printf("P%d.%d: initiated\n", gpioPort, gpioBit);
+  				printf(STYLE_COLOR_RESET);
+  			#endif
 			}
       break;
     

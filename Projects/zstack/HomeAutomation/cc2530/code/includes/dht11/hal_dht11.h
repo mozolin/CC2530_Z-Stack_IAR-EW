@@ -1,3 +1,5 @@
+#if USE_DHT11
+
 #ifndef DHT11_H
 #define DHT11_H
 
@@ -59,4 +61,6 @@ extern uint8 errorMsg(uint8 req);
 }
 #endif
 
-#endif /* #ifndef DHT11_H */
+#endif //-- #ifndef DHT11_H
+
+#endif //-- #if USE_DHT11

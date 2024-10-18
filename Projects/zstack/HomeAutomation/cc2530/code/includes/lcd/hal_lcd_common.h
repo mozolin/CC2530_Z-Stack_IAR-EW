@@ -1,7 +1,7 @@
 #ifndef HAL_LCD_COMMON_H
 #define HAL_LCD_COMMON_H
 
-#include <stdio.h>  //-- printf, sprintf
+//#include <stdio.h>  //-- printf, sprintf
 #include "utils.h"
 #include "cc2530_io_ports.h"
 
