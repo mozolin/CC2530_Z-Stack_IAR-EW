@@ -17,5 +17,5 @@ uint16 implodeU8toU16(uint8 byte1, uint8 byte2);
 uint8* explodeU16toU8(uint16 byte);
 uint16 convert16toU16(int16 in);
 
-char* int2hex(int value, uint8 upperCase, uint8 prefix);
+char* int2hex(int32 value, uint8 upperCase, uint8 prefix);
 char* str2upper(char* str, uint8 length);

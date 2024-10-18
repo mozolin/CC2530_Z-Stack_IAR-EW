@@ -1,6 +1,8 @@
 //-- Standard libs
 #include <stdio.h>  //-- printf, sprintf
 #include <string.h> //-- memset
+#include <stdlib.h> //-- atoi, atol, atof...
+//#include <float.h>
 
 //-- Z-Stack libs
 //#include "ZComDef.h"
@@ -35,16 +37,16 @@
 #include "cc2530_io_ports.h"
 #include "utils.h"
 #if USE_DS18B20
-	#include "ds18b20.h"
+  #include "ds18b20.h"
 #endif
 #include "colors.h"
 
 #include "hal_lcd_common.h"
 
 #if USE_DHT11
-	//-- DHT11 driver
-	int dht11Idx = 0;
-	#include "hal_dht11.h" 
+  //-- DHT11 driver
+  int dht11Idx = 0;
+  #include "hal_dht11.h" 
 #endif
 
 //-- The task ID of application
@@ -61,16 +63,20 @@ int8 RELAY_NUM = -1;
 
 //-- click counters
 uint8 KEY_CLICK_NUM_1 = 0;
+uint8 KEY_CLICK_NUM_2 = 0;
+
 //-- screen number
-uint8 SCREEN_NUM = 0;
-#ifdef HAL_LCD_TEST
+uint8 SCREEN_NUM = 1;
+#if DEBUG_LCD_TEST
   uint8 TOTAL_SCREENS = 3;
 #else
   uint8 TOTAL_SCREENS = 2;
 #endif
 
-//-- temperature data
-int16 zclcc2530_MeasuredValue;
+#if USE_DS18B20 || USE_DHT11
+  //-- temperature data DS18B20 or DHT11
+  int16 zclcc2530_TemperatureMeasuredValue;
+#endif
 
 //-- Structure for sending a report
 afAddrType_t zclcc2530_DstAddr;
@@ -86,20 +92,24 @@ static void updateRelay(bool, uint8 num);
 static void applyRelay(uint8 num);
 //-- Sending a relay status report
 void zclcc2530_ReportOnOff(uint8 num);
-#if USE_DS18B20
-	//-- Sending temperature report
-	void zclcc2530_ReportTemp(void);
+#if USE_DS18B20 || USE_DHT11
+  void zclcc2530_ReportTemp(void);
 #endif
+#if USE_DS18B20
+  //-- Sending temperature report DS18B20
+  void zclcc2530_ReportTemp_DS18B20(void);
+#endif
+#if USE_DHT11
+  //-- Sending temperature report DHT11
+  void zclcc2530_ReportTemp_DHT11(void);
+#endif
+
 
 #if DEBUG_PRINT_UART
   uint8 initUart0(halUARTCBack_t pf);
   void uart0RxCb(uint8 port, uint8 event);
 #endif
 
-#if USE_DHT11
-	//-- report DHT11 sensor
-	void zclcc2530_ReportDHT11(void);
-#endif
 
 void showScreen1(void);
 void showScreen2(void);
@@ -134,20 +144,20 @@ void zclcc2530_Init(byte task_id)
   //-- Registering Home Automation Profile
   bdb_RegisterSimpleDescriptor(&zclcc2530_SimpleDesc1);
   bdb_RegisterSimpleDescriptor(&zclcc2530_SimpleDesc2);
-  //bdb_RegisterSimpleDescriptor(&zclcc2530_SimpleDesc3);
-  //bdb_RegisterSimpleDescriptor(&zclcc2530_SimpleDesc4);
+  bdb_RegisterSimpleDescriptor(&zclcc2530_SimpleDesc3);
+  bdb_RegisterSimpleDescriptor(&zclcc2530_SimpleDesc4);
 
   //-- Registering ZCL Command Handlers
   zclGeneral_RegisterCmdCallbacks(cc2530_ENDPOINT_1, &zclcc2530_CmdCallbacks1);
   zclGeneral_RegisterCmdCallbacks(cc2530_ENDPOINT_2, &zclcc2530_CmdCallbacks2);
-  //zclGeneral_RegisterCmdCallbacks(cc2530_ENDPOINT_3, &zclcc2530_CmdCallbacks3);
-  //zclGeneral_RegisterCmdCallbacks(cc2530_ENDPOINT_4, &zclcc2530_CmdCallbacks4);
+  zclGeneral_RegisterCmdCallbacks(cc2530_ENDPOINT_3, &zclcc2530_CmdCallbacks3);
+  zclGeneral_RegisterCmdCallbacks(cc2530_ENDPOINT_4, &zclcc2530_CmdCallbacks4);
   
   //-- Registering Application Cluster Attributes
   zcl_registerAttrList(cc2530_ENDPOINT_1, zclcc2530_NumAttributes1, zclcc2530_Attrs1);
   zcl_registerAttrList(cc2530_ENDPOINT_2, zclcc2530_NumAttributes2, zclcc2530_Attrs2);
-  //zcl_registerAttrList(cc2530_ENDPOINT_3, zclcc2530_NumAttributes3, zclcc2530_Attrs3);
-  //zcl_registerAttrList(cc2530_ENDPOINT_4, zclcc2530_NumAttributes4, zclcc2530_Attrs4);
+  zcl_registerAttrList(cc2530_ENDPOINT_3, zclcc2530_NumAttributes3, zclcc2530_Attrs3);
+  zcl_registerAttrList(cc2530_ENDPOINT_4, zclcc2530_NumAttributes4, zclcc2530_Attrs4);
 
   //-- Subscribing a task to receive command/response messages
   zcl_registerForMsg(zclcc2530_TaskID);
@@ -209,12 +219,12 @@ void zclcc2530_Init(byte task_id)
   osal_start_reload_timer(zclcc2530_TaskID, HAL_KEY_EVENT, TIMER_INTERVAL_HAL_KEY_EVT);
   
   #if USE_DS18B20
-  	//-- start a repeating timer to inform about the temperature DS18B20
-  	osal_start_reload_timer(zclcc2530_TaskID, cc2530_EVT_REPORTING, TIMER_INTERVAL_REPORTING_EVT);
+    //-- start a repeating timer to inform about the temperature DS18B20
+    osal_start_reload_timer(zclcc2530_TaskID, cc2530_EVT_DS18B20, TIMER_INTERVAL_DS18B20_EVT);
   #endif
   #if USE_DHT11
-	  //-- start a repeating timer to inform about the temperature DHT11
-  	osal_start_reload_timer(zclcc2530_TaskID, cc2530_EVT_REFRESH, TIMER_INTERVAL_REFRESH_EVT);
+    //-- start a repeating timer to inform about the temperature DHT11
+    osal_start_reload_timer(zclcc2530_TaskID, cc2530_EVT_DHT11, TIMER_INTERVAL_DHT11_EVT);
   #endif
   
   //-- Start of the process of returning to the network
@@ -278,7 +288,7 @@ uint16 zclcc2530_event_loop(uint8 task_id, uint16 events)
             
             //-- disable blinking
             osal_stop_timerEx(zclcc2530_TaskID, HAL_LED_BLINK_EVENT);
-            HalLedSet(HAL_LED_2, HAL_LED_MODE_OFF);
+            HalLedSet(HAL_LED_1, HAL_LED_MODE_OFF);
             
             //-- send report
             zclcc2530_ReportOnOff(0);
@@ -308,56 +318,64 @@ uint16 zclcc2530_event_loop(uint8 task_id, uint16 events)
       printf("Blinking...\n");
     #endif
     //-- переключим светодиод
-    HalLedSet(HAL_LED_2, HAL_LED_MODE_TOGGLE);
+    HalLedSet(HAL_LED_1, HAL_LED_MODE_TOGGLE);
     return (events ^ cc2530_EVT_BLINK);
   }
   
   //-- cc2530_EVT_DOUBLE event
   if(events & cc2530_EVT_DOUBLE)
   {
-  	if(KEY_CLICK_NUM_1 > 1) {
-  		#if DEBUG_PRINT_UART
-  		  //-- double, triple, etc click
-  		  printf(FONT_COLOR_STRONG_MAGENTA);
-    	  printf("Double press #1\n");
-    	  printf(STYLE_COLOR_RESET);
-    	#endif
-    } else {
-    	#if DEBUG_PRINT_UART
-    		//-- single click
-    		printf(FONT_COLOR_STRONG_GRAY);
-	    	printf("Single press #1\n");
-    		printf(STYLE_COLOR_RESET);
-    	#endif
-
-    	SCREEN_NUM++;
-    	//-- last screen => go to #1
-    	if(SCREEN_NUM == TOTAL_SCREENS) {
-    		SCREEN_NUM = 0;
-    	}
-    	switchScreen();
-    	
-    	/*
-    	updateRelay(RELAY_STATES[0] == 0);
-    	if(RELAY_STATES[0] == 0) {
-        
-    	} else {
-        
-    	}
-    	*/
+    if(KEY_CLICK_NUM_1 > 1) {
+      #if DEBUG_PRINT_UART
+        //-- double, triple, etc click
+        printf(FONT_COLOR_STRONG_MAGENTA);
+        printf("Double press #1\n");
+        printf(STYLE_COLOR_RESET);
+      #endif
+    } else if(KEY_CLICK_NUM_1 == 1) {
+      #if DEBUG_PRINT_UART
+        //-- single click
+        printf(FONT_COLOR_STRONG_GRAY);
+        printf("Single press #1\n");
+        printf(STYLE_COLOR_RESET);
+      #endif
     }
-  	
-  	//-- clear click counter
-  	KEY_CLICK_NUM_1 = 0;
+    
+    if(KEY_CLICK_NUM_2 > 1) {
+      #if DEBUG_PRINT_UART
+        //-- double, triple, etc click
+        printf(FONT_COLOR_STRONG_MAGENTA);
+        printf("Double press #2\n");
+        printf(STYLE_COLOR_RESET);
+      #endif
+    } else if(KEY_CLICK_NUM_2 == 1) {
+      #if DEBUG_PRINT_UART
+        //-- single click
+        printf(FONT_COLOR_STRONG_GRAY);
+        printf("Single press #2\n");
+        printf(STYLE_COLOR_RESET);
+      #endif
 
-  	return (events ^ cc2530_EVT_DOUBLE);
+      SCREEN_NUM++;
+      //-- last screen => go to #1
+      if(SCREEN_NUM == (TOTAL_SCREENS + 1)) {
+        SCREEN_NUM = 1;
+      }
+      switchScreen();
+    }
+    
+    //-- clear click counter
+    KEY_CLICK_NUM_1 = 0;
+    KEY_CLICK_NUM_2 = 0;
+
+    return (events ^ cc2530_EVT_DOUBLE);
   }
 
   //-- cc2530_EVT_LONG event
   if(events & cc2530_EVT_LONG)
   {
     #if DEBUG_PRINT_UART
-    	printf("Long press\n");
+      printf("Long press\n");
     #endif
     //-- Check the current status of the device: in the zigbee network or not in the network?
     if(bdbAttributes.bdbNodeIsOnANetwork) {
@@ -384,9 +402,9 @@ uint16 zclcc2530_event_loop(uint8 task_id, uint16 events)
       
       #if DEBUG_PRINT_UART
         //-- Output to terminal via UART
-      	printf(FONT_COLOR_STRONG_YELLOW);
-      	printf("Start Commissioning...\n");
-      	printf(STYLE_COLOR_RESET);
+        printf(FONT_COLOR_STRONG_YELLOW);
+        printf("Start Commissioning...\n");
+        printf(STYLE_COLOR_RESET);
       #endif
 
     }
@@ -395,38 +413,39 @@ uint16 zclcc2530_event_loop(uint8 task_id, uint16 events)
   }
   
   #if USE_DS18B20
-    //-- cc2530_EVT_REPORTING event
-    if(events & cc2530_EVT_REPORTING) {
+    //-- cc2530_EVT_DS18B20 event
+    if(events & cc2530_EVT_DS18B20) {
       #if DEBUG_PRINT_UART
-		    //printf(FONT_COLOR_STRONG_WHITE);
-    	  //printf("cc2530_EVT_REPORTING\n");
-      	//printf(STYLE_COLOR_RESET);
+        //printf(FONT_COLOR_STRONG_WHITE);
+        //printf("cc2530_EVT_DS18B20\n");
+        //printf(STYLE_COLOR_RESET);
       #endif
-      zclcc2530_ReportTemp();
-      return (events ^ cc2530_EVT_REPORTING);
+      SCREEN_NUM = 1;
+      switchScreen();
+      return (events ^ cc2530_EVT_DS18B20);
     }
   #endif
 
-  //-- cc2530_EVT_REFRESH event
-  if(events & cc2530_EVT_REFRESH) {
-    
-    #if DEBUG_PRINT_UART
-	    //printf(FONT_COLOR_STRONG_MAGENTA);
-  	  //printf("cc2530_EVT_REFRESH\n");
-    	//printf(STYLE_COLOR_RESET);
-    #endif
-    
-    switchScreen();
-    
-    return (events ^ cc2530_EVT_REFRESH);
-  }
-  
+  #if USE_DHT11
+    //-- cc2530_EVT_DHT11 event
+    if(events & cc2530_EVT_DHT11) {
+      #if DEBUG_PRINT_UART
+        //printf(FONT_COLOR_STRONG_MAGENTA);
+        //printf("cc2530_EVT_DHT11\n");
+        //printf(STYLE_COLOR_RESET);
+      #endif
+      //zclcc2530_ReportTemp_DHT11();
+      SCREEN_NUM = 1;
+      switchScreen();
+      return (events ^ cc2530_EVT_DHT11);
+    }
+  #endif
+
   //-- button poll event
-  if (events & HAL_KEY_EVENT)
+  if(events & HAL_KEY_EVENT)
   {
     //-- Reading buttons
     cc2530_HalKeyPoll();
-
     return (events ^ HAL_KEY_EVENT);
   }
   
@@ -443,8 +462,9 @@ static void zclcc2530_HandleKeys(byte shift, byte keys)
     //-- increase click counter
     KEY_CLICK_NUM_1++;
     #if DEBUG_PRINT_UART
-    	printf("Key1 pressed: %d%d%d%d\n", RELAY_STATES[0], RELAY_STATES[1], RELAY_STATES[2], RELAY_STATES[3]);
+      printf("Key1 pressed: %d%d%d%d, %d times\n", RELAY_STATES[0], RELAY_STATES[1], RELAY_STATES[2], RELAY_STATES[3], KEY_CLICK_NUM_1);
     #endif
+    
     //-- Start the timer to detect a long press
     osal_start_timerEx(zclcc2530_TaskID, cc2530_EVT_LONG, TIMER_INTERVAL_LONG_PRESS_EVT);
     //-- Start the timer to detect double clicks
@@ -454,45 +474,45 @@ static void zclcc2530_HandleKeys(byte shift, byte keys)
     //-- Stopping the long press timer
     osal_stop_timerEx(zclcc2530_TaskID, cc2530_EVT_LONG);
     #if DEBUG_PRINT_UART
-    	//printf("Key1 stopped timer\n");
+      //printf("Key1 stopped timer\n");
     #endif
   }
 
   if(keys & HAL_KEY_SW_2) {
-    HalLedSet(HAL_LED_3, HAL_LED_MODE_TOGGLE);
     
+    //-- increase click counter
+    KEY_CLICK_NUM_2++;
     #if DEBUG_PRINT_UART
-	    //-- single click
-  	  printf(FONT_COLOR_STRONG_GRAY);
-	  	printf("Single press #2\n");
-	    printf(STYLE_COLOR_RESET);
+      printf("Key2 pressed: %d times\n", KEY_CLICK_NUM_2);
     #endif
 
+    //-- Start the timer to detect double clicks
+    osal_start_timerEx(zclcc2530_TaskID, cc2530_EVT_DOUBLE, TIMER_INTERVAL_DOUBLE_PRESS_EVT);
+    
+    HalLedSet(HAL_LED_2, HAL_LED_MODE_TOGGLE);
+    
     #if DEBUG_SWITCH_RELAY
-	    RELAY_NUM++;
-			if(RELAY_NUM == TOTAL_RELAYS_NUM) {
-				RELAY_NUM = 0;
-			}
-			#if DEBUG_PRINT_UART
-				printf("Relay #%d\n", RELAY_NUM);
-			#endif
-			updateRelay(RELAY_STATES[RELAY_NUM] == 0, RELAY_NUM);
-		#endif
-		
-		switchScreen();
+      RELAY_NUM++;
+      if(RELAY_NUM == TOTAL_RELAYS_NUM) {
+        RELAY_NUM = 0;
+      }
+      #if DEBUG_PRINT_UART
+        printf("Relay #%d\n", RELAY_NUM);
+      #endif
+      updateRelay(RELAY_STATES[RELAY_NUM] == 0, RELAY_NUM);
+    #endif
+    //switchScreen();
   }
 
   if(keys & HAL_KEY_SW_3) {
     P0_4 = (P0_4 == 0) ? 1 : 0;
     #if DEBUG_PRINT_UART
-    	printf("Key3:%d\n", P0_4);
+      printf("Key3:%d\n", P0_4);
     #endif
     //halOLED128x64ShowX16(2, 0, "Key #3 pressed");
   }
 
 }
-
-
 
 
 //-- Initialization of buttons (inputs)
@@ -557,6 +577,36 @@ void cc2530_HalKeyPoll (void)
   OnBoard_SendKeys(keys, HAL_KEY_STATE_NORMAL);
 }
 
+#if DEBUG_PRINT_UART
+  __near_func int putchar(int c)
+  {
+    HalUARTWrite(HAL_UART_PORT_0, (uint8 *)&c, 1);
+    return(c);
+  }
+  uint8 initUart0(halUARTCBack_t pf)
+  {
+    halUARTCfg_t uartConfig;
+    uartConfig.configured           = true;
+    uartConfig.baudRate             = HAL_UART_BR_115200;
+    uartConfig.flowControl          = false;
+    uartConfig.flowControlThreshold = 48;
+    uartConfig.rx.maxBufSize        = 128;
+    uartConfig.tx.maxBufSize        = 128;
+    uartConfig.idleTimeout          = 6;
+    uartConfig.intEnable            = true;           
+    uartConfig.callBackFunc         = pf;
+    return HalUARTOpen (HAL_UART_PORT_0, &uartConfig);
+  }
+  void uart0RxCb(uint8 port, uint8 event)
+  {
+    uint8 ch;
+    while(Hal_UART_RxBufLen(port)) {
+      //-- Read one byte from UART to ch
+      HalUARTRead (port, &ch, 1);
+    }
+  }
+#endif
+
 //-- Change relay state
 void updateRelay(bool value, uint8 num)
 {
@@ -569,29 +619,32 @@ void updateRelay(bool value, uint8 num)
   }
 
   #if DEBUG_PRINT_UART
-  	printf("Relay%d (updateRelay): %d\n", num+1, RELAY_STATES[num]);
+    printf("Relay%d (updateRelay): %d\n", num+1, RELAY_STATES[num]);
   #endif
 
   //-- save relay state
   switch(num) {
-  	case 0:
-  		osal_nv_write(NV_cc2530_RELAY_STATE_ID_1, 0, 1, &RELAY_STATES[num]);
-  		break;
-  	case 1:
-  		osal_nv_write(NV_cc2530_RELAY_STATE_ID_2, 0, 1, &RELAY_STATES[num]);
-  		break;
-  	case 2:
-  		osal_nv_write(NV_cc2530_RELAY_STATE_ID_3, 0, 1, &RELAY_STATES[num]);
-  		break;
-  	case 3:
-  		osal_nv_write(NV_cc2530_RELAY_STATE_ID_4, 0, 1, &RELAY_STATES[num]);
-  		break;
+    case 0:
+      osal_nv_write(NV_cc2530_RELAY_STATE_ID_1, 0, 1, &RELAY_STATES[num]);
+      break;
+    case 1:
+      osal_nv_write(NV_cc2530_RELAY_STATE_ID_2, 0, 1, &RELAY_STATES[num]);
+      break;
+    case 2:
+      osal_nv_write(NV_cc2530_RELAY_STATE_ID_3, 0, 1, &RELAY_STATES[num]);
+      break;
+    case 3:
+      osal_nv_write(NV_cc2530_RELAY_STATE_ID_4, 0, 1, &RELAY_STATES[num]);
+      break;
   }
   
   //-- Displaying the new state
   applyRelay(num);
   //-- send report
   zclcc2530_ReportOnOff(num);
+
+  SCREEN_NUM = 2;
+  switchScreen();
 }
   
 //-- Displaying the new state
@@ -600,10 +653,10 @@ void applyRelay(uint8 num)
   //-- if OFF
   if(RELAY_STATES[num] == 0) {
     //-- set LED1 to OFF
-    HalLedSet(HAL_LED_1, HAL_LED_MODE_OFF);
+    HalLedSet(HAL_LED_2, HAL_LED_MODE_OFF);
   } else {
     //-- set LED1 to ON
-    HalLedSet(HAL_LED_1, HAL_LED_MODE_ON);
+    HalLedSet(HAL_LED_2, HAL_LED_MODE_ON);
   }
 }
 
@@ -611,8 +664,7 @@ void applyRelay(uint8 num)
 static void zclcc2530_OnOffCB1(uint8 cmd)
 {
   #if DEBUG_PRINT_UART
-  	printf("OnOff?#1-> %d (on=%d, off=%d, toggle=%d)\n", cmd, COMMAND_ON, COMMAND_OFF, COMMAND_TOGGLE);
-  	printf("RELAY_NUM:%d\n", RELAY_NUM);
+    printf("OnOff?#1-> %d (on=%d, off=%d, toggle=%d)\n", cmd, COMMAND_ON, COMMAND_OFF, COMMAND_TOGGLE);
   #endif
   //-- save the address from where the command came to send the report back
   afIncomingMSGPacket_t *pPtr = zcl_getRawAFMsg();
@@ -632,8 +684,7 @@ static void zclcc2530_OnOffCB1(uint8 cmd)
 static void zclcc2530_OnOffCB2(uint8 cmd)
 {
   #if DEBUG_PRINT_UART
-  	printf("OnOff?#2-> %d (on=%d, off=%d, toggle=%d)\n", cmd, COMMAND_ON, COMMAND_OFF, COMMAND_TOGGLE);
-  	printf("RELAY_NUM:%d\n", RELAY_NUM);
+    printf("OnOff?#2-> %d (on=%d, off=%d, toggle=%d)\n", cmd, COMMAND_ON, COMMAND_OFF, COMMAND_TOGGLE);
   #endif
   //-- save the address from where the command came to send the report back
   afIncomingMSGPacket_t *pPtr = zcl_getRawAFMsg();
@@ -652,7 +703,7 @@ static void zclcc2530_OnOffCB2(uint8 cmd)
 static void zclcc2530_OnOffCB3(uint8 cmd)
 {
   #if DEBUG_PRINT_UART
-  	printf("OnOff?#3-> %d (on=%d, off=%d, toggle=%d)\n", cmd, COMMAND_ON, COMMAND_OFF, COMMAND_TOGGLE);
+    printf("OnOff?#3-> %d (on=%d, off=%d, toggle=%d)\n", cmd, COMMAND_ON, COMMAND_OFF, COMMAND_TOGGLE);
   #endif
   //-- save the address from where the command came to send the report back
   afIncomingMSGPacket_t *pPtr = zcl_getRawAFMsg();
@@ -671,7 +722,7 @@ static void zclcc2530_OnOffCB3(uint8 cmd)
 static void zclcc2530_OnOffCB4(uint8 cmd)
 {
   #if DEBUG_PRINT_UART
-  	printf("OnOff?#4-> %d (on=%d, off=%d, toggle=%d)\n", cmd, COMMAND_ON, COMMAND_OFF, COMMAND_TOGGLE);
+    printf("OnOff?#4-> %d (on=%d, off=%d, toggle=%d)\n", cmd, COMMAND_ON, COMMAND_OFF, COMMAND_TOGGLE);
   #endif
   //-- save the address from where the command came to send the report back
   afIncomingMSGPacket_t *pPtr = zcl_getRawAFMsg();
@@ -692,7 +743,7 @@ static void zclcc2530_OnOffCB4(uint8 cmd)
 void zclcc2530_ReportOnOff(uint8 num)
 {
   #if DEBUG_PRINT_UART
-  	printf("ReportOnOff:%d to %d\n", num, RELAY_STATES[num]);
+    printf("ReportOnOff:%d to %d\n", num, RELAY_STATES[num]);
   #endif
   
   const uint8 NUM_ATTRIBUTES = 1;
@@ -715,53 +766,85 @@ void zclcc2530_ReportOnOff(uint8 num)
 
     uint8 cc2530_EP = 1;
     switch(num) {
-    	case 0:
-    		cc2530_EP = cc2530_ENDPOINT_1;
-    		break;
-    	case 1:
-    		cc2530_EP = cc2530_ENDPOINT_2;
-    		break;
-    	case 2:
-    		cc2530_EP = cc2530_ENDPOINT_3;
-    		break;
-    	case 3:
-    		cc2530_EP = cc2530_ENDPOINT_4;
-    		break;
+      case 0:
+        cc2530_EP = cc2530_ENDPOINT_1;
+        break;
+      case 1:
+        cc2530_EP = cc2530_ENDPOINT_2;
+        break;
+      case 2:
+        cc2530_EP = cc2530_ENDPOINT_3;
+        break;
+      case 3:
+        cc2530_EP = cc2530_ENDPOINT_4;
+        break;
     }
     
     zcl_SendReportCmd(cc2530_EP, &zclcc2530_DstAddr,
                       ZCL_CLUSTER_ID_GEN_ON_OFF, pReportCmd,
                       ZCL_FRAME_SERVER_CLIENT_DIR, false, SeqNum++);
-  	
-  	#if DEBUG_PRINT_UART
-  		//printf("%d:DONE!", num);
-  	#endif
+    
+    #if DEBUG_PRINT_UART
+      //printf("%d:DONE!", num);
+    #endif
   }
 
   osal_mem_free(pReportCmd);
 }
 
-#if USE_DS18B20
-	//-- temperature report
-	void zclcc2530_ReportTemp(void)
-	{
-    //-- reading the temperature
-    zclcc2530_MeasuredValue = readTemperature();
+#if USE_DS18B20 || USE_DHT11
+  //-- temperature report
+  void zclcc2530_ReportTemp(void)
+  {
+    //-- reading the temperature from "zclcc2530_TemperatureMeasuredValue"
+    const uint8 NUM_ATTRIBUTES = 1;
   
+    zclReportCmd_t *pReportCmd;
+  
+    pReportCmd = osal_mem_alloc(sizeof(zclReportCmd_t) +
+                                (NUM_ATTRIBUTES * sizeof(zclReport_t)));
+    if(pReportCmd != NULL) {
+      pReportCmd->numAttr = NUM_ATTRIBUTES;
+  
+      pReportCmd->attrList[0].attrID = ATTRID_MS_TEMPERATURE_MEASURED_VALUE;
+      pReportCmd->attrList[0].dataType = ZCL_DATATYPE_INT16;
+      pReportCmd->attrList[0].attrData = (void *)(&zclcc2530_TemperatureMeasuredValue);
+  
+      zclcc2530_DstAddr.addrMode = (afAddrMode_t)Addr16Bit;
+      zclcc2530_DstAddr.addr.shortAddr = 0;
+      zclcc2530_DstAddr.endPoint = 1;
+
+      zcl_SendReportCmd(cc2530_ENDPOINT_1, &zclcc2530_DstAddr,
+                        ZCL_CLUSTER_ID_MS_TEMPERATURE_MEASUREMENT, pReportCmd,
+                        ZCL_FRAME_SERVER_CLIENT_DIR, false, SeqNum++);
+    }
+  
+    osal_mem_free(pReportCmd);
+  }
+#endif
+
+#if USE_DS18B20
+  //-- temperature report
+  void zclcc2530_ReportTemp_DS18B20(void)
+  {
+    //-- reading the temperature
+    zclcc2530_TemperatureMeasuredValue = readTemperature();
+    zclcc2530_ReportTemp();
+    
     /*
-    double number = (zclcc2530_MeasuredValue / 100.0);
+    double number = (zclcc2530_TemperatureMeasuredValue / 100.0);
   
     #if DEBUG_PRINT_UART
-		  printf(FONT_COLOR_STRONG_YELLOW);
-    	printf("DS18B20 sensor: ");
+      printf(FONT_COLOR_STRONG_YELLOW);
+      printf("DS18B20 sensor: ");
     
-		  printf(STYLE_COLOR_BOLD);
-    	printf(FONT_COLOR_STRONG_CYAN);
-		  printNumber(number, 2);
+      printf(STYLE_COLOR_BOLD);
+      printf(FONT_COLOR_STRONG_CYAN);
+      printNumber(number, 2);
   
-		  printf(FONT_COLOR_STRONG_YELLOW);
-		  printf(" °С\n");
-		  printf(STYLE_COLOR_RESET);
+      printf(FONT_COLOR_STRONG_YELLOW);
+      printf(" °С\n");
+      printf(STYLE_COLOR_RESET);
     #endif
     */
   
@@ -771,69 +854,28 @@ void zclcc2530_ReportOnOff(uint8 num)
     halOLED128x64ShowX16(3, 0, "DS18B20:");
     halOLED128x64ShowX16(3, 9, str2);
     */
-    
-    const uint8 NUM_ATTRIBUTES = 1;
-  
-    zclReportCmd_t *pReportCmd;
-  
-    pReportCmd = osal_mem_alloc(sizeof(zclReportCmd_t) +
-                                (NUM_ATTRIBUTES * sizeof(zclReport_t)));
-    if (pReportCmd != NULL) {
-      pReportCmd->numAttr = NUM_ATTRIBUTES;
-  
-      pReportCmd->attrList[0].attrID = ATTRID_MS_TEMPERATURE_MEASURED_VALUE;
-      pReportCmd->attrList[0].dataType = ZCL_DATATYPE_INT16;
-      pReportCmd->attrList[0].attrData = (void *)(&zclcc2530_MeasuredValue);
-  
-      zclcc2530_DstAddr.addrMode = (afAddrMode_t)Addr16Bit;
-      zclcc2530_DstAddr.addr.shortAddr = 0;
-      zclcc2530_DstAddr.endPoint = 1;
-  
-      zcl_SendReportCmd(cc2530_ENDPOINT_1, &zclcc2530_DstAddr,
-                        ZCL_CLUSTER_ID_MS_TEMPERATURE_MEASUREMENT, pReportCmd,
-                        ZCL_FRAME_SERVER_CLIENT_DIR, false, SeqNum++);
-    }
-  
-    osal_mem_free(pReportCmd);
-	}
-#endif
-
-#if DEBUG_PRINT_UART
-	__near_func int putchar(int c)
-	{
-  	HalUARTWrite(HAL_UART_PORT_0, (uint8 *)&c, 1);
-	  return(c);
-	}
-	uint8 initUart0(halUARTCBack_t pf)
-	{
-	  halUARTCfg_t uartConfig;
-	  uartConfig.configured           = true;
-	  uartConfig.baudRate             = HAL_UART_BR_115200;
-	  uartConfig.flowControl          = false;
-	  uartConfig.flowControlThreshold = 48;
-	  uartConfig.rx.maxBufSize        = 128;
-	  uartConfig.tx.maxBufSize        = 128;
-	  uartConfig.idleTimeout          = 6;
-	  uartConfig.intEnable            = true;           
-	  uartConfig.callBackFunc         = pf;
-	  return HalUARTOpen (HAL_UART_PORT_0, &uartConfig);
-	}
-	void uart0RxCb(uint8 port, uint8 event)
-	{
-	  uint8 ch;
-	  while(Hal_UART_RxBufLen(port)) {
-	    //-- Read one byte from UART to ch
-	    HalUARTRead (port, &ch, 1);
-	  }
-	}
+  }
 #endif
 
 #if USE_DHT11
-	void zclcc2530_ReportDHT11(void)
-	{
+  void zclcc2530_ReportTemp_DHT11(void)
+  {
     uint8 req;
-    char t[32], h[32], i[32], s[32];
+    char t[32], h[32], i[32], s[32], tf[32];
+
+    //extern uint32 osal_GetSystemClock( void );
+    uint32 pTime = osal_GetSystemClock();
+    
+    #if DEBUG_PRINT_UART
+      printf("Time:");
+      printNumber(pTime, 0);
+      printf("\n");
+    
+      char* r1 = int2hex(pTime,1,1);
+      printf("hexTime:%s\n", r1);
+    #endif
   
+    //-- reading the temperature & humidity
     req = halDHT11GetData();
   
     if(req) {
@@ -844,7 +886,7 @@ void zclcc2530_ReportOnOff(uint8 num)
       #if DEBUG_PRINT_UART
         //-- Output to terminal via UART
         printf(FONT_COLOR_STRONG_CYAN);
-     	  printf("DHT11 Initiated\n");
+        printf("DHT11 Initiated\n");
         printf(STYLE_COLOR_RESET);
       #endif
   
@@ -852,13 +894,19 @@ void zclcc2530_ReportOnOff(uint8 num)
       dht11Idx++;
       sprintf(s, "Screen 1");
       sprintf(i, "Idx: %d", dht11Idx);
-      sprintf(t, "Temp: %d%d.%d°C", tempH, tempL, tempDec);
+      sprintf(t, "T: %d%d.%d°C", tempH, tempL, tempDec);
       if(humiDec > 0) {
-        sprintf(h, "Humi: %d%d.%d%%", humiH, humiL, humiDec);
+        sprintf(h, "H: %d%d.%d%%", humiH, humiL, humiDec);
       } else {
-        sprintf(h, "Humi: %d%d%%", humiH, humiL);
+        sprintf(h, "H: %d%d%%", humiH, humiL);
       }
+
+      //-- convert temperature: char* => float => multiply by 100 => int16
+      sprintf(tf, "%d%d.%d", tempH, tempL, tempDec);
+      zclcc2530_TemperatureMeasuredValue = (int16)(atof(tf)*100);
+      zclcc2530_ReportTemp();
   
+      
       halLCDClearScreen();
       #if HAL_LCD_TYPE == HAL_LCD_TYPE_OLED
         halOLED128x64ShowX16(0, 0, (uint8 const *)s);
@@ -889,49 +937,56 @@ void zclcc2530_ReportOnOff(uint8 num)
       #endif
   
     }
-	}
+  }
 #endif //-- USE_DHT11
 
 void showScreen1(void)
 {
-	halLCDClearScreen();
+  halLCDClearScreen();
   #if HAL_LCD_TYPE == HAL_LCD_TYPE_OLED
     halOLED128x64ShowX8(0, 0, "Screen 1");
   #else
     halTFTShowX8(0, 0,  PX_WHITE, PX_BLACK, "Screen 1");
   #endif
 
+  #if USE_DS18B20
+  	zclcc2530_ReportTemp_DS18B20();
+  #endif
+
   #if USE_DHT11
-		zclcc2530_ReportDHT11();
-	#endif
+    zclcc2530_ReportTemp_DHT11();
+  #endif
 }
 
 void showScreen2(void)
 {
-	char s1[32],s2[32],s3[32],s4[32];
-	sprintf(s1, "Relay #1: %d", RELAY_STATES[0]);
-	sprintf(s2, "Relay #2: %d", RELAY_STATES[1]);
-	sprintf(s3, "Relay #3: %d", RELAY_STATES[2]);
-	sprintf(s4, "Relay #4: %d", RELAY_STATES[3]);
+  char s1[32],s2[32],s3[32],s4[32];
+  sprintf(s1, "Relay #1: %d", RELAY_STATES[0]);
+  sprintf(s2, "Relay #2: %d", RELAY_STATES[1]);
+  sprintf(s3, "Relay #3: %d", RELAY_STATES[2]);
+  sprintf(s4, "Relay #4: %d", RELAY_STATES[3]);
 
-	//extern uint32 osal_GetSystemClock( void );
-	uint32 pTime = osal_GetSystemClock();
-
-	//int num1 = -5678;
-  char buffer1[sizeof(uint32) * 8 + 1];
-  char* str1 = int2str(pTime, buffer1);
+ 	/* 
+  //extern uint32 osal_GetSystemClock( void );
+  uint32 pTime = osal_GetSystemClock();
+  
   #if DEBUG_PRINT_UART
-  	printf("str1 = %s\n", str1);
+    printf("Time:");
+    printNumber(pTime, 0);
+    printf("\n");
+
+    char* r1 = int2hex(pTime,1,1);
+    printf("hexTime:%s\n", r1);
+  #endif
+  */
+
+  #if DEBUG_PRINT_UART
+    //printf("DT:");
+    //printNumber((long double)pTime, 0);
+    //printf("\n");
   #endif
 
-
-	#if DEBUG_PRINT_UART
-		//printf("DT:");
-		//printNumber((long double)pTime, 0);
-		//printf("\n");
-	#endif
-
-	halLCDClearScreen();
+  halLCDClearScreen();
   #if HAL_LCD_TYPE == HAL_LCD_TYPE_OLED
     halOLED128x64ShowX8(0, 0, "Screen 2");
     halOLED128x64ShowX8(1, 0, (uint8 const *)s1);
@@ -949,23 +1004,23 @@ void showScreen2(void)
 
 void switchScreen(void)
 {
-	#if DEBUG_PRINT_UART
-		//printf("SN:%d\n", SCREEN_NUM);
-	#endif
-	switch(SCREEN_NUM)
-	{
-		case 0:
-			showScreen1();
-			break;
-		case 1:
-			showScreen2();
-			break;
-		case 2:
-			#ifdef HAL_LCD_TEST
+  #if DEBUG_PRINT_UART
+    //printf("SN:%d\n", SCREEN_NUM);
+  #endif
+  switch(SCREEN_NUM)
+  {
+    case 1:
+      showScreen1();
+      break;
+    case 2:
+      showScreen2();
+      break;
+    case 3:
+      #if DEBUG_LCD_TEST
         halLCDStartTest();
-    	#endif
-			break;
-		default:
-			break;
-	}
+      #endif
+      break;
+    default:
+      break;
+  }
 }

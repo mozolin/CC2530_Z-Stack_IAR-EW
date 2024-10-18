@@ -16,7 +16,7 @@ extern "C" {
   #include "hal_oled.h"
   //#include "img_oled_picture.h"
   #include "images_oled.h"
-  #ifdef HAL_LCD_TEST
+  #if DEBUG_LCD_TEST
     //-- Draw OLED
     void halOLEDDraw(void);
   #endif
@@ -34,7 +34,7 @@ extern "C" {
   #define PX_GRAY    HAL_TFT_PIXEL_GRAY
   #define PX_CYAN    HAL_TFT_PIXEL_CYAN
   #define PX_MAGENTA HAL_TFT_PIXEL_MAGENTA
-  #ifdef HAL_LCD_TEST
+  #if DEBUG_LCD_TEST
     //-- Draw TFT
     void halTFTDraw(void);
   #endif
@@ -43,7 +43,7 @@ extern "C" {
 
 void halLCDInit(void);
 void halLCDClearScreen(void);
-#ifdef HAL_LCD_TEST
+#if DEBUG_LCD_TEST
   void halLCDStartTest(void);
 #endif
 

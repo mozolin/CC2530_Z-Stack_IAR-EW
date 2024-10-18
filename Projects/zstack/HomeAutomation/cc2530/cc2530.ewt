@@ -3243,6 +3243,9 @@
         <file>
             <name>$PROJ_DIR$\code\zcl_cc2530.h</name>
         </file>
+        <file>
+            <name>$PROJ_DIR$\code\zcl_cc2530_data.h</name>
+        </file>
     </group>
     <group>
         <name>BDB</name>

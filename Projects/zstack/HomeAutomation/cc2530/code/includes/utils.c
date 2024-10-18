@@ -209,20 +209,28 @@ uint16 convert16toU16(int16 in)
  *   printf("%s", r1);                  *
  *   => ef7d (lowercase, no prefix)     *
  ****************************************/
-char* int2hex(int value, uint8 upperCase, uint8 prefix)
+char* int2hex(int32 value, uint8 upperCase, uint8 prefix)
 {
-  static char result[18];
-  char str[16];
+  static char result[36];
+  char str1[32], str2[32];
+  
+  //-- low 2 bytes
+  uint16 l = (uint16)(value & 0xFFFF);
+  //-- high 2 bytes
+  uint16 h = (uint16)(value >> 16);
   
   //-- format int to hex
-  sprintf(str, "%x", value);
+  sprintf(str1, "%x", l);
+  sprintf(str2, "%x", h);
   if(upperCase) {
 	  //-- convert to uppercase
-  	sprintf(str, "%s", str2upper(str, 16));
+  	sprintf(str1, "%s", str2upper(str1, 32));
+  	sprintf(str2, "%s", str2upper(str2, 32));
   }
   //-- add "0x" prefix, if necessary
   strcpy(result, prefix ? "0x" : "");
-  strcat(result, str);
+  strcat(result, str2);
+  strcat(result, str1);
   
   return result;
 }

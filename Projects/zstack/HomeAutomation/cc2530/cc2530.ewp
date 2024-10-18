@@ -2610,28 +2610,7 @@
                 </option>
                 <option>
                     <name>CCDefines</name>
-                    <state>SECURE=1</state>
-                    <state>TC_LINKKEY_JOIN</state>
-                    <state>NV_INIT</state>
-                    <state>NV_RESTORE</state>
-                    <state>xPOWER_SAVING</state>
-                    <state>NWK_AUTO_POLL</state>
-                    <state>xZTOOL_P1</state>
-                    <state>xMT_TASK</state>
-                    <state>xMT_APP_FUNC</state>
-                    <state>xMT_SYS_FUNC</state>
-                    <state>xMT_ZDO_FUNC</state>
-                    <state>xMT_ZDO_MGMT</state>
-                    <state>xMT_APP_CNF_FUNC</state>
-                    <state>LEGACY_LCD_DEBUG</state>
-                    <state>LCD_SUPPORTED=DEBUG</state>
-                    <state>MULTICAST_ENABLED=FALSE</state>
-                    <state>ZCL_READ</state>
-                    <state>ZCL_WRITE</state>
-                    <state>ZCL_BASIC</state>
-                    <state>ZCL_IDENTIFY</state>
-                    <state>ZCL_SCENES</state>
-                    <state>ZCL_GROUPS</state>
+                    <state></state>
                 </option>
                 <option>
                     <name>CCPreprocFile</name>
@@ -2767,7 +2746,7 @@
                 </option>
                 <option>
                     <name>PreInclude</name>
-                    <state></state>
+                    <state>$PROJ_DIR$\code\preinclude.h</state>
                 </option>
                 <option>
                     <name>CCLibConfigHeader</name>
@@ -2795,6 +2774,13 @@
                     <name>CCIncludePath2</name>
                     <state>$PROJ_DIR$</state>
                     <state>$PROJ_DIR$\code</state>
+                    <state>$PROJ_DIR$\code\includes</state>
+                    <state>$PROJ_DIR$\code\includes\dht11</state>
+                    <state>$PROJ_DIR$\code\includes\ds18b20</state>
+                    <state>$PROJ_DIR$\code\includes\fonts</state>
+                    <state>$PROJ_DIR$\code\includes\images</state>
+                    <state>$PROJ_DIR$\code\includes\lcd</state>
+                    <state>$PROJ_DIR$\code\includes\lcd\spi_driver</state>
                     <state>$PROJ_DIR$\..\Source</state>
                     <state>$PROJ_DIR$\..\..\ZMain\TI2530DB</state>
                     <state>$PROJ_DIR$\..\..\..\..\Components\hal\include</state>
@@ -2809,8 +2795,9 @@
                     <state>$PROJ_DIR$\..\..\..\..\Components\services\sdata</state>
                     <state>$PROJ_DIR$\..\..\..\..\Components\stack\af</state>
                     <state>$PROJ_DIR$\..\..\..\..\Components\stack\bdb</state>
-                    <state>$PROJ_DIR$\..\..\..\..\Components\stack\gp</state>
                     <state>$PROJ_DIR$\..\..\..\..\Components\stack\nwk</state>
+                    <state>$PROJ_DIR$\..\..\..\..\Components\stack\bdb</state>
+                    <state>$PROJ_DIR$\..\..\..\..\Components\stack\gp</state>
                     <state>$PROJ_DIR$\..\..\..\..\Components\stack\sapi</state>
                     <state>$PROJ_DIR$\..\..\..\..\Components\stack\sec</state>
                     <state>$PROJ_DIR$\..\..\..\..\Components\stack\sys</state>
@@ -3095,11 +3082,11 @@
                 </option>
                 <option>
                     <name>XOutOverride</name>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>OutputFile</name>
-                    <state>cc2530.d51</state>
+                    <state>cc2530.hex</state>
                 </option>
                 <option>
                     <name>OutputFormat</name>
@@ -3273,7 +3260,7 @@
                 </option>
                 <option>
                     <name>DebugInformation</name>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>RuntimeControl</name>
@@ -3563,6 +3550,9 @@
         </file>
         <file>
             <name>$PROJ_DIR$\code\zcl_cc2530.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\code\zcl_cc2530_data.h</name>
         </file>
     </group>
     <group>

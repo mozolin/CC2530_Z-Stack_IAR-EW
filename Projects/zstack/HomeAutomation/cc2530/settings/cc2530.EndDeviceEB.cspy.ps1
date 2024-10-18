@@ -23,9 +23,9 @@ param([String]$debugfile = "");
 
 if ($debugfile -eq "")
 {
-& "C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.0\common\bin\cspybat" -f "D:\!HA!\-projects-\cc2530_iar\Projects\zstack\HomeAutomation\oled\settings\oled.CoordinatorEB.general.xcl" --backend -f "D:\!HA!\-projects-\cc2530_iar\Projects\zstack\HomeAutomation\oled\settings\oled.CoordinatorEB.driver.xcl" 
+& "C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.0\common\bin\cspybat" -f "D:\!HA!\-projects-\cc2530_iar\Projects\zstack\HomeAutomation\cc2530\settings\cc2530.EndDeviceEB.general.xcl" --backend -f "D:\!HA!\-projects-\cc2530_iar\Projects\zstack\HomeAutomation\cc2530\settings\cc2530.EndDeviceEB.driver.xcl" 
 }
 else
 {
-& "C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.0\common\bin\cspybat" -f "D:\!HA!\-projects-\cc2530_iar\Projects\zstack\HomeAutomation\oled\settings\oled.CoordinatorEB.general.xcl" --debug_file=$debugfile --backend -f "D:\!HA!\-projects-\cc2530_iar\Projects\zstack\HomeAutomation\oled\settings\oled.CoordinatorEB.driver.xcl" 
+& "C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.0\common\bin\cspybat" -f "D:\!HA!\-projects-\cc2530_iar\Projects\zstack\HomeAutomation\cc2530\settings\cc2530.EndDeviceEB.general.xcl" --debug_file=$debugfile --backend -f "D:\!HA!\-projects-\cc2530_iar\Projects\zstack\HomeAutomation\cc2530\settings\cc2530.EndDeviceEB.driver.xcl" 
 }

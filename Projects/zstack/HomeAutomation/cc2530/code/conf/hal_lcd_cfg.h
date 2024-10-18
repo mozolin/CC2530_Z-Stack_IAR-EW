@@ -10,10 +10,6 @@ extern "C" {
 #define HAL_LCD_TYPE_OLED         1
 //-- TFT LCD
 #define HAL_LCD_TYPE_TFT          2
-//-- use or not LCD test
-//-- !!! There may not be enough memory for the firmware, !!!
-//-- !!! due to the large images for this test            !!!
-//#define HAL_LCD_TEST
 
 //-- !!! only one option "HAL_LCD_TYPE" can be defined !!!
 //#define HAL_LCD_TYPE              HAL_LCD_TYPE_TFT  //-- set LCD type to TFT

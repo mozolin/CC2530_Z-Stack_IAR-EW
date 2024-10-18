@@ -22,7 +22,7 @@ void halLCDInit(void)
     halTFTInit(HAL_TFT_PIXEL_BLACK);
   #endif
 }
-#ifdef HAL_LCD_TEST
+#if DEBUG_LCD_TEST
   void halLCDStartTest()
   {
   	#if HAL_LCD_TYPE == HAL_LCD_TYPE_OLED
@@ -41,7 +41,7 @@ void halLCDClearScreen()
   #endif
 }
 
-#ifdef HAL_LCD_TEST
+#if DEBUG_LCD_TEST
   #if HAL_LCD_TYPE == HAL_LCD_TYPE_OLED
     
     void halOLEDDraw(void)
@@ -273,4 +273,4 @@ void halLCDClearScreen()
     }
   
   #endif //-- HAL_LCD_TYPE == HAL_LCD_TYPE_OLED
-#endif //-- HAL_LCD_TEST
+#endif //-- DEBUG_LCD_TEST

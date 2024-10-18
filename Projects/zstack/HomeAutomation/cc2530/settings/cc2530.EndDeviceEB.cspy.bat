@@ -25,7 +25,7 @@ if not "%~1" == "" goto debugFile
 
 @echo on 
 
-"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.0\common\bin\cspybat" -f "D:\!HA!\-projects-\cc2530_iar\Projects\zstack\HomeAutomation\cc2530\CC2530DB\settings\cc2530.RouterEB.general.xcl" --backend -f "D:\!HA!\-projects-\cc2530_iar\Projects\zstack\HomeAutomation\cc2530\CC2530DB\settings\cc2530.RouterEB.driver.xcl" 
+"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.0\common\bin\cspybat" -f "D:\!HA!\-projects-\cc2530_iar\Projects\zstack\HomeAutomation\cc2530\settings\cc2530.EndDeviceEB.general.xcl" --backend -f "D:\!HA!\-projects-\cc2530_iar\Projects\zstack\HomeAutomation\cc2530\settings\cc2530.EndDeviceEB.driver.xcl" 
 
 @echo off 
 goto end 
@@ -34,7 +34,7 @@ goto end
 
 @echo on 
 
-"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.0\common\bin\cspybat" -f "D:\!HA!\-projects-\cc2530_iar\Projects\zstack\HomeAutomation\cc2530\CC2530DB\settings\cc2530.RouterEB.general.xcl" "--debug_file=%~1" --backend -f "D:\!HA!\-projects-\cc2530_iar\Projects\zstack\HomeAutomation\cc2530\CC2530DB\settings\cc2530.RouterEB.driver.xcl" 
+"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.0\common\bin\cspybat" -f "D:\!HA!\-projects-\cc2530_iar\Projects\zstack\HomeAutomation\cc2530\settings\cc2530.EndDeviceEB.general.xcl" "--debug_file=%~1" --backend -f "D:\!HA!\-projects-\cc2530_iar\Projects\zstack\HomeAutomation\cc2530\settings\cc2530.EndDeviceEB.driver.xcl" 
 
 @echo off 
 :end

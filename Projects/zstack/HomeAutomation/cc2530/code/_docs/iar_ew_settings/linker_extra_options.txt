@@ -1,0 +1,3 @@
+-C $PROJ_DIR$\..\..\Libraries\TI2530DB\bin\Router-Pro.lib
+-C $PROJ_DIR$\..\..\Libraries\TI2530DB\bin\Security.lib
+-C $PROJ_DIR$\..\..\Libraries\TIMAC\bin\TIMAC-CC2530.lib

@@ -213,43 +213,45 @@ CONST zclAttrRec_t zclcc2530_Attrs1[] =
       (void *)&zclcc2530_clusterRevision_all
     }
   },
-  // *** Атрибуты Temperature Measurement кластера ***
-  {//18
-    ZCL_CLUSTER_ID_MS_TEMPERATURE_MEASUREMENT,
-    { // Значение температуры
-      ATTRID_MS_TEMPERATURE_MEASURED_VALUE,
-      ZCL_DATATYPE_INT16,
-      ACCESS_CONTROL_READ | ACCESS_REPORTABLE,
-      (void *)&zclcc2530_MeasuredValue
-    }
-  },
-  {//19
-    ZCL_CLUSTER_ID_MS_TEMPERATURE_MEASUREMENT,
-    { // минимальное значение температуры
-      ATTRID_MS_TEMPERATURE_MIN_MEASURED_VALUE,
-      ZCL_DATATYPE_INT16,
-      ACCESS_CONTROL_READ,
-      (void *)&zclcc2530_MinMeasuredValue
-    }
-  },
-  {//20
-    ZCL_CLUSTER_ID_MS_TEMPERATURE_MEASUREMENT,
-    { // максимальное значение температуры
-      ATTRID_MS_TEMPERATURE_MAX_MEASURED_VALUE,
-      ZCL_DATATYPE_INT16,
-      ACCESS_CONTROL_READ,
-      (void *)&zclcc2530_MaxMeasuredValue
-    }
-  },
-  {//21
-    ZCL_CLUSTER_ID_MS_TEMPERATURE_MEASUREMENT,
-    {  // версия кластера
-      ATTRID_CLUSTER_REVISION,
-      ZCL_DATATYPE_UINT16,
-      ACCESS_CONTROL_READ,
-      (void *)&zclcc2530_clusterRevision_all
-    }
-  },
+  #if USE_DS18B20 || USE_DHT11
+    // *** Атрибуты Temperature Measurement кластера ***
+    {//18
+      ZCL_CLUSTER_ID_MS_TEMPERATURE_MEASUREMENT,
+      { // Значение температуры
+        ATTRID_MS_TEMPERATURE_MEASURED_VALUE,
+        ZCL_DATATYPE_INT16,
+        ACCESS_CONTROL_READ | ACCESS_REPORTABLE,
+        (void *)&zclcc2530_TemperatureMeasuredValue
+      }
+    },
+    {//19
+      ZCL_CLUSTER_ID_MS_TEMPERATURE_MEASUREMENT,
+      { // минимальное значение температуры
+        ATTRID_MS_TEMPERATURE_MIN_MEASURED_VALUE,
+        ZCL_DATATYPE_INT16,
+        ACCESS_CONTROL_READ,
+        (void *)&zclcc2530_MinMeasuredValue
+      }
+    },
+    {//20
+      ZCL_CLUSTER_ID_MS_TEMPERATURE_MEASUREMENT,
+      { // максимальное значение температуры
+        ATTRID_MS_TEMPERATURE_MAX_MEASURED_VALUE,
+        ZCL_DATATYPE_INT16,
+        ACCESS_CONTROL_READ,
+        (void *)&zclcc2530_MaxMeasuredValue
+      }
+    },
+    {//21
+      ZCL_CLUSTER_ID_MS_TEMPERATURE_MEASUREMENT,
+      {  // версия кластера
+        ATTRID_CLUSTER_REVISION,
+        ZCL_DATATYPE_UINT16,
+        ACCESS_CONTROL_READ,
+        (void *)&zclcc2530_clusterRevision_all
+      }
+    },
+  #endif
 };
 
 uint8 CONST zclcc2530_NumAttributes1 = ( sizeof(zclcc2530_Attrs1) / sizeof(zclcc2530_Attrs1[0]) );

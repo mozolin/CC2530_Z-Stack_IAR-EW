@@ -53,7 +53,7 @@ static zclGeneral_AppCallbacks_t zclcc2530_CmdCallbacks2 =
 CONST zclAttrRec_t zclcc2530_Attrs2[] =
 {
   // *** Атрибуты On/Off кластера ***
-  {//16
+  {
     ZCL_CLUSTER_ID_GEN_ON_OFF,
     { // состояние
       ATTRID_ON_OFF,
@@ -62,7 +62,7 @@ CONST zclAttrRec_t zclcc2530_Attrs2[] =
       (void *)&RELAY_STATES[1]
     }
   },
-  {//17
+  {
     ZCL_CLUSTER_ID_GEN_ON_OFF,
     {  // версия On/Off кластера
       ATTRID_CLUSTER_REVISION,

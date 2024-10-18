@@ -11,18 +11,24 @@ extern "C"
 
 //-- IEEE address: 0x00124b0009674658
 //-- Network address: 0x4021
+//-- The task ID of application
+extern byte zclcc2530_TaskID;
 
 //-- Application events
 #define cc2530_EVT_BLINK                0x0001 //-- Event A (2^0, 1)
 #define cc2530_EVT_LONG                 0x0002 //-- Event B (2^1, 2)
 #define cc2530_EVT_END_DEVICE_REJOIN    0x0004 //-- Event C (2^2, 4)
-#define cc2530_EVT_REPORTING            0x0008 //-- Event D (2^3, 8)
-//#define cc2530_EVT_...                0x0010 //-- Event E (2^4, 16)
+#if USE_DS18B20
+	#define cc2530_EVT_DS18B20            0x0008 //-- Event D (2^3, 8)
+#endif
+#if USE_DHT11
+	#define cc2530_EVT_DHT11              0x0008 //-- Event D (2^3, 8)
+#endif
 /*********************************************************************
  If it uses 0x0010, it blocks any other events!
 **********************************************************************/
-#define cc2530_EVT_REFRESH              0x0020 //-- Event F (2^5, 32)
-#define cc2530_EVT_DOUBLE               0x0040 //-- Event G (2^6, 64)
+//#define cc2530_EVT_...                0x0010 //-- Event E (2^4, 16)
+#define cc2530_EVT_DOUBLE               0x0020 //-- Event F (2^5, 32)
 /*
 #define cc2530_EVT_... 0x0001 //-- Event A (2^0, 1)
 #define cc2530_EVT_... 0x0002 //-- Event B (2^1, 2)

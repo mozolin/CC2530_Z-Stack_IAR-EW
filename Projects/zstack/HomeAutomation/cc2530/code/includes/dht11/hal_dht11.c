@@ -17,6 +17,8 @@ uchar ucharT_data_H_temp, ucharT_data_L_temp, ucharH_data_H_temp, ucharH_data_L_
 uchar ucharCOMdata;
 uchar tempDec, humiDec;
 
+uint8 tempInt, tempDecInt;
+
 uchar halDHT11ReadByte(void);
 uint8_t halDHT11CheckData(uint8_t TempI, uint8_t HumiI);
 
@@ -101,7 +103,7 @@ uint8 halDHT11GetData(void)
     //-- Example: 32.6% => 3|2|6 => humiH|humiL|humiDec
 
     
-    char resStr[200] = {0};
+    char resStr[10] = {0};
 
     //-- convert temperature to integer
     sprintf(resStr, "%d%d.%d", tempH, tempL, tempDec);

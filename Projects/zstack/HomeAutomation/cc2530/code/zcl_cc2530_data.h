@@ -8,19 +8,6 @@
 #include "zcl_ha.h"
 #include "zcl_ms.h"
 
-/* TODO: Дополняйте нужные заголовки для соответствующих кластеров
-#include "zcl_poll_control.h"
-#include "zcl_electrical_measurement.h"
-#include "zcl_diagnostic.h"
-#include "zcl_meter_identification.h"
-#include "zcl_appliance_identification.h"
-#include "zcl_appliance_events_alerts.h"
-#include "zcl_power_profile.h"
-#include "zcl_appliance_control.h"
-#include "zcl_appliance_statistics.h"
-#include "zcl_hvac.h"
-*/
-
 #include "zcl_cc2530.h"
 
 // версия устройства и флаги
@@ -76,14 +63,14 @@ extern uint8 TOTAL_RELAYS_NUM = 4;
 #define cc2530_ENDPOINT_3               3
 #define cc2530_ENDPOINT_4               4
 
-// Данные о температуре
-#define MAX_MEASURED_VALUE  10000  // 100.00C
-#define MIN_MEASURED_VALUE  -10000  // -100.00C
-
-extern int16 zclcc2530_MeasuredValue;
-const int16 zclcc2530_MinMeasuredValue = MIN_MEASURED_VALUE; 
-const uint16 zclcc2530_MaxMeasuredValue = MAX_MEASURED_VALUE;
-
+#if USE_DS18B20 || USE_DHT11
+	// Данные о температуре
+	#define MAX_MEASURED_VALUE  10000  // 100.00C
+	#define MIN_MEASURED_VALUE  -10000  // -100.00C
+	extern int16 zclcc2530_TemperatureMeasuredValue;
+	const int16 zclcc2530_MinMeasuredValue = MIN_MEASURED_VALUE; 
+	const uint16 zclcc2530_MaxMeasuredValue = MAX_MEASURED_VALUE;
+#endif
 
 // Выход из сети
 void zclcc2530_LeaveNetwork(void);
@@ -151,7 +138,9 @@ const cId_t zclcc2530_InClusterList1[] =
   ZCL_CLUSTER_ID_GEN_IDENTIFY,
   ZCL_CLUSTER_ID_GEN_GROUPS,
   ZCL_CLUSTER_ID_GEN_ON_OFF,
-  ZCL_CLUSTER_ID_MS_TEMPERATURE_MEASUREMENT,
+  #if USE_DS18B20 || USE_DHT11
+  	ZCL_CLUSTER_ID_MS_TEMPERATURE_MEASUREMENT,
+  #endif
   // TODO: Add application specific Input Clusters Here. 
   //       See zcl.h for Cluster ID definitions
 };
@@ -178,7 +167,8 @@ const cId_t zclcc2530_OutClusterList[] = {NULL};
 #define ZCLcc2530_MAX_OUTCLUSTERS  (sizeof(zclcc2530_OutClusterList) / sizeof(zclcc2530_OutClusterList[0]))
 
 
-// Сброс атрибутов в значения по-умолчанию  
+// Сброс атрибутов в значения по-умолчанию
+void zclcc2530_ResetAttributesToDefaultValues(void);
 void zclcc2530_ResetAttributesToDefaultValues(void)
 {
   int i;
@@ -281,7 +271,7 @@ static void zclcc2530_ProcessCommissioningStatus(bdbCommissioningModeMsg_t *bdbC
           //We did recover from losing parent
         } else {
           //Parent not found, attempt to rejoin again after a fixed delay
-          osal_start_timerEx(zclcc2530_TaskID, cc2530_EVT_END_DEVICE_REJOIN, cc2530_END_DEVICE_REJOIN_DELAY);
+          osal_start_timerEx(zclcc2530_TaskID, cc2530_EVT_END_DEVICE_REJOIN, TIMER_INTERVAL_ENDDEVICE_REJOIN);
         }
       break;
     #endif 
