@@ -72,6 +72,11 @@ extern uint8 TOTAL_RELAYS_NUM = 4;
 	const uint16 zclcc2530_MaxMeasuredValue = MAX_MEASURED_VALUE;
 #endif
 
+#if USE_LOCAL_TIME
+  extern int16 zclcc2530_LocalTimeValue;
+  extern void zclcc2530_ReportTime(void);
+#endif
+
 // Выход из сети
 void zclcc2530_LeaveNetwork(void);
 static void zclcc2530_BasicResetCB(void);
@@ -86,50 +91,6 @@ static void zclcc2530_ProcessIncomingMsg(zclIncomingMsg_t *msg);
   static uint8 zclcc2530_ProcessInWriteRspCmd(zclIncomingMsg_t *pInMsg);
 #endif
 static uint8 zclcc2530_ProcessInDefaultRspCmd(zclIncomingMsg_t *pInMsg);
-/*
-#ifdef ZCL_DISCOVER
-  static uint8 zclcc2530_ProcessInDiscCmdsRspCmd(zclIncomingMsg_t *pInMsg);
-  static uint8 zclcc2530_ProcessInDiscAttrsRspCmd(zclIncomingMsg_t *pInMsg);
-  static uint8 zclcc2530_ProcessInDiscAttrsExtRspCmd(zclIncomingMsg_t *pInMsg);
-#endif
-*/
-
-
-// Таблица реализуемых команд для DISCOVER запроса
-/*
-#if ZCL_DISCOVER
-const zclCommandRec_t zclcc2530_Cmds[] =
-{
-  {
-    ZCL_CLUSTER_ID_GEN_BASIC,
-    COMMAND_BASIC_RESET_FACT_DEFAULT,
-    CMD_DIR_SERVER_RECEIVED
-  },
-  {
-    ZCL_CLUSTER_ID_GEN_ON_OFF,
-    COMMAND_OFF,
-    CMD_DIR_SERVER_RECEIVED
-  },
-  {
-    ZCL_CLUSTER_ID_GEN_ON_OFF,
-    COMMAND_OFF,
-    CMD_DIR_SERVER_RECEIVED
-  },
-  {
-    ZCL_CLUSTER_ID_GEN_ON_OFF,
-    COMMAND_ON,
-    CMD_DIR_SERVER_RECEIVED
-  },
-  {
-    ZCL_CLUSTER_ID_GEN_ON_OFF,
-    COMMAND_TOGGLE,
-    CMD_DIR_SERVER_RECEIVED
-  },
-};
-
-const uint8 zclCmdsArraySize = ( sizeof(zclcc2530_Cmds) / sizeof(zclcc2530_Cmds[0]) );
-#endif // ZCL_DISCOVER
-*/
 
 // Список входящих кластеров EP1
 const cId_t zclcc2530_InClusterList1[] =
@@ -141,8 +102,7 @@ const cId_t zclcc2530_InClusterList1[] =
   #if USE_DS18B20 || USE_DHT11
   	ZCL_CLUSTER_ID_MS_TEMPERATURE_MEASUREMENT,
   #endif
-  // TODO: Add application specific Input Clusters Here. 
-  //       See zcl.h for Cluster ID definitions
+  ZCL_CLUSTER_ID_GEN_TIME,
 };
 #define ZCLcc2530_MAX_INCLUSTERS1   (sizeof(zclcc2530_InClusterList1) / sizeof(zclcc2530_InClusterList1[0]))
 
@@ -150,8 +110,7 @@ const cId_t zclcc2530_InClusterList1[] =
 const cId_t zclcc2530_OutClusterList1[] =
 {
   ZCL_CLUSTER_ID_GEN_BASIC,
-  // TODO: Add application specific Output Clusters Here. 
-  //       See zcl.h for Cluster ID definitions
+  ZCL_CLUSTER_ID_GEN_TIME,
 };
 #define ZCLcc2530_MAX_OUTCLUSTERS1  (sizeof(zclcc2530_OutClusterList1) / sizeof(zclcc2530_OutClusterList1[0]))
 
@@ -242,6 +201,9 @@ static void zclcc2530_ProcessCommissioningStatus(bdbCommissioningModeMsg_t *bdbC
       if(bdbCommissioningModeMsg->bdbCommissioningStatus == BDB_COMMISSIONING_SUCCESS) {
         //YOUR JOB:
         //We are on the nwk, what now?
+        #if USE_LOCAL_TIME
+        	zclcc2530_ReportTime();
+        #endif
       } else {
         //See the possible errors for nwk steering procedure
         //No suitable networks found
@@ -380,52 +342,6 @@ static uint8 zclcc2530_ProcessInDefaultRspCmd(zclIncomingMsg_t *pInMsg)
 
   return (true);
 }
-
-/*
-#ifdef ZCL_DISCOVER
-	// Обработка ответа команды Discover
-	static uint8 zclcc2530_ProcessInDiscCmdsRspCmd(zclIncomingMsg_t *pInMsg)
-	{
-    zclDiscoverCmdsCmdRsp_t *discoverRspCmd;
-    uint8 i;
-  
-    discoverRspCmd = (zclDiscoverCmdsCmdRsp_t *)pInMsg->attrCmd;
-    for (i = 0; i < discoverRspCmd->numCmd; i++) {
-      // Device is notified of the result of its attribute discovery command.
-    }
-  
-    return (true);
-	}
-
-	// Обработка ответа команды Discover Attributes
-	static uint8 zclcc2530_ProcessInDiscAttrsRspCmd(zclIncomingMsg_t *pInMsg)
-	{
-    zclDiscoverAttrsRspCmd_t *discoverRspCmd;
-    uint8 i;
-    
-    discoverRspCmd = (zclDiscoverAttrsRspCmd_t *)pInMsg->attrCmd;
-    for (i = 0; i < discoverRspCmd->numAttr; i++) {
-      // Device is notified of the result of its attribute discovery command.
-    }
-    
-    return (true);
-	}
-
-	// Обработка ответа команды Discover Attributes Ext
-	static uint8 zclcc2530_ProcessInDiscAttrsExtRspCmd(zclIncomingMsg_t *pInMsg)
-	{
-    zclDiscoverAttrsExtRsp_t *discoverRspCmd;
-    uint8 i;
-    
-    discoverRspCmd = (zclDiscoverAttrsExtRsp_t *)pInMsg->attrCmd;
-    for (i = 0; i < discoverRspCmd->numAttr; i++) {
-      // Device is notified of the result of its attribute discovery command.
-    }
-    
-    return (true);
-	}
-#endif //-- ZCL_DISCOVER
-*/
 
 
 #include "zcl/zcl_cc2530_attr1.h"

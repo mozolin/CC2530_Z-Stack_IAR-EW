@@ -85,6 +85,11 @@ uint8 SeqNum = 0;
 
 static void zclcc2530_HandleKeys(byte shift, byte keys);
 
+#if USE_LOCAL_TIME
+  //-- local time report
+  int16 zclcc2530_LocalTimeValue;
+  //extern void zclcc2530_ReportTime(void);
+#endif
 
 //-- Change relay state
 static void updateRelay(bool, uint8 num);
@@ -162,36 +167,11 @@ void zclcc2530_Init(byte task_id)
   //-- Subscribing a task to receive command/response messages
   zcl_registerForMsg(zclcc2530_TaskID);
 
-  /*
-  #ifdef ZCL_DISCOVER
-    //-- Registering a list of commands implemented by the application
-    zcl_registerCmdList(cc2530_ENDPOINT_1, zclCmdsArraySize, zclcc2530_Cmds);
-    zcl_registerCmdList(cc2530_ENDPOINT_2, zclCmdsArraySize, zclcc2530_Cmds);
-    zcl_registerCmdList(cc2530_ENDPOINT_3, zclCmdsArraySize, zclcc2530_Cmds);
-    zcl_registerCmdList(cc2530_ENDPOINT_4, zclCmdsArraySize, zclcc2530_Cmds);
-  #endif
-  */
-
   //-- Subscribe task to receive all events for buttons
   RegisterForKeys(zclcc2530_TaskID);
 
   bdb_RegisterCommissioningStatusCB(zclcc2530_ProcessCommissioningStatus);
   bdb_RegisterIdentifyTimeChangeCB(zclcc2530_ProcessIdentifyTimeChange);
-
-  /*
-  #ifdef ZCL_DIAGNOSTIC
-    // Register the application's callback function to read/write attribute data.
-    // This is only required when the attribute data format is unknown to ZCL.
-    zcl_registerReadWriteCB(cc2530_ENDPOINT_1, zclDiagnostic_ReadWriteAttrCB, NULL);
-    zcl_registerReadWriteCB(cc2530_ENDPOINT_2, zclDiagnostic_ReadWriteAttrCB, NULL);
-    zcl_registerReadWriteCB(cc2530_ENDPOINT_3, zclDiagnostic_ReadWriteAttrCB, NULL);
-    zcl_registerReadWriteCB(cc2530_ENDPOINT_4, zclDiagnostic_ReadWriteAttrCB, NULL);
-
-    if(zclDiagnostic_InitStats() == ZSuccess) {
-      // Here the user could start the timer to save Diagnostics to NV
-    }
-  #endif
-  */
 
   //-- Setting the address and endpoint for sending the report
   zclcc2530_DstAddr.addrMode = (afAddrMode_t)AddrNotPresent;
@@ -225,6 +205,10 @@ void zclcc2530_Init(byte task_id)
   #if USE_DHT11
     //-- start a repeating timer to inform about the temperature DHT11
     osal_start_reload_timer(zclcc2530_TaskID, cc2530_EVT_DHT11, TIMER_INTERVAL_DHT11_EVT);
+  #endif
+  #if USE_LOCAL_TIME
+    //-- start a repeating timer to inform about the local time
+    osal_start_reload_timer(zclcc2530_TaskID, cc2530_EVT_LOCAL_TIME, TIMER_INTERVAL_LOCAL_TIME_EVT);
   #endif
   
   //-- Start of the process of returning to the network
@@ -449,6 +433,20 @@ uint16 zclcc2530_event_loop(uint8 task_id, uint16 events)
     return (events ^ HAL_KEY_EVENT);
   }
   
+  #if USE_LOCAL_TIME
+    //-- cc2530_EVT_LOCAL_TIME event
+    if(events & cc2530_EVT_LOCAL_TIME) {
+      #if DEBUG_PRINT_UART
+        printf(FONT_COLOR_STRONG_MAGENTA);
+        printf("cc2530_EVT_LOCAL_TIME:%d\n", zclcc2530_LocalTimeValue);
+        printf(STYLE_COLOR_RESET);
+
+        zclcc2530_ReportTime();
+      #endif
+      return (events ^ cc2530_EVT_LOCAL_TIME);
+    }
+  #endif
+
   //-- discard unprocessed messages
   return 0;
 }
@@ -604,6 +602,40 @@ void cc2530_HalKeyPoll (void)
       //-- Read one byte from UART to ch
       HalUARTRead (port, &ch, 1);
     }
+  }
+#endif
+
+#if USE_LOCAL_TIME
+  //-- local time report
+  void zclcc2530_ReportTime(void)
+  {
+    #if DEBUG_PRINT_UART
+    	printf("zclcc2530_ReportTime...\n");
+    #endif
+    //-- reading time
+    const uint8 NUM_ATTRIBUTES = 1;
+  
+    zclReportCmd_t *pReportCmd;
+  
+    pReportCmd = osal_mem_alloc(sizeof(zclReportCmd_t) +
+                                (NUM_ATTRIBUTES * sizeof(zclReport_t)));
+    if(pReportCmd != NULL) {
+      pReportCmd->numAttr = NUM_ATTRIBUTES;
+  
+      pReportCmd->attrList[0].attrID = ATTRID_TIME_TIME;//ATTRID_TIME_LOCAL_TIME;
+      pReportCmd->attrList[0].dataType = ZCL_DATATYPE_UTC;//ZCL_DATATYPE_INT16;
+      pReportCmd->attrList[0].attrData = (void *)(&zclcc2530_LocalTimeValue);
+  
+      zclcc2530_DstAddr.addrMode = (afAddrMode_t)Addr16Bit;
+      zclcc2530_DstAddr.addr.shortAddr = 0;
+      zclcc2530_DstAddr.endPoint = cc2530_ENDPOINT_1;
+
+      zcl_SendReportCmd(cc2530_ENDPOINT_1, &zclcc2530_DstAddr,
+                        ZCL_CLUSTER_ID_GEN_TIME, pReportCmd,
+                        ZCL_FRAME_SERVER_CLIENT_DIR, false, SeqNum++);
+    }
+  
+    osal_mem_free(pReportCmd);
   }
 #endif
 
@@ -863,16 +895,19 @@ void zclcc2530_ReportOnOff(uint8 num)
     uint8 req;
     char t[32], h[32], i[32], s[32], tf[32];
 
-    //extern uint32 osal_GetSystemClock( void );
-    uint32 pTime = osal_GetSystemClock();
+    uint32 pTime32 = osal_GetSystemClock();
     
     #if DEBUG_PRINT_UART
-      printf("Time:");
-      printNumber(pTime, 0);
-      printf("\n");
-    
-      char* r1 = int2hex(pTime,1,1);
-      printf("hexTime:%s\n", r1);
+      printf("pTime32(ms):%ld\n", pTime32);
+      
+      char* t1 = ms2str(pTime32, 0);
+      printf("time: %s\n", t1);
+
+      //printf("INT_MAX=%d, LONG_MAX=%ld, pTime32=%ld\n", INT_MAX, LONG_MAX, pTime32);
+      /*
+      char* r1 = int2hex(pTime32,1,1);
+      printf("s:%d|ms:%s (%dy %dm %dw %dd %dh %dm %ds %dms)\n", pTime, r1, years, months, weeks, days, hours, minutes, seconds, mseconds);
+      */
     #endif
   
     //-- reading the temperature & humidity
@@ -893,12 +928,12 @@ void zclcc2530_ReportOnOff(uint8 num)
       //-- make output to LCD
       dht11Idx++;
       sprintf(s, "Screen 1");
-      sprintf(i, "Idx: %d", dht11Idx);
-      sprintf(t, "T: %d%d.%d°C", tempH, tempL, tempDec);
+      sprintf(i, "Idx:%d", dht11Idx);
+      sprintf(t, "T:%d%d.%d°C", tempH, tempL, tempDec);
       if(humiDec > 0) {
-        sprintf(h, "H: %d%d.%d%%", humiH, humiL, humiDec);
+        sprintf(h, "H:%d%d.%d%%", humiH, humiL, humiDec);
       } else {
-        sprintf(h, "H: %d%d%%", humiH, humiL);
+        sprintf(h, "H:%d%d%%", humiH, humiL);
       }
 
       //-- convert temperature: char* => float => multiply by 100 => int16

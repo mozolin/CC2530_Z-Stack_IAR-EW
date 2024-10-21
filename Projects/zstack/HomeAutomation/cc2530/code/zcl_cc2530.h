@@ -29,6 +29,7 @@ extern byte zclcc2530_TaskID;
 **********************************************************************/
 //#define cc2530_EVT_...                0x0010 //-- Event E (2^4, 16)
 #define cc2530_EVT_DOUBLE               0x0020 //-- Event F (2^5, 32)
+#define cc2530_EVT_LOCAL_TIME           0x0040 //-- Event G (2^6, 64)
 /*
 #define cc2530_EVT_... 0x0001 //-- Event A (2^0, 1)
 #define cc2530_EVT_... 0x0002 //-- Event B (2^1, 2)

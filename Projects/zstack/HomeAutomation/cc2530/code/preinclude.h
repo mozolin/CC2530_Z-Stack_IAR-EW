@@ -16,21 +16,26 @@
 //-- !!! There may not be enough memory for the firmware, !!!
 //-- !!! due to the large images for this test            !!!
 #define DEBUG_LCD_TEST                    FALSE
+//-- trying to get local time
+#define USE_LOCAL_TIME                    TRUE
 
-//-- интервал повторяемого таймера события HAL_KEY_EVENT (мс)
+
+//-- repeating timer interval for HAL_KEY_EVENT (мс)
 #define TIMER_INTERVAL_HAL_KEY_EVT        100
-//-- интервал повторяемого таймера для информирования о температуре DS18B20 (мс)
+//-- repeating timer interval for DS18B20 temperature notification (ms)
 #define TIMER_INTERVAL_DS18B20_EVT        10000
-//-- интервал повторяемого таймера для информирования о температуре DHT11 (мс)
+//-- repeat timer interval for DHT11 temperature notification (ms)
 #define TIMER_INTERVAL_DHT11_EVT          10000
-//-- интервал таймера для долгого нажатия (мс)
+//-- timer interval for long press (ms)
 #define TIMER_INTERVAL_LONG_PRESS_EVT     5000
-//-- интервал таймера для двойного нажатия (мс)
+//-- timer interval for double press (ms)
 #define TIMER_INTERVAL_DOUBLE_PRESS_EVT   600
-//-- интервал таймера для мигания (мс)
+//-- timer interval for blinking (ms)
 #define TIMER_INTERVAL_BLINK_EVT          1000
 //-- Parent not found, attempt to rejoin again after a fixed delay
 #define TIMER_INTERVAL_ENDDEVICE_REJOIN   10000
+//-- repeating timer interval for local time notification (ms)
+#define TIMER_INTERVAL_LOCAL_TIME_EVT     10000
 
 /************************************
    

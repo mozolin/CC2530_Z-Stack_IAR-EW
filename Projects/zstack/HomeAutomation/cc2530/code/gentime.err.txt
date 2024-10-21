@@ -1,0 +1,5 @@
+ERROR! ZclStatusError: Write 0x00124b002346f216/1 genTime({"time":782847749}, {"
+sendWhen":"immediate","timeout":10000,"disableResponse":false,"disableRecovery":
+false,"disableDefaultResponse":true,"direction":0,"srcEndpoint":null,"reservedBi
+ts":0,"manufacturerCode":null,"transactionSequenceNumber":null,"writeUndiv":fals
+e}) failed (Status 'UNSUPPORTED_ATTRIBUTE')

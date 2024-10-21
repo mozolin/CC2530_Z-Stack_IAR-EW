@@ -252,3 +252,96 @@ char* str2upper(char* str, uint8 length)
   }
   return str;
 }
+
+/*********************************************
+ * convert milliseconds to string            *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~            *
+ * example:                                  *
+ *   uint32 pTime32 = osal_GetSystemClock(); *
+ *   char* t1 = ms2str(pTime32, 1);          *
+ *   printf("time: %s", t1);                 *
+ *   => time: 1y 1m 2w 20d 02:15:13          *
+ *                                           *
+ *   char* t1 = ms2str(pTime32, 0);          *
+ *   printf("time: %s", t1);                 *
+ *   => time: 1y 1m 2w 20d 2h 15m 13.426s    *
+ *********************************************/
+char* ms2str(uint32 pTime32, uint8 hisFormat)
+{
+	static char result[100];
+	char s[10];
+	
+  //-- in seconds
+  uint32 pTime = pTime32 / 1000;
+  int mseconds = pTime32 - (pTime * 1000);
+  int seconds = pTime % 60;
+	int minutes = (pTime % 3600) / 60;
+	int hours = (pTime % 86400) / 3600;
+	int days = (pTime % (86400 * 30)) / 86400;
+
+	//-- total days
+	int d = pTime / 86400;
+  int weeks = (d / 7) % 7;
+  //-- approx. 30 day per month
+  int months = (d / 30) % 12;
+   //-- approx. 365 day per year
+  int years = d / 365;
+
+  strcpy(result, "");
+
+  if(years > 0) {
+  	sprintf(s, "%dy ", years);
+  	strcat(result, s);
+  }
+  if(months > 0) {
+  	sprintf(s, "%dm ", months);
+  	strcat(result, s);
+  }
+  if(weeks > 0) {
+  	sprintf(s, "%dw ", weeks);
+  	strcat(result, s);
+  }
+  if(days > 0) {
+  	sprintf(s, "%dd ", days);
+  	strcat(result, s);
+  }
+  if(hisFormat) {
+  	//-- hours
+  	if(hours < 10) {
+  		strcat(result, "0");
+  	}
+  	sprintf(s, "%d:", hours);
+    strcat(result, s);
+  	//-- minutes
+  	if(minutes < 10) {
+  		strcat(result, "0");
+  	}
+  	sprintf(s, "%d:", minutes);
+    strcat(result, s);
+  	//-- seconds
+  	if(seconds < 10) {
+  		strcat(result, "0");
+  	}
+  	sprintf(s, "%d", seconds);
+    strcat(result, s);
+  } else {
+    if(hours > 0) {
+    	sprintf(s, "%dh ", hours);
+    	strcat(result, s);
+    }
+    if(minutes > 0) {
+    	sprintf(s, "%dm ", minutes);
+    	strcat(result, s);
+    }
+    if(mseconds > 0) {
+    	sprintf(s, "%d.%ds ", seconds, mseconds);
+    } else {
+    	sprintf(s, "%ds ", seconds);
+    }
+    strcat(result, s);
+  }
+
+  //char* r1 = int2hex(pTime32,1,1);
+
+  return result;
+}

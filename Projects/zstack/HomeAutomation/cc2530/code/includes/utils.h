@@ -19,3 +19,4 @@ uint16 convert16toU16(int16 in);
 
 char* int2hex(int32 value, uint8 upperCase, uint8 prefix);
 char* str2upper(char* str, uint8 length);
+char* ms2str(uint32 pTime32, uint8 hisFormat);
