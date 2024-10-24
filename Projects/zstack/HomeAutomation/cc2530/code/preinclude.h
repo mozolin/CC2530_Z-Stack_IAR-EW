@@ -35,7 +35,7 @@
 //-- Parent not found, attempt to rejoin again after a fixed delay
 #define TIMER_INTERVAL_ENDDEVICE_REJOIN   10000
 //-- repeating timer interval for local time notification (ms)
-#define TIMER_INTERVAL_LOCAL_TIME_EVT     10000
+#define TIMER_INTERVAL_LOCAL_TIME_EVT     3000
 
 /************************************
    

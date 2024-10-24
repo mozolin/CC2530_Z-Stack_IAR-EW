@@ -8,7 +8,6 @@
 #include "OSAL.h"
 
 #include "hal_oled.h"
-#include "cc2530_io_ports.h"
 
 uint8 DEBUG = 1;
 
@@ -99,8 +98,8 @@ char* itoa(int num, char str[])
 }
 
 #if DEBUG_PRINT_UART
-  void printNumber(long double number, int decimals)
-  {
+	void printNumber(long double number, int decimals)
+	{
     int powDec = 1;
     
     int i;
@@ -140,10 +139,10 @@ char* itoa(int num, char str[])
     }
     printf("%s", str);
     //halOLED128x64ShowX16(0, 0, str);
-  }
-  
-  void osal_printf(char str[])
-  {
+	}
+	
+	void osal_printf(char str[])
+	{
     char *memStr = osal_mem_alloc(sizeof(char)*sizeof(str));
     if(memStr != NULL) {
       osal_memset(memStr, 0, sizeof(char)*sizeof(str));
@@ -154,7 +153,7 @@ char* itoa(int num, char str[])
       
       osal_mem_free(memStr);
     }
-  }
+	}
 #endif
 
 int8 encodeU8to8(uint8 byte)
@@ -231,9 +230,9 @@ char* int2hex(int32 value, uint8 upperCase, uint8 prefix)
   sprintf(str1, "%x", l);
   sprintf(str2, "%x", h);
   if(upperCase) {
-    //-- convert to uppercase
-    sprintf(str1, "%s", str2upper(str1, 32));
-    sprintf(str2, "%s", str2upper(str2, 32));
+	  //-- convert to uppercase
+  	sprintf(str1, "%s", str2upper(str1, 32));
+  	sprintf(str2, "%s", str2upper(str2, 32));
   }
   //-- add "0x" prefix, if necessary
   strcpy(result, prefix ? "0x" : "");
@@ -276,19 +275,19 @@ char* str2upper(char* str, uint8 length)
  *********************************************/
 char* ms2str(uint32 pTime32, uint8 hisFormat)
 {
-  static char result[100];
-  char s[10];
-  
+	static char result[100];
+	char s[10];
+	
   //-- in seconds
   uint32 pTime = pTime32 / 1000;
   int mseconds = pTime32 - (pTime * 1000);
   int seconds = pTime % 60;
-  int minutes = (pTime % 3600) / 60;
-  int hours = (pTime % 86400) / 3600;
-  int days = (pTime % (86400 * 30)) / 86400;
+	int minutes = (pTime % 3600) / 60;
+	int hours = (pTime % 86400) / 3600;
+	int days = (pTime % (86400 * 30)) / 86400;
 
-  //-- total days
-  int d = pTime / 86400;
+	//-- total days
+	int d = pTime / 86400;
   int weeks = (d / 7) % 7;
   //-- approx. 30 day per month
   int months = (d / 30) % 12;
@@ -298,53 +297,53 @@ char* ms2str(uint32 pTime32, uint8 hisFormat)
   strcpy(result, "");
 
   if(years > 0) {
-    sprintf(s, "%dy ", years);
-    strcat(result, s);
+  	sprintf(s, "%dy ", years);
+  	strcat(result, s);
   }
   if(months > 0) {
-    sprintf(s, "%dm ", months);
-    strcat(result, s);
+  	sprintf(s, "%dm ", months);
+  	strcat(result, s);
   }
   if(weeks > 0) {
-    sprintf(s, "%dw ", weeks);
-    strcat(result, s);
+  	sprintf(s, "%dw ", weeks);
+  	strcat(result, s);
   }
   if(days > 0) {
-    sprintf(s, "%dd ", days);
-    strcat(result, s);
+  	sprintf(s, "%dd ", days);
+  	strcat(result, s);
   }
   if(hisFormat) {
-    //-- hours
-    if(hours < 10) {
-      strcat(result, "0");
-    }
-    sprintf(s, "%d:", hours);
+  	//-- hours
+  	if(hours < 10) {
+  		strcat(result, "0");
+  	}
+  	sprintf(s, "%d:", hours);
     strcat(result, s);
-    //-- minutes
-    if(minutes < 10) {
-      strcat(result, "0");
-    }
-    sprintf(s, "%d:", minutes);
+  	//-- minutes
+  	if(minutes < 10) {
+  		strcat(result, "0");
+  	}
+  	sprintf(s, "%d:", minutes);
     strcat(result, s);
-    //-- seconds
-    if(seconds < 10) {
-      strcat(result, "0");
-    }
-    sprintf(s, "%d", seconds);
+  	//-- seconds
+  	if(seconds < 10) {
+  		strcat(result, "0");
+  	}
+  	sprintf(s, "%d", seconds);
     strcat(result, s);
   } else {
     if(hours > 0) {
-      sprintf(s, "%dh ", hours);
-      strcat(result, s);
+    	sprintf(s, "%dh ", hours);
+    	strcat(result, s);
     }
     if(minutes > 0) {
-      sprintf(s, "%dm ", minutes);
-      strcat(result, s);
+    	sprintf(s, "%dm ", minutes);
+    	strcat(result, s);
     }
     if(mseconds > 0) {
-      sprintf(s, "%d.%ds ", seconds, mseconds);
+    	sprintf(s, "%d.%ds ", seconds, mseconds);
     } else {
-      sprintf(s, "%ds ", seconds);
+    	sprintf(s, "%ds ", seconds);
     }
     strcat(result, s);
   }
@@ -365,25 +364,26 @@ char* ms2str(uint32 pTime32, uint8 hisFormat)
  *   printf("substr = %s\n", substr(str, 6, 2)); *
  *   => substr = 45                              *
  *************************************************/
-//char* substr(char str[], int offset, int length)
-char* substr(char *str, int offset, int length)
+char* substr(char string[], int offset, int length)
 {
-  int i = 0, memSize = 0;
+  int i = 0;
   
-  memSize = sizeof(char) * strlen(str);
-  printf(">>ss:%d,%d,%d\n", memSize, offset, length);
-
+  int memSize = sizeof(char) * strlen(string);
   char *result = osal_mem_alloc(memSize);
   if(!result) {
     if(DEBUG) {
-      printf("!substr\n");
+    	printf("substr!\n");
     }
     return NULL;
   }
-  //printf("L%d\n", strlen(str));
+  osal_memset(result, 0, memSize);
+
+  #if DEBUG_PRINT_UART
+  	//printf("L%d\n", strlen(string));
+  #endif
 
   while(i < length) {
-    result[i] = str[offset + i];
+    result[i] = string[offset + i];
     i++;
   }
 
@@ -404,111 +404,109 @@ char* substr(char *str, int offset, int length)
  **************************************************************/
 char* getPiece(char* str, int numParts, int idx)
 {
-  int memSize = 0;
-  
-  delayMs16MHZ(10);
-  
   //-- get string
-  memSize = sizeof(char*) * strlen(str);
-  char *mainStr = osal_mem_alloc(memSize);
-  if(!mainStr) {
+  int memSize = sizeof(char*)*strlen(str);
+  char *s = osal_mem_alloc(memSize);
+  if(!s) {
     if(DEBUG) {
-      printf("!getPiece1\n");
+    	printf("getPiece-1!\n");
     }
-    //-- there is no memory to free
     return NULL;
   }
+  osal_memset(s, 0, memSize);
   //-- make a copy of string
-  //sprintf(mainStr, str);
-  osal_memset(mainStr, 0, memSize);
-  osal_memcpy(mainStr, str, osal_strlen(str));
+  //sprintf(s, str);
+  osal_memcpy(s, str, osal_strlen(str));
 
-  int strLength = strlen(mainStr);
-  //printf(">%d|%d|%d\n", osal_strlen(str), strLength, strlen(str));
-
+  int strLength = strlen(s);
   //-- check if string can be divided in "numParts" equal parts
   if(strLength % numParts != 0) {
-    if(DEBUG) {
-      printf("1) Invalid Input: String size(%d) is not divisible by numParts(%d)\n", strLength, numParts);
+  	if(DEBUG) {
+    	printf("1) Invalid Input: String size(%d) is not divisible by numParts(%d)\n", strLength, numParts);
     }
-    //-- free memory allocated for the main string
-    osal_mem_free(mainStr);
+    osal_mem_free(s);
     return NULL;
   }
 
   memSize = sizeof(char) * numParts;
   char *tmpStr = osal_mem_alloc(memSize);
   if(!tmpStr) {
-    if(DEBUG) {
-      printf("!getPiece2\n");
+  	if(DEBUG) {
+    	printf("getPiece-2!\n");
     }
-    //-- free memory allocated for the main string
-    osal_mem_free(mainStr);
-    return NULL;
+  	osal_mem_free(s);
+  	return NULL;
   }
-
-  memSize = sizeof(char) * numParts;
-  char *tmpStr2 = osal_mem_alloc(memSize);
-  if(!tmpStr2) {
+  osal_memset(tmpStr, 0, memSize);
+  int partSize = strLength / numParts, tmpIdx = 0;;
+  
+  memSize = sizeof(char *) * strLength;
+  char **parts = osal_mem_alloc(memSize);
+  if(!parts) {
     if(DEBUG) {
-      printf("!getPiece3\n");
+    	printf("getPiece-3!\n");
     }
-    //-- free memory allocated for the main string
     osal_mem_free(tmpStr);
-    osal_mem_free(mainStr);
+    osal_mem_free(s);
     return NULL;
   }
+  osal_memset(*parts, 0, memSize);
 
-  int partSize = strLength / numParts, tmpIdx = 0;
+  for(uint8 i = 0; i < numParts; i++) {
+    //-- allocate memory for array items
+    memSize = sizeof(char) * (partSize + 1);
+    parts[i] = osal_mem_alloc(memSize);
+    //-- memory cannot be allocated!
+    if(!parts[i]) {
+      if(DEBUG) {
+      	printf("getPiece-4!\n");
+      }
+      osal_mem_free(parts);
+      osal_mem_free(tmpStr);
+      osal_mem_free(s);
+      return NULL;
+    }
+    osal_memset(parts[i], 0, memSize);
+  }
 
-  int mainIdx = 0;
+  if(DEBUG) {
+  	//printf("2) %d divided into %d parts => %d chars for each\n", strlen(s), numParts, partSize);
+  }
 
+  //-- init parts string
+  strcpy(parts[0], "");
+  
   strcpy(tmpStr, "");
   for(uint8 i = 0; i < strLength; i++) {
-    tmpIdx++;
-    //-- get char
-    sprintf(tmpStr2, "%c", mainStr[i]);
-    //-- add char
-    strcat(tmpStr, tmpStr2);
-    
-    if(tmpIdx == partSize) {
-      //printf("idx=%d,numParts=%d,mainIdx=%d\n", idx, numParts, mainIdx);
-      if(idx < numParts && idx == mainIdx) {
-      	//-- found index
-      	sprintf(mainStr, "%s", tmpStr);
-      	//printf("found index:%d=>%s|%s\n", idx, tmpStr, mainStr);
-      	//-- free temporary memory
-  			osal_mem_free(tmpStr);
-  			osal_mem_free(tmpStr2);
-    		return mainStr;
+    if(i % partSize == 0 && i > 0) {
+      if(DEBUG) {
+        //printf("\n");
       }
-      
-      //-- go to the next item
-      strcpy(tmpStr, "");
-      tmpIdx = 0;
-      mainIdx++;
+      tmpIdx++;
+      //-- re-init parts string
+      strcpy(parts[tmpIdx], "");
     }
+    if(DEBUG) {
+      //printf("%c", s[i]);
+    }
+    //-- get chat
+    //sprintf(tmpStr, "%c", s[i]);
+    //-- save it in tmpStr-array
+    strcat(parts[tmpIdx], tmpStr);
   }
-
-  //-- the last item
-  if(idx < numParts && idx == mainIdx) {
-  	//-- found index
-  	sprintf(mainStr, "%s", tmpStr);
-  	//-- free temporary memory
-  	osal_mem_free(tmpStr);
-  	osal_mem_free(tmpStr2);
-  	return mainStr;
-  }
-
-  //-- free all allocated memory in case of failure!
   if(DEBUG) {
-    printf("!getPiece4\n");
+    //printf("\n");
   }
-  osal_mem_free(tmpStr);
-  osal_mem_free(tmpStr2);
-  osal_mem_free(mainStr);
-  return NULL;
 
+  if(idx < numParts) {
+    //sprintf(s, "%s", substr(parts[idx], 0, partSize));
+    sprintf(s, "%s", parts[idx]);
+    return s;
+  }
+  osal_mem_free(parts);
+  osal_mem_free(tmpStr);
+  osal_mem_free(s);
+  return NULL;
 }
 
 /*******************************************************
@@ -530,83 +528,52 @@ char* getPiece(char* str, int numParts, int idx)
  *******************************************************/
 char **getPieces(char* s, int numParts)
 {
-  int memSize = 0;  
-
   //-- allocate memory for array
-  char **arr = osal_mem_alloc(sizeof(char *) * strlen(s));
+  int memSize = sizeof(char *) * strlen(s);
+  char **arr = osal_mem_alloc(memSize);
   if(!arr) {
     if(DEBUG) {
-      printf("!getPieces1\n");
+    	printf("getPieces-1!\n");
     }
     return NULL;
   }
+  osal_memset(*arr, 0, memSize);
 
   int strLength = strlen(s);
   //-- check if string can be divided in "numParts" equal parts
   if(strLength % numParts != 0) {
     if(DEBUG) {
-      printf("1) Invalid Input: String size(%d) is not divisible by numParts(%d)\n", strLength, numParts);
+    	printf("1) Invalid Input: String size(%d) is not divisible by numParts(%d)\n", strLength, numParts);
     }
     osal_mem_free(s);
     return NULL;
   }
 
   int partSize = strLength / numParts;
-  
   if(DEBUG) {
-    //printf("1) %d divided into %d parts => %d chars for each\n", strlen(s), numParts, partSize);
+  	//printf("1) %d divided into %d parts => %d chars for each\n", strlen(s), numParts, partSize);
   }
 
   for(uint8 i = 0; i < numParts; i++) {
     //-- allocate memory for array items
-    arr[i] = osal_mem_alloc(sizeof(char) * (partSize + 1));
+    int memSize = sizeof(char) * (partSize + 1);
+    arr[i] = osal_mem_alloc(memSize);
     //-- memory cannot be allocated!
     if(!arr[i]) {
       if(DEBUG) {
-        printf("!getPieces2\n");
-      }
+    		printf("getPieces-2!\n");
+    	}
       osal_mem_free(arr);
+      osal_mem_free(s);
       return NULL;
     }
+    osal_memset(arr[i], 0, memSize);
   }
   //-- fill the array with parts
   for(uint8 i = 0; i < numParts; i++) {
-    memSize = sizeof(char) * (partSize + 1);
-    char *piece = osal_mem_alloc(memSize);
-    if(!piece) {
-      if(DEBUG) {
-        printf("!getPieces3\n");
-      }
-    } else {
-      sprintf(arr[i], "%s", getPiece(s, numParts, i));
-      osal_mem_free(piece);
-    }
-    //sprintf(arr[i], "%s", getPiece(s, numParts, i));
+    sprintf(arr[i], "%s", getPiece(s, numParts, i));
   }
   return arr;
-}
-
-char* memCheck(char* str, int numParts, int idx)
-{
-  // tasksEvents = (uint16 *)osal_mem_alloc(sizeof(uint16) * tasksCnt);
-  // osal_memset(tasksEvents, 0, (sizeof(uint16) * tasksCnt));
-  
-  printf("m1:%d,m2:%d,m3:%d,l:%d\n", sizeof(char *), sizeof(char*), sizeof(char), strlen(str));
-  
-  int memSize = sizeof(char*) * strlen(str);
-  memSize = 1 * strlen(str);
-  //-- get string
-  char *s = (char*)osal_mem_alloc(memSize);
-  if(!s) {
-    if(DEBUG) {
-      printf("!memCheck1\n");
-    }
-    return NULL;
-  }
-  osal_memset(s, 0, memSize);
-  osal_memcpy(s, str, osal_strlen(str));
-  //sprintf(s, str);
-  return s;
 }
 
 /*******************************************

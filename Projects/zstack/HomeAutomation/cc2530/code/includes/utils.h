@@ -21,6 +21,11 @@ uint16 convert16toU16(int16 in);
 char* int2hex(int32 value, uint8 upperCase, uint8 prefix);
 char* str2upper(char* str, uint8 length);
 char* ms2str(uint32 pTime32, uint8 hisFormat);
-char* substr(char string[], int offset, int length);
+
+//char* substr(char str[], int offset, int length);
+char* substr(char *str, int offset, int length);
+
 char* getPiece(char* str, int numParts, int idx);
 char **getPieces(char* s, int numParts);
+
+char* memCheck(char* str, int numParts, int idx);

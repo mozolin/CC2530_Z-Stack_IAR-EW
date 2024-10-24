@@ -437,17 +437,80 @@ uint16 zclcc2530_event_loop(uint8 task_id, uint16 events)
     if(events & cc2530_EVT_LOCAL_TIME) {
       #if DEBUG_PRINT_UART
         
-      	char s[10];
-        sprintf(s, "1021184523");
-        int numParts = 5;
-        char **arr = getPieces(s, numParts);
-        printf(FONT_COLOR_STRONG_MAGENTA);
-        printf("date/time: %s.%s %s:%s:%s\n", arr[1], arr[0], arr[2], arr[3], arr[4]);
-        //for(uint8 i = 0; i <= sizeof(arr); i++) {
-        //  printf("arr[%d] = %s\n", i, arr[i]);
-        //}
-        printf(STYLE_COLOR_RESET);
+        /*
+        char *memChk = memCheck("10211845231021184523102118452310211845231021184523", 5, 0);
+        printf("memChk:%s\n", memChk);
+        osal_mem_free(memChk);
+        memChk = NULL;
+        */
         
+        char s[10];
+        //sprintf(s, "102118452389123");
+        //int numParts = 3;
+        sprintf(s, "22102118452322102118");
+        int numParts = 2;
+
+        char *arr1 = getPiece(s, numParts, 0);
+        char *arr2 = getPiece(s, numParts, 1);
+        char *arr3 = getPiece(s, numParts, 2);
+        char *arr4 = getPiece(s, numParts, 3);
+        if(!arr1 || !arr2 || !arr3 || !arr4) {
+          printf("ERROR: Unable to allocate array!\n");
+        } else {
+          printf(FONT_COLOR_STRONG_MAGENTA);
+          printf("dt:%s|%s|%s|%s\n", arr1, arr2, arr3, arr4);
+          printf(STYLE_COLOR_RESET);
+          osal_mem_free(arr1);
+          osal_mem_free(arr2);
+          osal_mem_free(arr3);
+          osal_mem_free(arr4);
+        }
+        /*
+        char *arr1 = getPiece(s, numParts, 0);
+        //printf("dt:%s\n", arr1);
+        char *arr2 = getPiece(s, numParts, 1);
+        char *arr3 = getPiece(s, numParts, 2);
+        char *arr4 = getPiece(s, numParts, 3);
+        char *arr5 = getPiece(s, numParts, 4);
+        //char *arr = osal_mem_alloc(memSize);
+        if(!arr1 || !arr2 || !arr3 || !arr4 || !arr5) {
+          printf("ERROR: Unable to allocate array!\n");
+        } else {
+          printf(FONT_COLOR_STRONG_MAGENTA);
+          //sprintf(s, "%s", arr);
+          printf("dt:%s|%s|%s|%s|%s\n", arr1, arr2, arr3, arr4, arr5);
+          osal_mem_free(arr1);
+          //arr1 = NULL;
+          osal_mem_free(arr2);
+          //arr2 = NULL;
+          osal_mem_free(arr3);
+          //arr3 = NULL;
+          osal_mem_free(arr4);
+          //arr4 = NULL;
+          osal_mem_free(arr5);
+          //arr5 = NULL;
+          //for(uint8 i = 0; i < numParts; i++) {
+          //  printf("arr[%d] = %s\n", i, arr[i]);
+          //}
+          printf(STYLE_COLOR_RESET);
+          //osal_mem_free(arr);
+        }
+        */
+
+        /*
+        char **arr = getPieces(s, numParts);
+        if(!arr) {
+          printf("ERROR: Unable to allocate array!\n");
+        } else {
+          printf(FONT_COLOR_STRONG_MAGENTA);
+          printf("date/time: %s.%s %s:%s:%s\n", arr[1], arr[0], arr[2], arr[3], arr[4]);
+          //for(uint8 i = 0; i < numParts; i++) {
+          //  printf("arr[%d] = %s\n", i, arr[i]);
+          //}
+          printf(STYLE_COLOR_RESET);
+        }
+        */
+
         zclcc2530_ReportTime();
       #endif
       return (events ^ cc2530_EVT_LOCAL_TIME);
@@ -617,7 +680,7 @@ void cc2530_HalKeyPoll (void)
   void zclcc2530_ReportTime(void)
   {
     #if DEBUG_PRINT_UART
-    	//printf("zclcc2530_ReportTime...\n");
+      //printf("zclcc2530_ReportTime...\n");
     #endif
     //-- reading time
     const uint8 NUM_ATTRIBUTES = 1;
@@ -987,7 +1050,7 @@ void showScreen1(void)
   #endif
 
   #if USE_DS18B20
-  	zclcc2530_ReportTemp_DS18B20();
+    zclcc2530_ReportTemp_DS18B20();
   #endif
 
   #if USE_DHT11
@@ -1003,7 +1066,7 @@ void showScreen2(void)
   sprintf(s3, "Relay #3: %d", RELAY_STATES[2]);
   sprintf(s4, "Relay #4: %d", RELAY_STATES[3]);
 
- 	/* 
+  /* 
   //extern uint32 osal_GetSystemClock( void );
   uint32 pTime = osal_GetSystemClock();
   
