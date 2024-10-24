@@ -87,8 +87,7 @@ static void zclcc2530_HandleKeys(byte shift, byte keys);
 
 #if USE_LOCAL_TIME
   //-- local time report
-  int16 zclcc2530_LocalTimeValue;
-  //extern void zclcc2530_ReportTime(void);
+  uint32 zclcc2530_LocalTimeValue;
 #endif
 
 //-- Change relay state
@@ -437,10 +436,18 @@ uint16 zclcc2530_event_loop(uint8 task_id, uint16 events)
     //-- cc2530_EVT_LOCAL_TIME event
     if(events & cc2530_EVT_LOCAL_TIME) {
       #if DEBUG_PRINT_UART
+        
+      	char s[10];
+        sprintf(s, "1021184523");
+        int numParts = 5;
+        char **arr = getPieces(s, numParts);
         printf(FONT_COLOR_STRONG_MAGENTA);
-        printf("cc2530_EVT_LOCAL_TIME:%d\n", zclcc2530_LocalTimeValue);
+        printf("date/time: %s.%s %s:%s:%s\n", arr[1], arr[0], arr[2], arr[3], arr[4]);
+        //for(uint8 i = 0; i <= sizeof(arr); i++) {
+        //  printf("arr[%d] = %s\n", i, arr[i]);
+        //}
         printf(STYLE_COLOR_RESET);
-
+        
         zclcc2530_ReportTime();
       #endif
       return (events ^ cc2530_EVT_LOCAL_TIME);
@@ -610,7 +617,7 @@ void cc2530_HalKeyPoll (void)
   void zclcc2530_ReportTime(void)
   {
     #if DEBUG_PRINT_UART
-    	printf("zclcc2530_ReportTime...\n");
+    	//printf("zclcc2530_ReportTime...\n");
     #endif
     //-- reading time
     const uint8 NUM_ATTRIBUTES = 1;
@@ -621,11 +628,11 @@ void cc2530_HalKeyPoll (void)
                                 (NUM_ATTRIBUTES * sizeof(zclReport_t)));
     if(pReportCmd != NULL) {
       pReportCmd->numAttr = NUM_ATTRIBUTES;
-  
-      pReportCmd->attrList[0].attrID = ATTRID_TIME_TIME;//ATTRID_TIME_LOCAL_TIME;
-      pReportCmd->attrList[0].dataType = ZCL_DATATYPE_UTC;//ZCL_DATATYPE_INT16;
+      
+      pReportCmd->attrList[0].attrID = ATTRID_TIME_TIME;
+      pReportCmd->attrList[0].dataType = ZCL_DATATYPE_UTC;
       pReportCmd->attrList[0].attrData = (void *)(&zclcc2530_LocalTimeValue);
-  
+
       zclcc2530_DstAddr.addrMode = (afAddrMode_t)Addr16Bit;
       zclcc2530_DstAddr.addr.shortAddr = 0;
       zclcc2530_DstAddr.endPoint = cc2530_ENDPOINT_1;
@@ -898,15 +905,10 @@ void zclcc2530_ReportOnOff(uint8 num)
     uint32 pTime32 = osal_GetSystemClock();
     
     #if DEBUG_PRINT_UART
+      /*
       printf("pTime32(ms):%ld\n", pTime32);
-      
       char* t1 = ms2str(pTime32, 0);
       printf("time: %s\n", t1);
-
-      //printf("INT_MAX=%d, LONG_MAX=%ld, pTime32=%ld\n", INT_MAX, LONG_MAX, pTime32);
-      /*
-      char* r1 = int2hex(pTime32,1,1);
-      printf("s:%d|ms:%s (%dy %dm %dw %dd %dh %dm %ds %dms)\n", pTime, r1, years, months, weeks, days, hours, minutes, seconds, mseconds);
       */
     #endif
   

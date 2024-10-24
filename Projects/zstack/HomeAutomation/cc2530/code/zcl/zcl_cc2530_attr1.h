@@ -255,10 +255,9 @@ CONST zclAttrRec_t zclcc2530_Attrs1[] =
   #if USE_LOCAL_TIME
     {//22
       ZCL_CLUSTER_ID_GEN_TIME,
-      {  // local time
-        ATTRID_TIME_TIME,//ATTRID_TIME_LOCAL_TIME,
+      {  // time
+        ATTRID_TIME_TIME,
         ZCL_DATATYPE_UTC,
-        //ZCL_DATATYPE_UINT16,
         (ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE), //-- can be changed
         (void *)&zclcc2530_LocalTimeValue
       }

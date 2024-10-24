@@ -73,7 +73,7 @@ extern uint8 TOTAL_RELAYS_NUM = 4;
 #endif
 
 #if USE_LOCAL_TIME
-  extern int16 zclcc2530_LocalTimeValue;
+  extern uint32 zclcc2530_LocalTimeValue;
   extern void zclcc2530_ReportTime(void);
 #endif
 

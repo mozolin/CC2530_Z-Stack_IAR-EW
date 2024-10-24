@@ -57,6 +57,11 @@ char* int2str(int num, char str[])
   sprintf(str, "%d", num);
   return str;
 }
+char* long2str(int32 num, char str[])
+{
+  sprintf(str, "%ld", num);
+  return str;
+}
 /****************************************
  * convert Integer to String #2         *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~         *
@@ -345,3 +350,141 @@ char* ms2str(uint32 pTime32, uint8 hisFormat)
 
   return result;
 }
+
+/*************************************************
+ * get part of a string (substring)              *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~              *
+ * example:                                      *
+ *   char str[100];                              *
+ *   sprintf(str, "1021184523");                 *
+ *   printf("substr = %s\n", substr(str, 6, 2)); *
+ *   => substr = 45                              *
+ *************************************************/
+char* substr(char string[], int offset, int length)
+{
+  int i = 0;
+  static char result[1000];
+
+  while(i < length) {
+    result[i] = string[offset + i];
+    i++;
+  }
+
+  result[i] = '\0';
+
+  return result;
+}
+
+/**************************************************************
+ * split string into pieces and get an item by index          *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~          *
+ * example:                                                   *
+ *   char s[100];                                             *
+ *   sprintf(s, "1021184523");                                *
+ *   int numParts = 5, idx = 3;                               *
+ *   printf("s[%d] = %s\n", idx, getPiece(s, numParts, idx)); *
+ *   => s[3] = 45                                             *
+ **************************************************************/
+char* getPiece(char* str, int numParts, int idx)
+{
+  //-- get string
+  static char s[100];
+  //-- make a copy of string
+  sprintf(s, str);
+  int strLength = strlen(s);
+  //-- check if string can be divided in "numParts" equal parts
+  if(strLength % numParts != 0) {
+    //printf("Invalid Input: String size is not divisible by numParts\n");
+    return NULL;
+  }
+
+  char tmpStr[10];
+  int partSize = strLength / numParts, tmpIdx = 0;
+  char parts[15][15];
+
+  int debug = 0;
+
+  //-- init parts string
+  strcpy(parts[0], "");
+  
+  strcpy(tmpStr, "");
+  for(uint8 i = 0; i < strLength; i++) {
+    if(i % partSize == 0 && i > 0) {
+      if(debug) {
+        printf("\n");
+      }
+      tmpIdx++;
+      //-- re-init parts string
+      strcpy(parts[tmpIdx], "");
+    }
+    if(debug) {
+      printf("%c", s[i]);
+    }
+    //-- get chat
+    sprintf(tmpStr, "%c", s[i]);
+    //-- save it in tmpStr-array
+    strcat(parts[tmpIdx], tmpStr);
+  }
+  if(debug) {
+    printf("\n");
+  }
+
+  if(idx < numParts) {
+    sprintf(s, "%s", substr(parts[idx], 0, 2));
+    return s;
+  }
+  return NULL;
+}
+
+/*******************************************************
+ * split string into pieces and get an array of pieces *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ *
+ * example:                                            *
+ *   char s[100];                                      *
+ *   sprintf(s, "1021184523");                         *
+ *   int numParts = 5;                                 *
+ *   char **arr = getPieces(s, numParts);              *
+ *   for(uint8 i = 0; i <= sizeof(arr); i++) {         *
+ *     printf("arr[%d] = %s\n", i, arr[i]);            *
+ *   }                                                 *
+ *   => arr[0] = 10                                    *
+ *      arr[1] = 21                                    *
+ *      arr[2] = 18                                    *
+ *      arr[3] = 45                                    *
+ *      arr[4] = 23                                    *
+ *******************************************************/
+char **getPieces(char* s, int numParts)
+{
+  uint8 MAX_STRING = 255;
+  //-- allocate memory for array
+  char **arr = osal_mem_alloc(sizeof(char) * strlen(s));
+  if(!arr) {
+    return NULL;
+    //osal_memset(arr, 0, sizeof(char) * sizeof(s));
+    //osal_memcpy(arr, s, osal_strlen(s));
+    //osal_mem_free(arr);
+  }
+
+  for(uint8 i = 0; i < numParts; i++) {
+    //-- allocate memory for array items
+    arr[i] = osal_mem_alloc(MAX_STRING + 1);
+    if(!arr[i]) {
+      osal_mem_free(arr);
+      return NULL;
+    }
+  }
+  //-- fill the array with parts
+  for(uint8 i = 0; i < numParts; i++) {
+    sprintf(arr[i], "%s", getPiece(s, numParts, i));
+  }
+  
+  return arr;
+}
+
+/*******************************************
+ *
+ *  int sprintf(char *,const char *,...)
+ *  char *strcpy(char *,const char *)
+ *  char *strcat(char *, const char *);
+ *
+ *******************************************/
