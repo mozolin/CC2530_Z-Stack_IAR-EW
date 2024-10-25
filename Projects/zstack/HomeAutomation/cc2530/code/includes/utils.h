@@ -25,7 +25,7 @@ char* ms2str(uint32 pTime32, uint8 hisFormat);
 //char* substr(char str[], int offset, int length);
 char* substr(char *str, int offset, int length);
 
+void osal_releaseMemory(char* var);
+void osal_releaseMemoryPtr(char** var);
 char* getPiece(char* str, int numParts, int idx);
 char **getPieces(char* s, int numParts);
-
-char* memCheck(char* str, int numParts, int idx);
