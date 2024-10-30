@@ -9,9 +9,9 @@
 #include "hal_uart.h"
 #include "colors.h"
 
-static void halOLED128x64Reset(void);
-static void halOLED128x64ChipInit(void);
-static void halOLED128x64SetPosition(uint8 page, uint8 x);
+static void halOLEDReset(void);
+static void halOLEDChipInit(void);
+static void halOLEDSetPosition(uint8 page, uint8 x);
 
 static void halOLEDShowChar8x16(uint16 x, uint16 page, uint8 ch);
 static void halOLEDShowCharRus1(uint16 x, uint16 page, uint8 ch);
@@ -20,7 +20,7 @@ static void halOLEDShowCharOther(uint16 x, uint16 page, uint8 ch);
 static uint8 halOLEDShowCharGyver(uint16 x, uint16 page, uint8 chL, uint8 chR);
 
 
-void halOLED128x64Init(void)
+void halOLEDInit(void)
 {    
     //-- Init SPI-GPIO
     halLcdSpiInit();
@@ -29,27 +29,27 @@ void halOLED128x64Init(void)
     HalUARTInit();
     
     //-- Init Chip
-    halOLED128x64ChipInit();
+    halOLEDChipInit();
 
     //-- Setting
-    halOLED128x64ClearScreen();
-    halOLED128x64SetPosition(0,0);
+    halOLEDClearScreen();
+    halOLEDSetPosition(0,0);
 }
 
-void halOLED128x64ClearScreen(void)
+void halOLEDClearScreen(void)
 {
     uint8 page, x;
     
-    for (page = 0; page < HAL_OLED128x64_PAGE; page++) {
+    for (page = 0; page < HAL_OLED_PAGE; page++) {
         halLcdSpiTxCmd(0xb0 + page);
         halLcdSpiTxCmd(0x01);
         halLcdSpiTxCmd(0x10);
         
-        for (x = 0; x < HAL_OLED128x64_X; x++) halLcdSpiTxData(0);
+        for (x = 0; x < HAL_OLED_X; x++) halLcdSpiTxData(0);
     }
 }
 
-void halOLED128x64ShowX16(uint8 line, uint8 column, const uint8 *str)
+void halOLEDShowX16(uint8 line, uint8 column, const uint8 *str)
 {
   if (!str || line > 3) return;
 
@@ -61,7 +61,7 @@ void halOLED128x64ShowX16(uint8 line, uint8 column, const uint8 *str)
   //-- Show text
   while(*ptext != 0) {
     //-- End of line
-    if((column + 8) > HAL_OLED128x64_X) return;
+    if((column + 8) > HAL_OLED_X) return;
     
     if((*ptext) < 128) {
       //-- ASCII Code: 0~127
@@ -94,7 +94,7 @@ void halOLED128x64ShowX16(uint8 line, uint8 column, const uint8 *str)
   } //-- while(*ptext != 0)
 }
 
-void halOLED128x64ShowX8(uint8 line, uint8 column, const uint8 *str)
+void halOLEDShowX8(uint8 line, uint8 column, const uint8 *str)
 {
   //-- up to 8 rows on screen
   if(!str || line > 7) return;
@@ -108,7 +108,7 @@ void halOLED128x64ShowX8(uint8 line, uint8 column, const uint8 *str)
   //-- Show text
   while(*ptext != 0) {
     //-- End of line
-    if((column + 6) > HAL_OLED128x64_X) return;
+    if((column + 6) > HAL_OLED_X) return;
     
     if((*ptext) < 128) {
     	//-- ASCII Code: 0~127
@@ -126,7 +126,7 @@ void halOLED128x64ShowX8(uint8 line, uint8 column, const uint8 *str)
 }
 
 //-- original Chinese function (maybe will be used or not)
-void halOLED128x64ShowPictureChina(uint8 x, uint8 y, uint8 picWidth, uint8 picHeight, const uint8 *pic)
+void halOLEDShowPictureChina(uint8 x, uint8 y, uint8 picWidth, uint8 picHeight, const uint8 *pic)
 {
   if(x > 127 || y > 64) return;
   
@@ -135,7 +135,7 @@ void halOLED128x64ShowPictureChina(uint8 x, uint8 y, uint8 picWidth, uint8 picHe
   uint8 ys =  y / 8, ye = (y + picHeight - 1) / 8;
 
   for(uint8 line = ys; line < ye; line++) {
-    halOLED128x64SetPosition(line, x);
+    halOLEDSetPosition(line, x);
     for(uint8 column = xs; column < (xe + 1); column++) {
     	halLcdSpiTxData(pic[charIndex++]);
     }
@@ -144,7 +144,7 @@ void halOLED128x64ShowPictureChina(uint8 x, uint8 y, uint8 picWidth, uint8 picHe
 
 //-- "x" can have any available value
 //-- "y" must be a multiple of 8
-void halOLED128x64ShowPicture(uint8 x, uint8 y, uint8 picWidth, uint8 picHeight, const uint8 *pic)
+void halOLEDShowPicture(uint8 x, uint8 y, uint8 picWidth, uint8 picHeight, const uint8 *pic)
 {
   if(x > 127 || y > 64) return;
 
@@ -157,14 +157,14 @@ void halOLED128x64ShowPicture(uint8 x, uint8 y, uint8 picWidth, uint8 picHeight,
   ye++;
  
   for(uint8 line = ys; line < ye; line++) {
-    halOLED128x64SetPosition(line, x);
+    halOLEDSetPosition(line, x);
     for(uint8 column = xs; column < (xe + 1); column++) {
     	halLcdSpiTxData(pic[charIndex++]);
     }
   }
 }
 
-void halOLED128x64ShowIcon(uint8 x, uint8 y, uint8 size, uint8 idx)
+void halOLEDShowIcon(uint8 x, uint8 y, uint8 size, uint8 idx)
 {
   //-- 7x7 or 8x8 only!
   if(size != 7 && size != 8) {
@@ -186,7 +186,7 @@ void halOLED128x64ShowIcon(uint8 x, uint8 y, uint8 size, uint8 idx)
 
   uint16 charIndex = idx * size;
  
-  halOLED128x64SetPosition(y, x);
+  halOLEDSetPosition(y, x);
   //-- print byte sequence for icon
   for(uint8 i = 0; i < size; i++) {
   	if(size == 7) {
@@ -199,17 +199,17 @@ void halOLED128x64ShowIcon(uint8 x, uint8 y, uint8 size, uint8 idx)
 
 }
 
-static void halOLED128x64Reset(void)
+static void halOLEDReset(void)
 {
-  /* Reset OLED128x64 */
+  /* Reset OLED */
   SPI_GPIO_CLEAR(HAL_LCD_SPI_RST_PORT, HAL_LCD_SPI_RST_PIN);
   delayMs32MHZ(60);
   SPI_GPIO_SET(HAL_LCD_SPI_RST_PORT, HAL_LCD_SPI_RST_PIN);
 }
 
-static void halOLED128x64ChipInit(void)
+static void halOLEDChipInit(void)
 {
-    halOLED128x64Reset();
+    halOLEDReset();
   
     halLcdSpiTxCmd(0xae);  // --turn off OLED panel
     halLcdSpiTxCmd(0x00);  // ---set low column address
@@ -246,7 +246,7 @@ static void halOLED128x64ChipInit(void)
     halLcdSpiTxCmd(0xaf);  // --turn on OLED panel
 }
 
-static void halOLED128x64SetPosition(uint8 page, uint8 x)
+static void halOLEDSetPosition(uint8 page, uint8 x)
 {
     halLcdSpiTxCmd(0xb0 + page);
     halLcdSpiTxCmd(((x&0xf0)>>4)|0x10);
@@ -262,14 +262,14 @@ static void halOLEDShowChar8x16(uint16 x, uint16 page, uint8 ch)
   charIndex = (ch > 32) ? (ch - 32) * 16 : 0;
   
   //-- Set first page
-  halOLED128x64SetPosition(page, x);
+  halOLEDSetPosition(page, x);
   //for (uint8 j = 0; j < 8; j++)  halLcdSpiTxData( FONT_TABLE_8X16[charIndex + j] );
   for (j = 0; j < 8; j++) {
   	halLcdSpiTxData(FONT_TABLE_MIKE_8X16[charIndex + j]);
   }
   
   //-- Set second page
-  halOLED128x64SetPosition(page + 1, x);
+  halOLEDSetPosition(page + 1, x);
   //for (uint8 j = 0; j < 8; j++) halLcdSpiTxData( FONT_TABLE_8X16[charIndex + j + 8] );
   for (j = 0; j < 8; j++) {
   	halLcdSpiTxData(FONT_TABLE_MIKE_8X16[charIndex + j + 8]);
@@ -285,13 +285,13 @@ static void halOLEDShowCharRus1(uint16 x, uint16 page, uint8 ch)
   charIndex = (ch > 144) ? (ch - 144) * 16 : 0;
   
   //-- Set first page
-  halOLED128x64SetPosition(page, x);
+  halOLEDSetPosition(page, x);
   for (j = 0; j < 8; j++) {
   	halLcdSpiTxData(FONT_TABLE_MIKE_RUS1[charIndex + j]);
   }
   
   //-- Set second page
-  halOLED128x64SetPosition(page + 1, x);
+  halOLEDSetPosition(page + 1, x);
   for (j = 0; j < 8; j++) {
   	halLcdSpiTxData(FONT_TABLE_MIKE_RUS1[charIndex + j + 8]);
   }
@@ -306,13 +306,13 @@ static void halOLEDShowCharRus2(uint16 x, uint16 page, uint8 ch)
   charIndex = (ch > 128) ? (ch - 128) * 16 : 0;
   
   //-- Set first page
-  halOLED128x64SetPosition(page, x);
+  halOLEDSetPosition(page, x);
   for(j = 0; j < 8; j++) {
   	halLcdSpiTxData(FONT_TABLE_MIKE_RUS2[charIndex + j]);
   }
   
   //-- Set second page
-  halOLED128x64SetPosition(page + 1, x);
+  halOLEDSetPosition(page + 1, x);
   for(j = 0; j < 8; j++) {
   	halLcdSpiTxData(FONT_TABLE_MIKE_RUS2[charIndex + j + 8]);
   }
@@ -327,13 +327,13 @@ static void halOLEDShowCharOther(uint16 x, uint16 page, uint8 ch)
   charIndex = ch * 16;
   
   //-- Set first page
-  halOLED128x64SetPosition(page, x);
+  halOLEDSetPosition(page, x);
   for(j = 0; j < 8; j++) {
   	halLcdSpiTxData(FONT_TABLE_MIKE_OTHER[charIndex + j]);
   }
   
   //-- Set second page
-  halOLED128x64SetPosition(page + 1, x);
+  halOLEDSetPosition(page + 1, x);
   for(j = 0; j < 8; j++) {
   	halLcdSpiTxData(FONT_TABLE_MIKE_OTHER[charIndex + j + 8]);
   }
@@ -374,7 +374,7 @@ static uint8 halOLEDShowCharGyver(uint16 x, uint16 page, uint8 chL, uint8 chR)
   if(state == 1) {
   	charIndex = (chL > 32) ? tableFontRow * 5 : 0;
 
-  	halOLED128x64SetPosition(page, x);
+  	halOLEDSetPosition(page, x);
   	for(j = 0; j < 5; j++) {
   		halLcdSpiTxData(FONT_TABLE_GYVER[charIndex + j]);
   	}

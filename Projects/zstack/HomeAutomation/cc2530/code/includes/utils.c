@@ -154,7 +154,7 @@ void osal_releaseMemoryPtr(char** var)
       }
     }
     printf("%s", str);
-    //halOLED128x64ShowX16(0, 0, str);
+    //halOLEDShowX16(0, 0, str);
   }
   
   void osal_printf(char str[])
@@ -542,7 +542,7 @@ char* getPiece(char* str, int numParts, int idx)
 char **getPieces(char* str, int numParts)
 {
   char** arr;
-  int memSize = 0;  
+  int memSize = 0;
   int strLength = strlen(str);
   int partSize = strLength / numParts;
 

@@ -91,6 +91,7 @@
 #define PUSH2_ICTLBIT     BV(0)      //-- Bit 0 for P2IEN: enable/disable Interrupts
 
 
+/*
 //-- BTN #3 - P1_5
 
 //-- Bit 5 (gpioBit, pin number in port 1)
@@ -131,7 +132,7 @@
 //-- IEN2 |= (1 << 4);         => Port 1 Interrupt enabled (1)
 //-- PUSH3_ICTL &= ~(PUSH3_ICTLBIT); => Don't generate interrupt for port 1
 #define PUSH3_ICTL        P1IEN
-
+*/
 
 // OSAL NV - постоянная внутренняя flash-память
 
@@ -201,8 +202,12 @@
 #define PREFETCH_ENABLE()     st( FCTL = 0x08; )
 #define PREFETCH_DISABLE()    st( FCTL = 0x04; )
 
-// Внешняя функция инициализации кнопок
-extern void cc2530_HalKeyInit( void );
+//-- external buttons initialization function
+extern void cc2530_HalKeyPoll(void);
+extern void cc2530_HalKeyInit(void);
+
+//-- external relays initialization function
+extern void cc2530_HalRelayInit(void);
 
 // Инициализация оборудования (для модулей с усилителем cc2590, cc2591)
 #define HAL_BOARD_INIT()                                         \
@@ -235,7 +240,9 @@ extern void cc2530_HalKeyInit( void );
                                                                  \
   /* configure tristates */                                      \
   P0INP |= PUSH2_BV;                                             \
-  cc2530_HalKeyInit();                                         \
+  cc2530_HalKeyInit();                                           \
+                                                                 \
+  cc2530_HalRelayInit();                                         \
                                                                  \
   /* setup RF frontend if necessary */                           \
   HAL_BOARD_RF_FRONTEND_SETUP();                                 \
@@ -247,7 +254,8 @@ extern void cc2530_HalKeyInit( void );
 // Макросы для проверки кнопок
 #define HAL_PUSH_BUTTON1()        (PUSH1_POLARITY(PUSH1_SBIT))
 #define HAL_PUSH_BUTTON2()        (PUSH2_POLARITY(PUSH2_SBIT))
-#define HAL_PUSH_BUTTON3()        (PUSH3_POLARITY(PUSH3_SBIT))
+#define HAL_PUSH_BUTTON3()        (0)
+//#define HAL_PUSH_BUTTON3()        (PUSH3_POLARITY(PUSH3_SBIT))
 #define HAL_PUSH_BUTTON4()        (0)
 #define HAL_PUSH_BUTTON5()        (0)
 #define HAL_PUSH_BUTTON6()        (0)

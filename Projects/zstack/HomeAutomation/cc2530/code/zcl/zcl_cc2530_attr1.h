@@ -3,15 +3,15 @@
 // Структура описания эндпоинта
 SimpleDescriptionFormat_t zclcc2530_SimpleDesc1 =
 {
-  cc2530_ENDPOINT_1,                 //  int Endpoint;
+  CC2530_ENDPOINT_1,                 //  int Endpoint;
   ZCL_HA_PROFILE_ID,                 //  uint16 AppProfId;
   // TODO: Replace ZCL_HA_DEVICEID_ON_OFF_LIGHT with application specific device ID
   ZCL_HA_DEVICEID_ON_OFF_LIGHT,      //  uint16 AppDeviceId; 
-  cc2530_DEVICE_VERSION,             //  int   AppDevVer:4;
-  cc2530_FLAGS,                      //  int   AppFlags:4;
-  ZCLcc2530_MAX_INCLUSTERS1,         //  byte  AppNumInClusters;
+  CC2530_DEVICE_VERSION,             //  int   AppDevVer:4;
+  CC2530_FLAGS,                      //  int   AppFlags:4;
+  ZCLCC2530_MAX_INCLUSTERS1,         //  byte  AppNumInClusters;
   (cId_t *)zclcc2530_InClusterList1, //  byte *pAppInClusterList;
-  ZCLcc2530_MAX_OUTCLUSTERS1,        //  byte  AppNumInClusters;
+  ZCLCC2530_MAX_OUTCLUSTERS1,        //  byte  AppNumInClusters;
   (cId_t *)zclcc2530_OutClusterList1 //  byte *pAppInClusterList;
 };
 

@@ -10,61 +10,63 @@
 
 #include "zcl_cc2530.h"
 
-// версия устройства и флаги
-#define cc2530_DEVICE_VERSION     0
-#define cc2530_FLAGS              0
+//-- device version and flags
+#define CC2530_DEVICE_VERSION     0
+#define CC2530_FLAGS              0
 
-// версия оборудования
-#define cc2530_HWVERSION          1
-// версия ZCL
-#define cc2530_ZCLVERSION         1
+//-- hardware version
+#define CC2530_HWVERSION          1
+//-- ZCL version
+#define CC2530_ZCLVERSION         1
 
-// версия кластеров
+//-- version of clusters
 const uint16 zclcc2530_clusterRevision_all = 0x0001; 
-
-// переменные/константы Basic кластера
-
-// версия оборудования
-const uint8 zclcc2530_HWRevision = cc2530_HWVERSION;
-// версия ZCL
-const uint8 zclcc2530_ZCLVersion = cc2530_ZCLVERSION;
-// производитель
+//-- hardware version
+const uint8 zclcc2530_HWRevision = CC2530_HWVERSION;
+//-- ZCL version
+const uint8 zclcc2530_ZCLVersion = CC2530_ZCLVERSION;
+//-- manufacturer
 const uint8 zclcc2530_ManufacturerName[] = {17, 'T','e','x','a','s',' ','I','n','s','t','r','u','m','e','n','t','s'};
-// модель устройства
+//-- device model
 const uint8 zclcc2530_ModelId[] = {15, 'M','I','K','E','.','C','C','2','5','3','0','.','I','A','R'};
-// дата версии
+//-- version date
 const uint8 zclcc2530_DateCode[] = {8, '2','0','2','4','0','9','1','2'};
-// вид питания POWER_SOURCE_MAINS_1_PHASE - питание от сети с одной фазой
+//-- power supply type POWER_SOURCE_MAINS_1_PHASE - power supply from a single-phase network
 const uint8 zclcc2530_PowerSource = POWER_SOURCE_MAINS_1_PHASE;
-// расположение устройства
-//uint8 zclcc2530_LocationDescription[17] = {16, ' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
+//-- device location
 uint8 zclcc2530_LocationDescription[19] = {18, 'B','a','s','e','d',' ','o','n',' ','T','I',' ','C','C','2','5','3','0'};
 uint8 zclcc2530_PhysicalEnvironment = 0;
 uint8 zclcc2530_DeviceEnable = DEVICE_ENABLED;
 
-// переменные/константы Identify кластера
-
-// время идентификации
+//-- identification time
 uint16 zclcc2530_IdentifyTime;
 
 //-- NVM IDs
-#define NV_cc2530_RELAY_STATE_ID_1      0xFFF1
-#define NV_cc2530_RELAY_STATE_ID_2      0xFFF2
-#define NV_cc2530_RELAY_STATE_ID_3      0xFFF3
-#define NV_cc2530_RELAY_STATE_ID_4      0xFFF4
+#define NV_CC2530_RELAY_STATE_ID_1      1
+#define NV_CC2530_RELAY_STATE_ID_2      2
+#define NV_CC2530_RELAY_STATE_ID_3      3
+#define NV_CC2530_RELAY_STATE_ID_4      4
 
-//-- Relays state
+//-- relays state
 extern uint8 RELAY_STATES[4] = {0,0,0,0};
 extern uint8 TOTAL_RELAYS_NUM = 4;
 
-//-- Device endpoint numbers
-#define cc2530_ENDPOINT_1               1
-#define cc2530_ENDPOINT_2               2
-#define cc2530_ENDPOINT_3               3
-#define cc2530_ENDPOINT_4               4
+//-- device endpoint numbers
+#define CC2530_ENDPOINT_1               1
+#define CC2530_ENDPOINT_2               2
+#define CC2530_ENDPOINT_3               3
+#define CC2530_ENDPOINT_4               4
+
+//-- endpoint number for EP of Destination Address: MUST BE = 1
+#define CC2530_ENDPOINT_DSTADDR         CC2530_ENDPOINT_1
+//-- endpoint number for Time cluster
+#define CC2530_ENDPOINT_TIME            CC2530_ENDPOINT_1
+//-- endpoint number for Temperature cluster
+#define CC2530_ENDPOINT_TEMPERATURE     CC2530_ENDPOINT_1
+
 
 #if USE_DS18B20 || USE_DHT11
-	// Данные о температуре
+	//-- Temperature data
 	#define MAX_MEASURED_VALUE  10000  // 100.00C
 	#define MIN_MEASURED_VALUE  -10000  // -100.00C
 	extern int16 zclcc2530_TemperatureMeasuredValue;
@@ -77,12 +79,11 @@ extern uint8 TOTAL_RELAYS_NUM = 4;
   extern void zclcc2530_ReportTime(void);
 #endif
 
-// Выход из сети
 void zclcc2530_LeaveNetwork(void);
 static void zclcc2530_BasicResetCB(void);
 static void zclcc2530_ProcessIdentifyTimeChange(uint8 endpoint);
 static void zclcc2530_ProcessCommissioningStatus(bdbCommissioningModeMsg_t *bdbCommissioningModeMsg);
-// Функции обработки входящих сообщений ZCL Foundation команд/ответов
+// Functions for processing ZCL Foundation incoming Command/Response messages
 static void zclcc2530_ProcessIncomingMsg(zclIncomingMsg_t *msg);
 #ifdef ZCL_READ
   static uint8 zclcc2530_ProcessInReadRspCmd(zclIncomingMsg_t *pInMsg);
@@ -92,7 +93,7 @@ static void zclcc2530_ProcessIncomingMsg(zclIncomingMsg_t *msg);
 #endif
 static uint8 zclcc2530_ProcessInDefaultRspCmd(zclIncomingMsg_t *pInMsg);
 
-// Список входящих кластеров EP1
+//-- List of incoming EP1 clusters
 const cId_t zclcc2530_InClusterList1[] =
 {
   ZCL_CLUSTER_ID_GEN_BASIC,
@@ -104,29 +105,29 @@ const cId_t zclcc2530_InClusterList1[] =
   #endif
   ZCL_CLUSTER_ID_GEN_TIME,
 };
-#define ZCLcc2530_MAX_INCLUSTERS1   (sizeof(zclcc2530_InClusterList1) / sizeof(zclcc2530_InClusterList1[0]))
+#define ZCLCC2530_MAX_INCLUSTERS1   (sizeof(zclcc2530_InClusterList1) / sizeof(zclcc2530_InClusterList1[0]))
 
-// Список исходящих кластеров EP1
+//-- List of outgoing clusters EP1
 const cId_t zclcc2530_OutClusterList1[] =
 {
   ZCL_CLUSTER_ID_GEN_BASIC,
   ZCL_CLUSTER_ID_GEN_TIME,
 };
-#define ZCLcc2530_MAX_OUTCLUSTERS1  (sizeof(zclcc2530_OutClusterList1) / sizeof(zclcc2530_OutClusterList1[0]))
+#define ZCLCC2530_MAX_OUTCLUSTERS1  (sizeof(zclcc2530_OutClusterList1) / sizeof(zclcc2530_OutClusterList1[0]))
 
-// Список входящих кластеров for other EP
+//-- List of incoming clusters for other EP
 const cId_t zclcc2530_InClusterList[] =
 {
   ZCL_CLUSTER_ID_GEN_ON_OFF,
 };
-#define ZCLcc2530_MAX_INCLUSTERS   (sizeof(zclcc2530_InClusterList) / sizeof(zclcc2530_InClusterList[0]))
+#define ZCLCC2530_MAX_INCLUSTERS   (sizeof(zclcc2530_InClusterList) / sizeof(zclcc2530_InClusterList[0]))
 
-// Список исходящих кластеров for other EPs
+//-- List of outgoing clusters for other EPs
 const cId_t zclcc2530_OutClusterList[] = {NULL};
-#define ZCLcc2530_MAX_OUTCLUSTERS  (sizeof(zclcc2530_OutClusterList) / sizeof(zclcc2530_OutClusterList[0]))
+#define ZCLCC2530_MAX_OUTCLUSTERS  (sizeof(zclcc2530_OutClusterList) / sizeof(zclcc2530_OutClusterList[0]))
 
 
-// Сброс атрибутов в значения по-умолчанию
+//-- Resetting attributes to default values
 void zclcc2530_ResetAttributesToDefaultValues(void);
 void zclcc2530_ResetAttributesToDefaultValues(void)
 {
@@ -145,7 +146,7 @@ void zclcc2530_ResetAttributesToDefaultValues(void)
 	#endif
 }
 
-//-- Инициализация выхода из сети
+//-- Initializing network leaving
 void zclcc2530_LeaveNetwork(void)
 {
   zclcc2530_ResetAttributesToDefaultValues();
@@ -166,13 +167,13 @@ void zclcc2530_LeaveNetwork(void)
     ZDApp_LeaveReset(false);
   }
 }
-//-- Обработчик команды сброса в Basic кластере
+//-- Reset command handler in Basic cluster
 static void zclcc2530_BasicResetCB(void)
 {
   /* TODO: remember to update this function with any application-specific cluster attribute variables */
   zclcc2530_ResetAttributesToDefaultValues();
 }
-// Обработчик изменения времени идентификации
+//-- Identification Time Change Handler
 static void zclcc2530_ProcessIdentifyTimeChange(uint8 endpoint)
 {
   (void) endpoint;
@@ -183,7 +184,7 @@ static void zclcc2530_ProcessIdentifyTimeChange(uint8 endpoint)
     //HalLedSet (HAL_LED_2, HAL_LED_MODE_OFF);
   }
 }
-// Обработчик изменения статусов соединения с сетью
+//-- Network connection status change handler
 static void zclcc2530_ProcessCommissioningStatus(bdbCommissioningModeMsg_t *bdbCommissioningModeMsg)
 {
   switch(bdbCommissioningModeMsg->bdbCommissioningMode)
@@ -233,7 +234,7 @@ static void zclcc2530_ProcessCommissioningStatus(bdbCommissioningModeMsg_t *bdbC
           //We did recover from losing parent
         } else {
           //Parent not found, attempt to rejoin again after a fixed delay
-          osal_start_timerEx(zclcc2530_TaskID, cc2530_EVT_END_DEVICE_REJOIN, TIMER_INTERVAL_ENDDEVICE_REJOIN);
+          osal_start_timerEx(zclcc2530_TaskID, CC2530_EVT_END_DEVICE_REJOIN, TIMER_INTERVAL_ENDDEVICE_REJOIN);
         }
       break;
     #endif 
@@ -244,7 +245,7 @@ static void zclcc2530_ProcessCommissioningStatus(bdbCommissioningModeMsg_t *bdbC
  *  Functions for processing ZCL Foundation incoming Command/Response messages
  *
  *****************************************************************************/
-// Функция обработки входящих ZCL Foundation команд/ответов
+//-- Functions for processing ZCL Foundation incoming Command/Response messages
 static void zclcc2530_ProcessIncomingMsg(zclIncomingMsg_t *pInMsg)
 {
   switch (pInMsg->zclHdr.commandID)
@@ -298,7 +299,7 @@ static void zclcc2530_ProcessIncomingMsg(zclIncomingMsg_t *pInMsg)
 }
 
 #ifdef ZCL_READ
-	// Обработка ответа команды Read
+	// Processing the response of the Read command
 	static uint8 zclcc2530_ProcessInReadRspCmd(zclIncomingMsg_t *pInMsg)
 	{
     zclReadRspCmd_t *readRspCmd;
@@ -316,7 +317,7 @@ static void zclcc2530_ProcessIncomingMsg(zclIncomingMsg_t *pInMsg)
 #endif // ZCL_READ
 
 #ifdef ZCL_WRITE
-	// Обработка ответа команды Write
+	//-- Processing the response of the Write command
 	static uint8 zclcc2530_ProcessInWriteRspCmd(zclIncomingMsg_t *pInMsg)
 	{
     zclWriteRspCmd_t *writeRspCmd;
@@ -332,7 +333,7 @@ static void zclcc2530_ProcessIncomingMsg(zclIncomingMsg_t *pInMsg)
 	}
 #endif // ZCL_WRITE
 
-// Обработка ответа команды по-умолчанию
+//-- Default command response handling
 static uint8 zclcc2530_ProcessInDefaultRspCmd(zclIncomingMsg_t *pInMsg)
 {
   // zclDefaultRspCmd_t *defaultRspCmd = (zclDefaultRspCmd_t *)pInMsg->attrCmd;
@@ -343,6 +344,7 @@ static uint8 zclcc2530_ProcessInDefaultRspCmd(zclIncomingMsg_t *pInMsg)
   return (true);
 }
 
+//#include "device.h"
 
 #include "zcl/zcl_cc2530_attr1.h"
 #include "zcl/zcl_cc2530_attr2.h"

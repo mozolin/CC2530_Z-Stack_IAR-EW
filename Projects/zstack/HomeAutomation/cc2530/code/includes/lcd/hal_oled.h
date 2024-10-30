@@ -11,28 +11,28 @@ extern "C" {
 #endif
 
 
-/** @brief   OLED128x64 parameters.
+/** @brief   OLED parameters.
  */
-#define HAL_OLED128x64_PAGE      8    //!< Total pages
-#define HAL_OLED128x64_X         128  //!< Max X
-#define HAL_OLED128x64_Y         64   //!< Max Y
+#define HAL_OLED_PAGE      8    //!< Total pages
+#define HAL_OLED_X         128  //!< Max X
+#define HAL_OLED_Y         64   //!< Max Y
 
 /**
- * @fn      halOLED128x64Init
+ * @fn      halOLEDInit
  * 
- * @brief	Init. OLED128x64.
+ * @brief	Init. OLED.
  */
-extern void halOLED128x64Init(void);
+extern void halOLEDInit(void);
 
 /**
- * @fn      halOLED128x64ClearScreen
+ * @fn      halOLEDClearScreen
  * 
  * @brief	Clear screen.
  */
-void halOLED128x64ClearScreen(void);
+void halOLEDClearScreen(void);
    
 /**
- * @fn      halOLED128x64Show
+ * @fn      halOLEDShow
  * 
  * @brief	Show x16(Height: 16) String, Supported Font: 
  *          1. ASCII - 8x16 2. Russian 8x16 characters
@@ -41,11 +41,11 @@ void halOLED128x64ClearScreen(void);
  * @param   column - 0 ~ 127
  * @param   str - string
  */
-void halOLED128x64ShowX16(uint8 line, uint8 column, const uint8 *str);
-void halOLED128x64ShowX8(uint8 line, uint8 column, const uint8 *str);
+void halOLEDShowX16(uint8 line, uint8 column, const uint8 *str);
+void halOLEDShowX8(uint8 line, uint8 column, const uint8 *str);
 
 /**
- * @fn      halOLED128x64ShowPicture
+ * @fn      halOLEDShowPicture
  * 
  * @brief	Show Picture
  *
@@ -55,9 +55,9 @@ void halOLED128x64ShowX8(uint8 line, uint8 column, const uint8 *str);
  * @param   picHeight - max: 64
  * @param   pic - picture
  */
-void halOLED128x64ShowPicture(uint8 x, uint8 y, uint8 picWidth, uint8 picHeight, const uint8 *pic);
-void halOLED128x64ShowPictureChina(uint8 x, uint8 y, uint8 picWidth, uint8 picHeight, const uint8 *pic);
-void halOLED128x64ShowIcon(uint8 x, uint8 y, uint8 size, uint8 idx);
+void halOLEDShowPicture(uint8 x, uint8 y, uint8 picWidth, uint8 picHeight, const uint8 *pic);
+void halOLEDShowPictureChina(uint8 x, uint8 y, uint8 picWidth, uint8 picHeight, const uint8 *pic);
+void halOLEDShowIcon(uint8 x, uint8 y, uint8 size, uint8 idx);
 
 
 #ifdef __cplusplus

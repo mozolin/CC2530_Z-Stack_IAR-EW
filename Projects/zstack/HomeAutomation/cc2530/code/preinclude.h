@@ -6,12 +6,10 @@
 *************************************/
 //-- use output to terminal via UART (prinft)
 #define DEBUG_PRINT_UART                  TRUE
-//-- use cyclic switching of all relays
-#define DEBUG_SWITCH_RELAY                FALSE
 //-- use DS18B20 (Temperature & Humidity) sensor
 #define USE_DS18B20                       FALSE
 //-- use DHT11 (Temperature & Humidity) sensor
-#define USE_DHT11                         TRUE
+#define USE_DHT11                         FALSE
 //-- use LCD test
 //-- !!! There may not be enough memory for the firmware, !!!
 //-- !!! due to the large images for this test            !!!
@@ -93,3 +91,4 @@
 #include "conf/hal_dht11_cfg.h"
 #include "conf/hal_lcd_cfg.h"
 #include "conf/hal_board_cfg_cc2530.h"
+#include "conf/hal_relay_cfg.h"

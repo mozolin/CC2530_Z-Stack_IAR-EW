@@ -17,7 +17,7 @@
 void halLCDInit(void)
 {
   #if HAL_LCD_TYPE == HAL_LCD_TYPE_OLED
-    halOLED128x64Init();
+    halOLEDInit();
   #else
     halTFTInit(HAL_TFT_PIXEL_BLACK);
   #endif
@@ -35,7 +35,7 @@ void halLCDInit(void)
 void halLCDClearScreen()
 {
 	#if HAL_LCD_TYPE == HAL_LCD_TYPE_OLED
-    halOLED128x64ClearScreen();
+    halOLEDClearScreen();
   #else
     halTFTSetScreen(PX_BLACK);
   #endif
@@ -46,111 +46,111 @@ void halLCDClearScreen()
     
     void halOLEDDraw(void)
     {
-      //-- !! halOLED128x64ShowX8:  21 chars in row (+2 px) !!
-      //-- !! halOLED128x64ShowX16: 16 chars in row (exact) !!
+      //-- !! halOLEDShowX8:  21 chars in row (+2 px) !!
+      //-- !! halOLEDShowX16: 16 chars in row (exact) !!
       
       //-- ASCII table #1 (8x16)
-      halOLED128x64ClearScreen();
-      halOLED128x64ShowX16(0, 0, "ABCDEFGHIJKLMNOP");
-      halOLED128x64ShowX16(1, 0, "QRSTUVWXYZabcdef");
-      halOLED128x64ShowX16(2, 0, "ghijklmnopqrstuv");
-      halOLED128x64ShowX16(3, 0, "wxyz0123456789.,");
+      halOLEDClearScreen();
+      halOLEDShowX16(0, 0, "ABCDEFGHIJKLMNOP");
+      halOLEDShowX16(1, 0, "QRSTUVWXYZabcdef");
+      halOLEDShowX16(2, 0, "ghijklmnopqrstuv");
+      halOLEDShowX16(3, 0, "wxyz0123456789.,");
     
       //-- ASCII table #2 (8x16)
       delayMs32MHZ(4000);
-      halOLED128x64ClearScreen();
-      halOLED128x64ShowX16(0, 0, "\"'?!@_*#$%&()+-/");
-      halOLED128x64ShowX16(1, 0, ":;<=>[\\]^`{|}~");
-      //halOLED128x64ShowX16(2, 0, "................");
-      //halOLED128x64ShowX16(3, 0, "................");
+      halOLEDClearScreen();
+      halOLEDShowX16(0, 0, "\"'?!@_*#$%&()+-/");
+      halOLEDShowX16(1, 0, ":;<=>[\\]^`{|}~");
+      //halOLEDShowX16(2, 0, "................");
+      //halOLEDShowX16(3, 0, "................");
     
       //-- Russian table #1 (8x16)
       delayMs32MHZ(4000);
-      halOLED128x64ClearScreen();
-      halOLED128x64ShowX16(0, 0, "АБВГДЕЖЗИЙКЛМНОП");
-      halOLED128x64ShowX16(1, 0, "РСТУФХЦЧШЩЪЫЬЭЮЯ");
-      halOLED128x64ShowX16(2, 0, "абвгдежзийклмноп");
-      halOLED128x64ShowX16(3, 0, "рстуфхцчшщъыьэюя");
+      halOLEDClearScreen();
+      halOLEDShowX16(0, 0, "АБВГДЕЖЗИЙКЛМНОП");
+      halOLEDShowX16(1, 0, "РСТУФХЦЧШЩЪЫЬЭЮЯ");
+      halOLEDShowX16(2, 0, "абвгдежзийклмноп");
+      halOLEDShowX16(3, 0, "рстуфхцчшщъыьэюя");
     
       //-- Russian table #2 (8x16)
       delayMs32MHZ(4000);
-      halOLED128x64ClearScreen();
-      halOLED128x64ShowX16(0, 0, "Ёё °C");
-      //halOLED128x64ShowX16(1, 0, "................");
-      //halOLED128x64ShowX16(2, 0, "................");
-      //halOLED128x64ShowX16(3, 0, "................");
+      halOLEDClearScreen();
+      halOLEDShowX16(0, 0, "Ёё °C");
+      //halOLEDShowX16(1, 0, "................");
+      //halOLEDShowX16(2, 0, "................");
+      //halOLEDShowX16(3, 0, "................");
     
       //-- ASCII table #1 (8x8)
       delayMs32MHZ(4000);
-      halOLED128x64ClearScreen();
-      halOLED128x64ShowX8(0, 0, "ABCDEFGHIJKLMNOPQRSTU");
-      halOLED128x64ShowX8(1, 0, "VWXYZabcdefghijklmnop");
-      halOLED128x64ShowX8(2, 0, "qrstuvwxyz0123456789.");
-      halOLED128x64ShowX8(3, 0, ",\"'?!@_*#$%&()+-/:;<=");
-      halOLED128x64ShowX8(4, 0, ">[\\]^`{|}~");
-      //halOLED128x64ShowX8(5, 0, ".....................");
-      //halOLED128x64ShowX8(6, 0, ".....................");
-      //halOLED128x64ShowX8(7, 0, ".....................");
+      halOLEDClearScreen();
+      halOLEDShowX8(0, 0, "ABCDEFGHIJKLMNOPQRSTU");
+      halOLEDShowX8(1, 0, "VWXYZabcdefghijklmnop");
+      halOLEDShowX8(2, 0, "qrstuvwxyz0123456789.");
+      halOLEDShowX8(3, 0, ",\"'?!@_*#$%&()+-/:;<=");
+      halOLEDShowX8(4, 0, ">[\\]^`{|}~");
+      //halOLEDShowX8(5, 0, ".....................");
+      //halOLEDShowX8(6, 0, ".....................");
+      //halOLEDShowX8(7, 0, ".....................");
     
       //-- Russian table #1 (8x8)
       delayMs32MHZ(4000);
-      halOLED128x64ClearScreen();
-      halOLED128x64ShowX8(0, 2, "ЁАБВГДЕЖЗИЙКЛМНОПРСТУ");
-      halOLED128x64ShowX8(1, 2, "ФХЦЧШЩЪЫЬЭЮЯабвгдежзи");
-      halOLED128x64ShowX8(2, 2, "йклмнопрстуфхцчшщъыьэ");
-      halOLED128x64ShowX8(3, 2, "юяё °C");
-      //halOLED128x64ShowX8(4, 2, ".....................");
-      //halOLED128x64ShowX8(5, 2, ".....................");
-      //halOLED128x64ShowX8(6, 2, ".....................");
-      //halOLED128x64ShowX8(7, 2, ".....................");
+      halOLEDClearScreen();
+      halOLEDShowX8(0, 2, "ЁАБВГДЕЖЗИЙКЛМНОПРСТУ");
+      halOLEDShowX8(1, 2, "ФХЦЧШЩЪЫЬЭЮЯабвгдежзи");
+      halOLEDShowX8(2, 2, "йклмнопрстуфхцчшщъыьэ");
+      halOLEDShowX8(3, 2, "юяё °C");
+      //halOLEDShowX8(4, 2, ".....................");
+      //halOLEDShowX8(5, 2, ".....................");
+      //halOLEDShowX8(6, 2, ".....................");
+      //halOLEDShowX8(7, 2, ".....................");
     
       //-- Icons table
       delayMs32MHZ(4000);
-      halOLED128x64ClearScreen();
-      halOLED128x64ShowIcon(10, 0, 7, 0);
-      halOLED128x64ShowIcon(20, 1, 8, 0);
-      halOLED128x64ShowIcon(30, 2, 7, 1);
-      halOLED128x64ShowIcon(40, 3, 8, 1);
-      halOLED128x64ShowIcon(50, 4, 7, 2);
-      halOLED128x64ShowIcon(60, 5, 8, 2);
-      halOLED128x64ShowIcon(70, 6, 7, 3);
-      halOLED128x64ShowIcon(80, 7, 8, 3);
-      halOLED128x64ShowIcon(90, 8, 7, 4);
+      halOLEDClearScreen();
+      halOLEDShowIcon(10, 0, 7, 0);
+      halOLEDShowIcon(20, 1, 8, 0);
+      halOLEDShowIcon(30, 2, 7, 1);
+      halOLEDShowIcon(40, 3, 8, 1);
+      halOLEDShowIcon(50, 4, 7, 2);
+      halOLEDShowIcon(60, 5, 8, 2);
+      halOLEDShowIcon(70, 6, 7, 3);
+      halOLEDShowIcon(80, 7, 8, 3);
+      halOLEDShowIcon(90, 8, 7, 4);
     
       //-- Pictures
       delayMs32MHZ(4000);
-      halOLED128x64ClearScreen();
-      halOLED128x64ShowPicture(0, 0, 128, 64, zigbee_logo2);
+      halOLEDClearScreen();
+      halOLEDShowPicture(0, 0, 128, 64, zigbee_logo2);
     
     
       delayMs32MHZ(4000);
       
-      halOLED128x64ClearScreen();
+      halOLEDClearScreen();
     
-      halOLED128x64ShowX16(0, 112, "А");
-      halOLED128x64ShowX8(3, 112, "А");
+      halOLEDShowX16(0, 112, "А");
+      halOLEDShowX8(3, 112, "А");
     
       
-      halOLED128x64ShowIcon(20, 0, 8, 0);
-      halOLED128x64ShowIcon(20, 2, 7, 0);
+      halOLEDShowIcon(20, 0, 8, 0);
+      halOLEDShowIcon(20, 2, 7, 0);
     
-      halOLED128x64ShowPicture(0, 8, 16, 16, danger_16x16);
-      halOLED128x64ShowPicture(0, 24, 16, 16, empty_16x16);
-      halOLED128x64ShowPicture(0, 48, 16, 16, motion_16x16);
+      halOLEDShowPicture(0, 8, 16, 16, danger_16x16);
+      halOLEDShowPicture(0, 24, 16, 16, empty_16x16);
+      halOLEDShowPicture(0, 48, 16, 16, motion_16x16);
       
-      halOLED128x64ShowPicture(36, 0, 32, 32, apple_32x32);
-      halOLED128x64ShowPicture(36, 32, 32, 32, toxic_32x32);
+      halOLEDShowPicture(36, 0, 32, 32, apple_32x32);
+      halOLEDShowPicture(36, 32, 32, 32, toxic_32x32);
     
-      halOLED128x64ShowPicture(76, 0, 16, 16, zigbee_connected);
-      halOLED128x64ShowPicture(76, 24, 16, 16, zigbee_disconnected);
-      halOLED128x64ShowPicture(76, 48, 16, 16, zigbee_image);
+      halOLEDShowPicture(76, 0, 16, 16, zigbee_connected);
+      halOLEDShowPicture(76, 24, 16, 16, zigbee_disconnected);
+      halOLEDShowPicture(76, 48, 16, 16, zigbee_image);
     
-      halOLED128x64ShowIcon(96, 1, 8, 0);
-      halOLED128x64ShowIcon(96, 3, 7, 0);
+      halOLEDShowIcon(96, 1, 8, 0);
+      halOLEDShowIcon(96, 3, 7, 0);
       
       
-      halOLED128x64ShowX8(4, 112, "Ё");
-      halOLED128x64ShowX16(3, 112, "Ё");
+      halOLEDShowX8(4, 112, "Ё");
+      halOLEDShowX16(3, 112, "Ё");
     }
   
   #else
