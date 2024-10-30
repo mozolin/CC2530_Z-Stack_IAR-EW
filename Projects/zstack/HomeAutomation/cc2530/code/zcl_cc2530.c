@@ -141,6 +141,19 @@ void switchScreen(void);
 //-- Application task initialization function
 void zclcc2530_Init(byte task_id)
 {
+  #if DEBUG_PRINT_UART
+    //-- init UART to use "printf" for serial monitor
+    HalUARTInit();
+    uint8 state = initUart0(uart0RxCb);
+  #endif
+
+  #if DEBUG_PRINT_UART
+    //-- Output to terminal via UART
+    printf(FONT_COLOR_STRONG_GREEN);
+    printf("\nUART initiated\n");
+    printf(STYLE_COLOR_RESET);
+  #endif
+  
   zclcc2530_TaskID = task_id;
   
   //-- Registering Home Automation Profile
@@ -176,21 +189,21 @@ void zclcc2530_Init(byte task_id)
   zclcc2530_DstAddr.addr.shortAddr = 0;
   
   //-- initialize NVM to store RELAY STATE
-  if(SUCCESS == osal_nv_item_init(NV_CC2530_RELAY_STATE_ID_1, 2, &RELAY_STATES[0])) {
+  if(SUCCESS == osal_nv_item_init(NV_CC2530_RELAY_STATE_ID_1, 1, &RELAY_STATES[0])) {
     //-- read the RELAY STATE value from memory
-    printf("r1:%d\n", RELAY_STATES[0]);
+    //printf("r1:%d\n", RELAY_STATES[0]);
     osal_nv_read(NV_CC2530_RELAY_STATE_ID_1, 0, 1, &RELAY_STATES[0]);
   }
-  if(SUCCESS == osal_nv_item_init(NV_CC2530_RELAY_STATE_ID_2, 2, &RELAY_STATES[1])) {
-    printf("r2:%d\n", RELAY_STATES[2]);
+  if(SUCCESS == osal_nv_item_init(NV_CC2530_RELAY_STATE_ID_2, 1, &RELAY_STATES[1])) {
+    //printf("r2:%d\n", RELAY_STATES[2]);
     osal_nv_read(NV_CC2530_RELAY_STATE_ID_2, 0, 1, &RELAY_STATES[1]);
   }
-  if(SUCCESS == osal_nv_item_init(NV_CC2530_RELAY_STATE_ID_3, 2, &RELAY_STATES[2])) {
-    printf("r3:%d\n", RELAY_STATES[2]);
+  if(SUCCESS == osal_nv_item_init(NV_CC2530_RELAY_STATE_ID_3, 1, &RELAY_STATES[2])) {
+    //printf("r3:%d\n", RELAY_STATES[2]);
     osal_nv_read(NV_CC2530_RELAY_STATE_ID_3, 0, 1, &RELAY_STATES[2]);
   }
-  if(SUCCESS == osal_nv_item_init(NV_CC2530_RELAY_STATE_ID_4, 2, &RELAY_STATES[3])) {
-    printf("r4:%d\n", RELAY_STATES[3]);
+  if(SUCCESS == osal_nv_item_init(NV_CC2530_RELAY_STATE_ID_4, 1, &RELAY_STATES[3])) {
+    //printf("r4:%d\n", RELAY_STATES[3]);
     osal_nv_read(NV_CC2530_RELAY_STATE_ID_4, 0, 1, &RELAY_STATES[3]);
   }
   
@@ -213,18 +226,6 @@ void zclcc2530_Init(byte task_id)
   //-- Start of the process of returning to the network
   bdb_StartCommissioning(BDB_COMMISSIONING_MODE_PARENT_LOST);
   
-  #if DEBUG_PRINT_UART
-    //-- init UART to use "printf" for serial monitor
-    HalUARTInit();
-    uint8 state = initUart0(uart0RxCb);
-  #endif
-
-  #if DEBUG_PRINT_UART
-    //-- Output to terminal via UART
-    printf(FONT_COLOR_STRONG_GREEN);
-    printf("\nUART initiated\n");
-    printf(STYLE_COLOR_RESET);
-  #endif
   
   setSystemClk32MHZ();
   halLCDInit();
@@ -234,6 +235,13 @@ void zclcc2530_Init(byte task_id)
 
   setCurrentDate();
 
+  #if DEBUG_PRINT_UART
+		//-- Output to terminal via UART
+    printf(FONT_COLOR_STRONG_GREEN);
+    printf(STYLE_COLOR_BOLD);
+    printf("App is running\n");
+    printf(STYLE_COLOR_RESET);
+  #endif
 }
 
 //-- Main task event processing loop
@@ -274,8 +282,6 @@ uint16 zclcc2530_event_loop(uint8 task_id, uint16 events)
               printf(STYLE_COLOR_RESET);
             #endif
             
-            
-            delayMs32MHZ(1000);
             //-- disable blinking
             osal_stop_timerEx(zclcc2530_TaskID, HAL_LED_BLINK_EVENT);
             HalLedSet(HAL_LED_1, HAL_LED_MODE_OFF);
@@ -463,8 +469,15 @@ static void zclcc2530_HandleKeys(byte shift, byte keys)
     KEY_CLICK_NUM_1++;
     #if DEBUG_PRINT_UART
       printf("Key1 pressed %d times\n", KEY_CLICK_NUM_1);
-      printf("R:%d%d%d%d, P:%d%d%d%d\n", RELAY_STATES[0], RELAY_STATES[1], RELAY_STATES[2], RELAY_STATES[3], HAL_RELAY1_GPIO, HAL_RELAY2_GPIO, HAL_RELAY3_GPIO, HAL_RELAY4_GPIO);
+      //printf("R:%d%d%d%d, P:%d%d%d%d\n", RELAY_STATES[0], RELAY_STATES[1], RELAY_STATES[2], RELAY_STATES[3], HAL_RELAY1_GPIO, HAL_RELAY2_GPIO, HAL_RELAY3_GPIO, HAL_RELAY4_GPIO);
     #endif
+
+    //HAL_LED3_GPIO = (HAL_LED3_GPIO == 0) ? 1 : 0;
+    //HalLedSet(HAL_LED_3, HAL_LED_MODE_TOGGLE);
+    //printf("LED3:%d|%d\n", HAL_LED3_GPIO, HAL_LED_3);
+    HalLedBlink(HAL_LED_1, 0xFF, UI_LED_IDENTIFY_DUTY_CYCLE, HAL_LED_DEFAULT_FLASH_TIME);
+    HalLedBlink(HAL_LED_2, 0xFF, UI_LED_IDENTIFY_DUTY_CYCLE, HAL_LED_DEFAULT_FLASH_TIME);
+    HalLedBlink(HAL_LED_3, 0xFF, UI_LED_IDENTIFY_DUTY_CYCLE, HAL_LED_DEFAULT_FLASH_TIME);
     
     //-- Start the timer to detect a long press
     osal_start_timerEx(zclcc2530_TaskID, CC2530_EVT_LONG, TIMER_INTERVAL_LONG_PRESS_EVT);
@@ -494,7 +507,7 @@ static void zclcc2530_HandleKeys(byte shift, byte keys)
     HalLedSet(HAL_LED_2, HAL_LED_MODE_TOGGLE);
     
     #if DEBUG_PRINT_UART
-    	printf("1)PIN1:%d/PIN2:%d/PIN3:%d/PIN4:%d\n", HAL_RELAY1_GPIO, HAL_RELAY2_GPIO, HAL_RELAY3_GPIO, HAL_RELAY4_GPIO);
+    	//printf("1)PIN1:%d/PIN2:%d/PIN3:%d/PIN4:%d\n", HAL_RELAY1_GPIO, HAL_RELAY2_GPIO, HAL_RELAY3_GPIO, HAL_RELAY4_GPIO);
     #endif
 
     //-- invert GPIO values
@@ -504,7 +517,7 @@ static void zclcc2530_HandleKeys(byte shift, byte keys)
     HAL_RELAY4_GPIO = (HAL_RELAY4_GPIO == 0) ? 1 : 0;
 
     #if DEBUG_PRINT_UART
-    	printf("2)PIN1:%d/PIN2:%d/PIN3:%d/PIN4:%d\n", HAL_RELAY1_GPIO, HAL_RELAY2_GPIO, HAL_RELAY3_GPIO, HAL_RELAY4_GPIO);
+    	//printf("2)PIN1:%d/PIN2:%d/PIN3:%d/PIN4:%d\n", HAL_RELAY1_GPIO, HAL_RELAY2_GPIO, HAL_RELAY3_GPIO, HAL_RELAY4_GPIO);
     #endif
     
     //-- set relay state in z2m
@@ -579,6 +592,11 @@ void cc2530_HalKeyInit(void)
   PUSH2_IEN &= ~(PUSH2_IENBIT);
 
   //-- LED initiated as output...
+  /*
+  CC2530_IOCTL(GPIO_PORT_1, GPIO_PIN_4, CC2530_OUTPUT);
+  HAL_LED3_GPIO = 1;
+  HalLedSet(HAL_LED_3, HAL_LED_MODE_ON);
+  */
   //initOutputGPIO(GPIO_PORT_0, GPIO_PIN_4);
   //P0_4 = 0;
 

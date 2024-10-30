@@ -235,6 +235,8 @@ extern void cc2530_HalRelayInit(void);
   HAL_TURN_OFF_LED4();                                           \
   LED4_SET_DIR();                                                \
                                                                  \
+  /*LED3_DDR |= LED3_BV;*/                                           \
+                                                                 \
   /* Set PA/LNA HGM control P0_7 */                              \
   P0DIR |= BV(7);                                                \
                                                                  \

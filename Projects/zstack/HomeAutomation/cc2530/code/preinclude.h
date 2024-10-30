@@ -51,7 +51,7 @@
 #define MT_ZDO_FUNC
 #define MT_ZDO_MGMT
 #define MT_APP_CNF_FUNC
-#define LEGACY_LCD_DEBUG
+//#define LEGACY_LCD_DEBUG
 //#define LCD_SUPPORTED                     DEBUG
 #define MULTICAST_ENABLED                 FALSE
 #define ZCL_READ
@@ -92,3 +92,4 @@
 #include "conf/hal_lcd_cfg.h"
 #include "conf/hal_board_cfg_cc2530.h"
 #include "conf/hal_relay_cfg.h"
+#include "conf/hal_led_cfg.h"
