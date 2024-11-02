@@ -50,6 +50,14 @@ uint8 halDHT11GetData(void)
 {
   uint8 result = 1;
 
+  //-- Reconfigure IO port direction
+  if(HAL_DHT11_PORT == 0) {
+  	P0DIR |= BV(HAL_DHT11_PIN);
+  }
+  if(HAL_DHT11_PORT == 1) {
+  	P1DIR |= BV(HAL_DHT11_PIN);
+  }
+
   /* >18ms, keeping gpio low-level */
   HAL_DHT11_IO_SET_LO();
   HAL_DHT11_DELAY_MS(30);
@@ -111,6 +119,10 @@ uint8 halDHT11GetData(void)
   	//-- convert humidity to integer
   	sprintf(resStr, "%d%d.%d", humiH, humiL, humiDec);
   	uint8 humiNum = atoi(resStr);
+
+  	#if DEBUG_PRINT_UART
+  		//printf("T:%d,H:%d\n", tempNum, humiNum);
+  	#endif
   	
   	//-- check data
   	result = halDHT11CheckData(tempNum, humiNum);
@@ -144,7 +156,7 @@ uint8_t halDHT11CheckData(uint8_t TempI, uint8_t HumiI)
   }
 }
 
-uint8 errorMsg(uint8 req)
+uint8 halDHT11ErrorMsg(uint8 req)
 {
 	uint8 error = 0;
 	if(req > 1) {

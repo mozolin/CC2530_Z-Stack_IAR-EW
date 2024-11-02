@@ -7,7 +7,9 @@
 #include "utils.h"
 #include "OSAL.h"
 
-#include "hal_oled.h"
+#if USE_LCD
+	#include "hal_oled.h"
+#endif
 #include "cc2530_io_ports.h"
 
 uint8 DEBUG = 1;

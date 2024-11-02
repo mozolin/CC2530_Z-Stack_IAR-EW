@@ -51,11 +51,16 @@ uint16 zclcc2530_IdentifyTime;
 extern uint8 RELAY_STATES[4] = {0,0,0,0};
 extern uint8 TOTAL_RELAYS_NUM = 4;
 
+
 //-- device endpoint numbers
 #define CC2530_ENDPOINT_1               1
 #define CC2530_ENDPOINT_2               2
 #define CC2530_ENDPOINT_3               3
 #define CC2530_ENDPOINT_4               4
+#define CC2530_ENDPOINT_5               5
+#define CC2530_ENDPOINT_6               6
+#define CC2530_ENDPOINT_7               7
+#define CC2530_ENDPOINT_8               8
 
 //-- endpoint number for EP of Destination Address: MUST BE = 1
 #define CC2530_ENDPOINT_DSTADDR         CC2530_ENDPOINT_1
@@ -63,6 +68,8 @@ extern uint8 TOTAL_RELAYS_NUM = 4;
 #define CC2530_ENDPOINT_TIME            CC2530_ENDPOINT_1
 //-- endpoint number for Temperature cluster
 #define CC2530_ENDPOINT_TEMPERATURE     CC2530_ENDPOINT_1
+//-- endpoint number for Humidity cluster
+#define CC2530_ENDPOINT_HUMIDITY        CC2530_ENDPOINT_1
 
 
 #if USE_DS18B20 || USE_DHT11

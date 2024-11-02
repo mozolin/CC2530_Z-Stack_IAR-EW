@@ -9,7 +9,9 @@
 //-- use DS18B20 (Temperature & Humidity) sensor
 #define USE_DS18B20                       FALSE
 //-- use DHT11 (Temperature & Humidity) sensor
-#define USE_DHT11                         FALSE
+#define USE_DHT11                         TRUE
+//-- use LCD
+#define USE_LCD                           TRUE
 //-- use LCD test
 //-- !!! There may not be enough memory for the firmware, !!!
 //-- !!! due to the large images for this test            !!!
@@ -28,12 +30,12 @@
 #define TIMER_INTERVAL_LONG_PRESS_EVT     5000
 //-- timer interval for double press (ms)
 #define TIMER_INTERVAL_DOUBLE_PRESS_EVT   600
-//-- timer interval for blinking (ms)
-#define TIMER_INTERVAL_BLINK_EVT          1000
 //-- Parent not found, attempt to rejoin again after a fixed delay
 #define TIMER_INTERVAL_ENDDEVICE_REJOIN   10000
 //-- repeating timer interval for local time notification (ms)
 #define TIMER_INTERVAL_LOCAL_TIME_EVT     3000
+//-- repeating timer interval to switch LCD (ms)
+#define TIMER_INTERVAL_SWITCH_SCREEN_EVT  5000
 
 /************************************
    
@@ -51,7 +53,7 @@
 #define MT_ZDO_FUNC
 #define MT_ZDO_MGMT
 #define MT_APP_CNF_FUNC
-#define LEGACY_LCD_DEBUG
+//#define LEGACY_LCD_DEBUG
 //#define LCD_SUPPORTED                     DEBUG
 #define MULTICAST_ENABLED                 FALSE
 #define ZCL_READ
@@ -69,6 +71,7 @@
 #define HAL_UART                          TRUE
 //#define HAL_UART_ISR                      1
 #define HAL_UART_DMA                      1
+
 
 
 /************************************
@@ -90,5 +93,7 @@
 *************************************/
 #include "conf/hal_dht11_cfg.h"
 #include "conf/hal_lcd_cfg.h"
-#include "conf/hal_board_cfg_cc2530.h"
+#include "conf/hal_board_cfg.h"
+#include "conf/hal_board_cfg_common.h"
 #include "conf/hal_relay_cfg.h"
+#include "conf/hal_led_cfg.h"

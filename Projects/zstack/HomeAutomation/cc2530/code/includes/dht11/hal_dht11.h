@@ -12,13 +12,7 @@ extern uchar humiH, humiL, tempDec, tempH, tempL, humiDec;
 
 //-- Temperature and humidity sensor start
 extern uint8 halDHT11GetData(void);
-extern uint8 errorMsg(uint8 req);
-
-/* DHT11 GPIO */
-//-- can be: P04!,P07!
-// -p02,-p03,-p05,-p06,-p15,-p16,-p21
-//#define HAL_DHT11_PORT  0 //!< Port
-//#define HAL_DHT11_PIN   7 //!< Pin
+extern uint8 halDHT11ErrorMsg(uint8 req);
 
 /* Boolean value. */
 #define HAL_DHT11_FALSE         0
@@ -53,8 +47,9 @@ extern uint8 errorMsg(uint8 req);
 #define HAL_DHT11_IO()              HAL_DHT11_IO_GET(HAL_DHT11_PORT, HAL_DHT11_PIN)
 
 /* DHT11 Measurement range detection. */ 
-#define HAL_DHT11_TEMP_OK(t)    ((t) <= 50)
-#define HAL_DHT11_HUMI_OK(h)    ((h) >= 20 && (h) <= 95)
+#define HAL_DHT11_TEMP_OK(t)    ((t) <= 100)
+//#define HAL_DHT11_HUMI_OK(h)    ((h) >= 20 && (h) <= 95)
+#define HAL_DHT11_HUMI_OK(h)    ((h) > 0 && (h) <= 100)
 
 
 #ifdef __cplusplus

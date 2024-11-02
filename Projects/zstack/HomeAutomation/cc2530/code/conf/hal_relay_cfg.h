@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 
-/* RELAY GPIO */
+//-- RELAY GPIO
 #define HAL_RELAY1_GPIO  P0_4
 #define HAL_RELAY1_PORT  0
 #define HAL_RELAY1_PIN   4
@@ -19,13 +19,13 @@ extern "C" {
 #define HAL_RELAY3_PORT  0
 #define HAL_RELAY3_PIN   6
 
-#define HAL_RELAY4_GPIO  P0_7
+#define HAL_RELAY4_GPIO  P0_3
 #define HAL_RELAY4_PORT  0
-#define HAL_RELAY4_PIN   7
+#define HAL_RELAY4_PIN   3
 
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* #ifndef HAL_RELAY_CFG_H */
+#endif //-- #ifndef HAL_RELAY_CFG_H
